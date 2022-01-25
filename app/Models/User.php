@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'kode',
         'password',
     ];
 
@@ -36,7 +37,7 @@ class User extends Authenticatable
     /**
      * The attributes that should be cast.
      *
-     * @var array<string, string>
+     * @var a   rray<string, string>
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
