@@ -5,7 +5,7 @@ namespace App\Http\Controllers\V1;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\V1\Otp;
-use App\Models\V1\User;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +51,7 @@ class UserController extends Controller
                 'email' => 'email|required',
                 'password' => 'required'
             ]);
-
+    
             $credentials = request(['email', 'password']);
             if(!Auth::attempt($credentials)){
                 return ResponseFormatter::forbidden(
@@ -59,7 +59,7 @@ class UserController extends Controller
                     null
                 );
             }
-
+    
             $user = User::where('email', $request->email)->first();
 
             if(!Hash::check($request->password, $user->password, [])){

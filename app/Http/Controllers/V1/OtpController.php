@@ -4,7 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use Exception;
 use App\Models\V1\Otp;
-use App\Models\V1\User;
+use App\Models\User;
 use App\Mail\MyTestMail;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;

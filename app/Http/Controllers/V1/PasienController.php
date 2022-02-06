@@ -8,7 +8,7 @@ use App\Models\V1\DetailAkun;
 use App\Models\V1\FotoPasien;
 use App\Models\V1\Pasien;
 use App\Models\V1\Penanggung;
-use App\Models\V1\User;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;

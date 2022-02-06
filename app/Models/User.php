@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models\V1;
+namespace App\Models;
 
+use App\Models\V1\Pasien;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -47,4 +48,9 @@ class User extends Authenticatable
     ];
 
     protected $id = 'id';
+
+    public function pasiens()
+    {
+        return $this->hasMany(Pasien::class, 'kode', 'id');
+    }
 }
