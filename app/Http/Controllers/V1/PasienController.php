@@ -33,8 +33,24 @@ class PasienController extends Controller
                 'jkel' => ['required', 'string', 'max:11'],
                 'no_telp' => ['nullable', 'string', 'max:50'],
                 'alergi' => ['nullable'],
+                'kedudukan_keluarga' => ['nullable'],
+                'golongan_darah' => ['nullable'],
+                'provinsi' => ['required'],
+                'kabupaten' => ['required'],
+                'kecamatan' => ['required'],
+                'umur' => ['nullable'],
+                'anak_ke' => ['nullable'],
+                'jurusan' => ['nullable'],
+                'nama_tempat_bekerja' => ['required'],
+                'alamat_tempat_bekerja' => ['required'],
+                'no_rekam_medik_ayah' => ['nullable'],
+                'no_rekam_medik_ibu' => ['nullable'],
+
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'password' => ['required', 'string']
+                'password' => ['required', 'string'],
+
+                'nama_penanggung' => ['required'],
+                'nomor_kartu' => ['required'],
             ]);
 
             Pasien::create([
