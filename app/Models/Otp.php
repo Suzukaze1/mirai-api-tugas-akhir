@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Otp extends Model
 {
@@ -22,5 +23,16 @@ class Otp extends Model
 
     protected $table = 'public.otp';
 
-    protected $primaryKey = 'email';
+    protected $primaryKey = 'id';
+
+    public static function cariKodeOtpEmail($email)
+    {
+        $query = DB::raw("
+        select u.email , o.kode_otp 
+        from users u 
+        join otp o on u.email = o.email 
+        ");
+        $data = DB::select($query);
+        return $data;
+    }
 }

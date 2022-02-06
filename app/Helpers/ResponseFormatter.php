@@ -5,30 +5,41 @@ namespace App\Helpers;
 class ResponseFormatter
 {
   protected static $response = [
-    'meta' => [
-      'code' => 200,
-      'status' => 'success',
-      'message' => null
-    ],
+    'code' => 200,
+    'status' => 'Berhasil',
     'data' => null
   ];
 
-  public static function success($data = null, $message = null)
-  {
-    self::$response['meta']['message'] = $message;
+  public static function success_ok($status = null, $data = null){
+    self::$response['code'] = CodeStatus::$code_ok;
+    self::$response['status'] = $status;
     self::$response['data'] = $data;
 
-    return response()->json(self::$response, self::$response['meta']['code']);
+    return response()->json(self::$response, self::$response['code']);
   }
 
-  public static function error($data = null, $message = null, $code = 400)
-  {
-    self::$response['meta']['status'] = 'error';
-    self::$response['meta']['code'] = $code;
-    self::$response['meta']['message'] = $message;
+  public static function error_not_found($status = null, $data = null){
+    self::$response['code'] = CodeStatus::$code_not_found;
+    self::$response['status'] = $status;
     self::$response['data'] = $data;
 
-    return response()->json(self::$response, self::$response['meta']['code']);
+    return response()->json(self::$response, self::$response['code']);
+  }
+
+  public static function internal_server_error($status = null, $data = null){
+    self::$response['code'] = CodeStatus::$code_internal_server_error;
+    self::$response['status'] = $status;
+    self::$response['data'] = $data;
+
+    return response()->json(self::$response, self::$response['code']);
+  }
+
+  public static function forbidden($status = null, $data = null){
+    self::$response['code'] = CodeStatus::$code_forbidden;
+    self::$response['status'] = $status;
+    self::$response['data'] = $data;
+
+    return response()->json(self::$response, self::$response['code']);
   }
 
 }

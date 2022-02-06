@@ -31,7 +31,6 @@ Route::prefix('v1')->group(function () {
     Route::post('dapat-otp-lupa-password', [OtpController::class, 'dapatkanKodeOtpLupaPassword']);
     Route::post('konfirmasi-dapat-otp-lupa-password', [OtpController::class, 'konfirmasiKodeOtpLupaPassword']);
     Route::post('lupa-password', [UserController::class, 'lupaPassword']);
-    Route::delete('hapus-otp', []);
 
     // API Daftar Pasien
     Route::post('pendaftaran-pasien-baru', [PasienController::class, 'pendaftaranPasienBaru']);
@@ -41,4 +40,6 @@ Route::prefix('v1')->group(function () {
         Route::post('logout', [UserController::class, 'logout']);
         Route::get('user', [UserController::class, 'tampilkanProfileUser']);
     });
+
+    
 });

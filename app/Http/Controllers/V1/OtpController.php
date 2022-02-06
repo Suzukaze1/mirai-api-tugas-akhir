@@ -2,81 +2,98 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Helpers\ResponseFormatter;
-use App\Http\Controllers\Controller;
+use Exception;
 use App\Models\Otp;
 use App\Models\User;
-use Exception;
-use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
+use App\Helpers\ResponseFormatter;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Mail\MyTestMail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Facade\FlareClient\Http\Response;
 
 class OtpController extends Controller
 {
     public function dapatkanKodeOtpLupaPassword(Request $request){
-        // input email
-        $email = $request->email;
-        // angka random untuk otp diubah menjadi hash
-        $pass= rand(1000, 9999);
-        $kode_otp = Hash::make($pass);
-
-        // waktu expired untuk otp
-        $date_now = time();
-        $date_expired = time()+1800;
-        $date = $date_now - $date_expired;
-        // if($date <= -1){
-        //     echo "Berhasil";
-        // }else{
-        //     echo "GAGAL";
-        // }
-
-        // email mengcek db
-        $user = User::where('email', $email)->first();
-        
-        // $checkDb = isset($user) ? $user[0] : false;
-        
-        if($user === null){
-            return ResponseFormatter::error([
-                'message' => 'Email Tidak Terdaftar'
-            ], 'Gagal', 404);
-        }
-
-        $getEmail =  $user->email;
-
         try{
-            if($getEmail == $email){
-                $update_otp = Otp::find($email);
+            // input email
+            $email = $request->email;
+
+            // angka random untuk otp diubah menjadi hash
+            $pass= rand(1000, 9999);
+            $kode_otp = Hash::make($pass);
+
+            // waktu expired untuk otp
+            $date_now = time();
+            $date_expired = time()+1800;
+            // $date = $date_now - $date_expired;
+
+            // email mengcek db
+            $user = User::where('email', $email)->first();
+
+            // cek email di table otp
+            $otp = Otp::whereEmail($email)->first();
+            
+            if($user === null){
+                return ResponseFormatter::error_not_found(
+                    'Email Tidak Terdaftar',
+                    null
+                );
+            }
+
+            $getEmail =  $user->email;
+
+            if($user =! $otp){
+                $create_otp = new Otp();
+                $create_otp->email = $email;
+                $create_otp->kode_otp = $kode_otp;
+                $create_otp->expired_time = $date_expired;
+                $create_otp->save();
+
+                $details = [
+                    'title' => 'Mail from Keqing For MIRAI Pasien OTP',
+                    'body' => 'This is for testing email using smtp google',
+                    'hash_otp' => $pass
+                ];
+
+                //Mail::to($email)->send(new MyTestMail($details));
+
+                return ResponseFormatter::success_ok(
+                    $pass, 
+                    'Berhasil Membuat OTP'
+                );
+            }else if ($getEmail == $email){
+                $update_otp = Otp::find($otp->id);
                 $update_otp->email = $email;
                 $update_otp->kode_otp = $kode_otp;
                 $update_otp->expired_time = $date_expired;
                 $update_otp->save();
 
-                return ResponseFormatter::success([
-                    'status' => 200,
-                    'message' => 'berhasil update otp'
-                ], $pass);
-            }else if ($getEmail === null){
-                return ResponseFormatter::error([
-                    'message' => 'Email Tidak Terdaftar'
-                ], 'Gagal', 404);
+                $details = [
+                    'title' => 'Mail from Keqing MD',
+                    'body' => 'This is for testing email using smtp',
+                    'hash_otp' => $pass
+                ];
+        
+                //Mail::to($email)->send(new MyTestMail($details));
+
+                return ResponseFormatter::success_ok(
+                    'Berhasil Update OTP',
+                    $pass
+                );
+            }else{
+                return ResponseFormatter::internal_server_error(
+                    'Kesalahan Pada Server',
+                    $user
+                );
             }
-
-            Otp::create([
-                'email' => $email,
-                'kode_otp' => $kode_otp,
-                'expired_time' => $date_expired
-            ]);
-
-            return ResponseFormatter::success([
-                'status' => 200,
-                'message' => 'berhasil membuat otp'
-            ], $pass);
-            
-        }catch (Exception $e){
-            return ResponseFormatter::error([
-                'message' => 'Gagal Kirim Otp',
-                'error' => $e
-            ], 'Authentication Failed', 500);
+        }catch(Exception $e){   
+            return ResponseFormatter::internal_server_error(
+                'Kesalahan Pada Server',
+                $e
+            );
         }
     }
 
@@ -90,38 +107,39 @@ class OtpController extends Controller
 
             // cek apakah ada data? jika tidak return
             if($otp === null){
-                return ResponseFormatter::error([
-                    'message' => 'Email Tidak Terdaftar'
-                ], 'Gagal', 404);
+                return ResponseFormatter::error_not_found(
+                    'Email Tidak Terdaftar',
+                    null
+                );
             }
 
             $otpHash =  $otp->kode_otp;
             $expired_time = $otp->expired_time;
             $getOtp = Hash::check($kode_otp, $otpHash);
 
-            
-
             if($kode_otp == $getOtp){
                 if($expired_time >= time()){
-                    return ResponseFormatter::success([
-                        'status' => 200,
-                        'message' => 'Berhasil Validasi OTP'
-                    ], 'Success');
+                    return ResponseFormatter::success_ok(
+                        'Berhasil Validasi OTP',
+                        null
+                    );
                 }else{
-                    return ResponseFormatter::error([
-                        'message' => 'Kode OTP Sudah Expired'
-                    ], 'Gagal', 500);
+                    return ResponseFormatter::error_not_found(
+                        'Kode OTP Sudah Expired',
+                        null
+                    );
                 }
             }else{
-                return ResponseFormatter::error([
-                    'message' => 'OTP Salah'
-                ], 'Gagal', 500);
+                return ResponseFormatter::error_not_found(
+                    'Kode OTP Salah',
+                    null
+                );
             }
         }catch (Exception $e){
-            return ResponseFormatter::error([
-                'message' => 'Something went wrong',
-                'error' => $e
-            ], 'Authentication Failed', 500);
+            return ResponseFormatter::internal_server_error(
+                'Kesalahan Pada Server',
+                $e
+            );
         }
     }
 }

@@ -56,11 +56,11 @@ class PasienController extends Controller
 
             $pasien = Pasien::where('kode', $request->kode)->first();
 
-            return ResponseFormatter::success([
+            return ResponseFormatter::success_ok([
                 'user' => $pasien
             ], 'User Registered');
         }catch (Exception $e){
-            return ResponseFormatter::error([
+            return ResponseFormatter::error_not_found([
                 'message' => 'something went wrong',
                 'error' => $e
             ], 'Authentication Failed', 500);

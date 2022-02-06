@@ -31,14 +31,14 @@ class UserController extends Controller
 
             $tokenResult = $user->createToken('authToken')->plainTextToken;
 
-            return ResponseFormatter::success([
+            return ResponseFormatter::success_ok([
                 'access_token' => $tokenResult,
                 'token_type' => 'Bearer',
                 'user' => $user
             ], 'User Registered');
 
         }catch (Exception $e){
-            return ResponseFormatter::error([
+            return ResponseFormatter::error_not_found([
                 'message' => 'something went wrong',
                 'error' => $e
             ], 'Authentication Failed', 500);
@@ -54,9 +54,10 @@ class UserController extends Controller
 
             $credentials = request(['email', 'password']);
             if(!Auth::attempt($credentials)){
-                return ResponseFormatter::error([
-                    'message' => 'Unathorized'
-                ], 'Authentication Failed', 500);
+                return ResponseFormatter::forbidden(
+                    'Password Salah',
+                    null
+                );
             }
 
             $user = User::where('email', $request->email)->first();
@@ -66,27 +67,29 @@ class UserController extends Controller
             }
 
             $tokenResult = $user->createToken('authToken')->plainTextToken;
-            return ResponseFormatter::success([
-                'access_token' => $tokenResult,
-                'token_type' => 'Bearer',
-                'user' => $user
-            ], 'Authenticated');
+
+            return ResponseFormatter::success_ok(
+                'Berhasil Login', [   
+                    'token_type' => 'Bearer',
+                    'access_token' => $tokenResult,
+                    'user' => $user
+                ]);
         } catch (Exception $e) {
-            return ResponseFormatter::error([
-                'message' => 'Something went wrong',
-                'error' => $e
-            ], 'Authentication Failed', 500);
+            return ResponseFormatter::internal_server_error(
+                'Kesalahan Pada Server',
+                $e
+            );
         }
     }
 
     public function tampilkanProfileUser(Request $request){
         try{
-            return ResponseFormatter::success(
+            return ResponseFormatter::success_ok(
                 $request->user(), 
                 'Data Profile User Berhasil Diambil'
             );
         }catch (Exception $e){
-            return ResponseFormatter::error([
+            return ResponseFormatter::error_not_found([
                 'message' => 'Silahkan Login Ulang',
                 'data' => $e
             ], 'Unauthorized', 500);
@@ -100,24 +103,38 @@ class UserController extends Controller
             $password = $request->password;
             $password_hash = Hash::make($password);
 
-            $update_akun_saya = User::find($id);
+            // cek email di table user
+            $otp1 = user::where('email', $email)->first();
+
+            // cek email di table otp
+            $otp_email = otp::where('email', $email)->first();
+
+            $update_akun_saya = User::find($otp1->id);
+            
             $update_akun_saya->email = $email;
             $update_akun_saya->password = $password_hash;
 
-            $otp = Otp::find($email);
+            $otp = Otp::find($otp_email->id);
 
-            $otp->delete();
-            $update_akun_saya->save();
+            if($otp){
+                $otp->delete();
+                $update_akun_saya->save();
 
-            return ResponseFormatter::success([
-                'status' => 200,
-                'message' => 'Berhasil Dihapus OTP dan Mengubah Data di profil'
-            ],'Success');
+                return ResponseFormatter::success_ok(
+                    'Berhasil Dihapus OTP dan Mengubah Data di profil',
+                    null
+                );
+            }else{
+                return ResponseFormatter::error_not_found(
+                    'Tidak Ditemukan',
+                    null
+                );
+            }
         }catch (Exception $e){
-            return ResponseFormatter::error([
-                'message' => 'Gagal',
-                'data' => $e
-            ], 'Unauthorized', 500);
+            return ResponseFormatter::internal_server_error(
+                'Kesalahan Pada Server',
+                $e
+            );
         }
         
     }
@@ -125,6 +142,6 @@ class UserController extends Controller
     public function logout(Request $request){
         $token = $request->user()->currentAccessToken()->delete();
 
-        return ResponseFormatter::success($token, 'Token Revoked');
+        return ResponseFormatter::success_ok($token, 'Token Revoked/Dihapus');
     }
 }
