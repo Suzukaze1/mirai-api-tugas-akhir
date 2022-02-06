@@ -23,9 +23,9 @@ class CreatePasienTable extends Migration
             $table->string('jenis_identitas_kode', 10);
             $table->string('suku_kode', 10);
             $table->string('no_identitas', 50);
-            $table->string('nama', 150)->nullable();
-            $table->string('ayah_nama', 150)->nullable();
-            $table->string('ibu_nama', 150)->nullable();
+            $table->string('nama', 150);
+            $table->string('ayah_nama', 150);
+            $table->string('ibu_nama', 150);
             $table->string('nama_pasangan', 150)->nullable();
             $table->string('tempat_lahir', 255);
             $table->date('tanggal_lahir');

@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\V1;
 
 use Exception;
-use App\Models\Otp;
-use App\Models\User;
+use App\Models\V1\Otp;
+use App\Models\V1\User;
+use App\Mail\MyTestMail;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
+use App\Models\User as ModelsUser;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Mail\MyTestMail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Facade\FlareClient\Http\Response;

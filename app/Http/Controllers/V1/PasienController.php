@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
-use App\Models\Pasien;
-use App\Models\User;
+use App\Models\V1\Pasien;
+use App\Models\V1\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\V1;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Models\Otp;
-use App\Models\User;
+use App\Models\V1\Otp;
+use App\Models\V1\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
