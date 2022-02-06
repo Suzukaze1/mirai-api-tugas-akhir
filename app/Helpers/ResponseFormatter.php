@@ -15,7 +15,7 @@ class ResponseFormatter
     self::$response['status'] = $status;
     self::$response['data'] = $data;
 
-    return response()->json(self::$response, self::$response['code']);
+    return response()->json(self::$response, self::$response['code'])->header('Accept', 'application/json');
   }
 
   public static function error_not_found($status = null, $data = null){
@@ -23,7 +23,7 @@ class ResponseFormatter
     self::$response['status'] = $status;
     self::$response['data'] = $data;
 
-    return response()->json(self::$response, self::$response['code']);
+    return response()->json(self::$response, self::$response['code'])->header('Accept', 'application/json');
   }
 
   public static function internal_server_error($status = null, $data = null){
@@ -31,7 +31,7 @@ class ResponseFormatter
     self::$response['status'] = $status;
     self::$response['data'] = $data;
 
-    return response()->json(self::$response, self::$response['code']);
+    return response()->json(self::$response, self::$response['code'])->header('Accept', 'application/json');
   }
 
   public static function forbidden($status = null, $data = null){
@@ -39,7 +39,7 @@ class ResponseFormatter
     self::$response['status'] = $status;
     self::$response['data'] = $data;
 
-    return response()->json(self::$response, self::$response['code']);
+    return response()->json(self::$response, self::$response['code'])->header('Accept', 'application/json');
   }
 
 }

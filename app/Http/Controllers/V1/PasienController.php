@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ResponseFormatter;
 use App\Models\Pasien;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
 
 class PasienController extends Controller
 {
@@ -31,6 +33,8 @@ class PasienController extends Controller
                 'jkel' => ['required', 'string', 'max:11'],
                 'no_telp' => ['nullable', 'string', 'max:50'],
                 'alergi' => ['nullable'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string']
             ]);
 
             Pasien::create([
@@ -52,6 +56,12 @@ class PasienController extends Controller
                 'jkel' => $request->jkel,
                 'no_telp' => $request->no_telp,
                 'alergi' => $request->alergi
+            ]);
+
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password)
             ]);
 
             $pasien = Pasien::where('kode', $request->kode)->first();

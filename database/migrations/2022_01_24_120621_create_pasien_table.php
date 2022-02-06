@@ -33,6 +33,18 @@ class CreatePasienTable extends Migration
             $table->char('jkel', 1);
             $table->string('no_telp', 50)->nullable();
             $table->text('alergi')->nullable();
+            $table->string('kedudukan_keluarga', 50)->nullable();
+            $table->string('golongan_darah', 50)->nullable();
+            $table->string('provinsi', 10);
+            $table->string('kabupaten', 10);
+            $table->string('kecamatan', 10);
+            $table->string('umur', 10)->nullable();
+            $table->string('anak_ke', 10)->nullable();
+            $table->string('jurusan', 10)->nullable();
+            $table->string('nama_tempat_bekerja', 50);
+            $table->string('alamat_tempat_bekerja', 50);
+            $table->string('no_rekam_medik_ayah', 10)->nullable();
+            $table->string('no_rekam_medik_ibu', 10)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

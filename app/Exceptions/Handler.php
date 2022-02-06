@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use App\Helpers\ResponseFormatter;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -34,8 +36,13 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (AuthenticationException $e, $request) {
+            if ($request->is('api/*')) {
+                return ResponseFormatter::forbidden(
+                    'Sesi Sudah Habis Silahkan Login',
+                    null
+                );
+            }
         });
     }
 }

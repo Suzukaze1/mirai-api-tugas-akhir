@@ -83,22 +83,14 @@ class UserController extends Controller
     }
 
     public function tampilkanProfileUser(Request $request){
-        try{
-            return ResponseFormatter::success_ok(
-                $request->user(), 
-                'Data Profile User Berhasil Diambil'
-            );
-        }catch (Exception $e){
-            return ResponseFormatter::error_not_found([
-                'message' => 'Silahkan Login Ulang',
-                'data' => $e
-            ], 'Unauthorized', 500);
-        }
+        return ResponseFormatter::success_ok(
+            'Data Profile User Berhasil Diambil',
+            $request->user()
+        );
     }
 
     public function lupaPassword(Request $request){
         try{
-            $id = $request->id;
             $email = $request->email;
             $password = $request->password;
             $password_hash = Hash::make($password);
