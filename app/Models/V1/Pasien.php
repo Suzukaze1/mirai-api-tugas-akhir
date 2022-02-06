@@ -33,6 +33,20 @@ class Pasien extends Model
         'alamat',
         'jkel',
         'no_telp',
-        'alergi'
+        'alergi',
+        'provinsi',
+        'kabupaten',
+        'kecamatan',
+        'umur',
+        'anak_ke',
+        'jurusan',
+        'nama_tempat_bekerja',
+        'alamat_tempat_bekerja',
+        'no_rekam_medik_ayah',
+        'no_rekam_medik_ibu'
     ];
+
+    protected $table = 'public.pasien';
+
+    protected $id = 'id';
 }

@@ -20,4 +20,6 @@ class DetailAkun extends Model
     ];
 
     protected $table = 'public.detail_akun';
+
+    protected $id = 'id';
 }

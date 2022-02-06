@@ -35,4 +35,6 @@ class Otp extends Model
         $data = DB::select($query);
         return $data;
     }
+
+    protected $id = 'id';
 }

@@ -22,4 +22,6 @@ class Penanggung extends Model
     ];
 
     protected $table = 'public.penanggung';
+
+    protected $id = 'id';
 }
