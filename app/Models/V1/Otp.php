@@ -21,7 +21,7 @@ class Otp extends Model
         'expired_time'
     ];
 
-    protected $table = 'public.otp';
+    protected $table = 'mirai_pasien.otp';
 
     protected $primaryKey = 'id';
 

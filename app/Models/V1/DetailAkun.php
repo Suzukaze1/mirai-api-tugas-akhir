@@ -19,7 +19,7 @@ class DetailAkun extends Model
         'id_pasien'
     ];
 
-    protected $table = 'public.detail_akun';
+    protected $table = 'mirai_pasien.detail_akun';
 
     protected $id = 'id';
 }

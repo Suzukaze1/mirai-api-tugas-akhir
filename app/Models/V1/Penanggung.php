@@ -21,7 +21,7 @@ class Penanggung extends Model
         'pasien_id'
     ];
 
-    protected $table = 'public.penanggung';
+    protected $table = 'mirai_pasien.penanggung';
 
     protected $id = 'id';
 }

@@ -20,7 +20,7 @@ class FotoPasien extends Model
         'id_pasien'
     ];
 
-    protected $table = 'public.foto_pasien';
+    protected $table = 'mirai_pasien.foto_pasien';
 
     protected $id = 'id';
 }

@@ -15,6 +15,8 @@ class User extends Authenticatable
 
     protected $primatyKey = "id";
 
+    protected $table = 'mirai_pasien.users';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -46,8 +48,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    protected $id = 'id';
 
     public function pasiens()
     {

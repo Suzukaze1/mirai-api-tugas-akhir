@@ -46,7 +46,7 @@ class Pasien extends Model
         'no_rekam_medik_ibu'
     ];
 
-    protected $table = 'public.pasien';
+    protected $table = 'mirai_pasien.pasien';
 
     protected $id = 'id';
 }
