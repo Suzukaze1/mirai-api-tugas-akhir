@@ -24,4 +24,6 @@ class Penanggung extends Model
     protected $table = 'mirai_pasien.penanggung';
 
     protected $id = 'id';
+
+    public static $FOTO_KARTU_PENANGGUNG = 'foto_kartu_penanggung';
 }

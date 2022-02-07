@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Helpers\Constant;
+use App\Helpers\Foto;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\V1\DetailAkun;
@@ -17,12 +19,16 @@ use Illuminate\Support\Facades\Hash;
 class PasienController extends Controller
 {
     public function pendaftaranPasienBaru(Request $request){
-        $cek_pasien = Pasien::where('kode')->latest()->first();
+        $cek_pasien = Pasien::latest()->first();
         $kode_rm = 1;
-        if ($cek_pasien== null){
-            $kode_rm;
-        }else if($cek_pasien->kode =! null){
-            $kode_rm++;
+        if($cek_pasien == null) {
+            $a = $kode_rm;
+        } else {
+            if ($cek_pasien->kode == null){
+                $a = 1;
+            }else if($cek_pasien->kode >= 1){
+                $a = $cek_pasien->kode++;
+            }
         }
         
         try{
@@ -70,7 +76,7 @@ class PasienController extends Controller
             // die();
 
             Pasien::create([
-                'kode' => $kode_rm,
+                'kode' => $a,
                 'agama_kode' => $request->agama_kode,
                 'pendidikan_kode' => $request->pendidikan_kode,
                 'pekerjaan_kode' => $request->pekerjaan_kode,
@@ -111,34 +117,25 @@ class PasienController extends Controller
 
             $useer = User::where('kode', $pasien->id)->first();
 
+            // create data penanggung bagian gambar
             // create data penanggung
+            $nama_foto_penannggung = Foto::simpan_foto($request, Penanggung::$FOTO_KARTU_PENANGGUNG);
             $create_penanggung = new Penanggung();
             $create_penanggung->nama_penanggung = $request->nama_penanggung;
             $create_penanggung->nomor_kartu = $request->nomor_kartu;
             $create_penanggung->pasien_id = $pasien->id;
-            // create data penanggung bagian gambar
-            $files = $request->file('foto_kartu_penanggung');
-            $nama = "foto_penanggung"."_".$request->nama."_".$files->getClientOriginalName();
-            $tujuan_upload = 'foto_kartu_penanggung';
-            $files->move($tujuan_upload,$nama);
-            $create_penanggung->foto_kartu_penanggung = $request->url = "/foto_kartu_penanggung/" . $nama;
+            $create_penanggung->foto_kartu_penanggung = "/".Penanggung::$FOTO_KARTU_PENANGGUNG."/" . $nama_foto_penannggung;
             $create_penanggung->save();
+
+            // create data foto_pasien bagian gambar swa dan identitas
+            $nama_swafoto = Foto::simpan_foto($request, FotoPasien::$FOTO_SWA_PASIEN);
+            $nama_kartu_identitas_foto = Foto::simpan_foto($request, FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN);
 
             //create data foto_pasien
             $create_foto_pasien = new FotoPasien();
             $create_foto_pasien->id_pasien = $pasien->id;
-            // create data foto_pasien bagian gambar swa
-            $files1 = $request->file('foto_swa_pasien');
-            $nama1 = "foto_swa"."_".$request->nama."_".$files1->getClientOriginalName();
-            $tujuan_upload1 = 'foto_swa_pasien';
-            $files1->move($tujuan_upload1,$nama1);
-            $create_foto_pasien->foto_swa_pasien = $request->url = "/foto_swa_pasien/" . $nama1;
-            // create data foto_pasien bagian gambar identitas
-            $files11 = $request->file('foto_kartu_identitas_pasien');
-            $nama11 = "foto_kartu_identitas"."_".$request->nama."_".$files11->getClientOriginalName();
-            $tujuan_upload11 = 'foto_kartu_identitas_pasien';
-            $files11->move($tujuan_upload11,$nama11);
-            $create_foto_pasien->foto_kartu_identitas_pasien = $request->url = "/foto_kartu_identitas_pasien/" . $nama11;
+            $create_foto_pasien->foto_swa_pasien = "/".FotoPasien::$FOTO_SWA_PASIEN."/" . $nama_swafoto;
+            $create_foto_pasien->foto_kartu_identitas_pasien = "/".FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN."/" . $nama_kartu_identitas_foto;
             $create_foto_pasien->save();
 
             //create detail akun
@@ -147,10 +144,10 @@ class PasienController extends Controller
             $create_detail_akun->id_akun = $useer->id;
             $create_detail_akun->save();
 
-            return ResponseFormatter::success_ok([
-                'user' => $pasien
-            ], 'User Registered');
-        }catch (Exception $e){
+            return ResponseFormatter::success_ok(
+                'user register',
+                ['user' => $pasien]);
+        } catch (Exception $e){
             return ResponseFormatter::error_not_found([
                 'message' => 'something went wrong',
                 'error' => $e

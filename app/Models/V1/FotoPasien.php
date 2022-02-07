@@ -23,4 +23,8 @@ class FotoPasien extends Model
     protected $table = 'mirai_pasien.foto_pasien';
 
     protected $id = 'id';
+
+    
+    public static $FOTO_SWA_PASIEN = 'foto_swa_pasien';
+    public static $FOTO_KARTU_IDENTITAS_PASIEN = 'foto_kartu_identitas_pasien';
 }

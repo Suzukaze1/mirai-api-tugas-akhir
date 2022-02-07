@@ -11,7 +11,7 @@ class ResponseFormatter
   ];
 
   public static function success_ok($status = null, $data = null){
-    self::$response['code'] = CodeStatus::$code_ok;
+    self::$response['code'] = CodeStatus::$SUCCESS;
     self::$response['status'] = $status;
     self::$response['data'] = $data;
 
@@ -19,7 +19,7 @@ class ResponseFormatter
   }
 
   public static function error_not_found($status = null, $data = null){
-    self::$response['code'] = CodeStatus::$code_not_found;
+    self::$response['code'] = CodeStatus::$NOT_FOUND;
     self::$response['status'] = $status;
     self::$response['data'] = $data;
 
@@ -27,7 +27,7 @@ class ResponseFormatter
   }
 
   public static function internal_server_error($status = null, $data = null){
-    self::$response['code'] = CodeStatus::$code_internal_server_error;
+    self::$response['code'] = CodeStatus::$INTERNAL_SERVER_ERROR;
     self::$response['status'] = $status;
     self::$response['data'] = $data;
 
@@ -35,7 +35,7 @@ class ResponseFormatter
   }
 
   public static function forbidden($status = null, $data = null){
-    self::$response['code'] = CodeStatus::$code_forbidden;
+    self::$response['code'] = CodeStatus::$FORBIDDEN;
     self::$response['status'] = $status;
     self::$response['data'] = $data;
 

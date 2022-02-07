@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     public function register(Request $request){
+        return "KLLELE";
+        die();
         try{
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
