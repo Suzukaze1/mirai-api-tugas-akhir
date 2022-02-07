@@ -59,7 +59,7 @@ class OtpController extends Controller
                     'hash_otp' => $pass
                 ];
 
-                //Mail::to($email)->send(new MyTestMail($details));
+                Mail::to($email)->send(new MyTestMail($details));
 
                 return ResponseFormatter::success_ok(
                     $pass, 
@@ -78,7 +78,7 @@ class OtpController extends Controller
                     'hash_otp' => $pass
                 ];
         
-                //Mail::to($email)->send(new MyTestMail($details));
+                Mail::to($email)->send(new MyTestMail($details));
 
                 return ResponseFormatter::success_ok(
                     'Berhasil Update OTP',
