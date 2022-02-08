@@ -13,6 +13,6 @@ class UploadGambarController extends Controller
     public function trollGambar(Request $request){
         // create data penanggung bagian gambar
         $a = Foto::simpan_foto($request, Penanggung::$FOTO_KARTU_PENANGGUNG);
-        return ResponseFormatter::success_ok('Berhasil Ambil Gambar dan letak di folder', null);
+        return ResponseFormatter::success_ok('Berhasil Ambil Gambar dan letak di folder', $a);
     }
 }
