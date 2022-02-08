@@ -68,6 +68,7 @@ class Routes
     private function _daftarPasien()
     {
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_BARU, [PasienController::class, 'pendaftaranPasienBaru']);
+        Route::post(Endpoint::$PENDAFTARAN_PASIEN_LAMA, [PasienController::class, 'pendaftaranPasienLama']);
     }
 }
 
@@ -81,5 +82,6 @@ class Endpoint
     static $KONFIRMASI_DAPAT_OTP_LUPA_PASSWORD = 'konfirmasi-dapat-otp-lupa-password';
     static $LUPA_PASSWORD = 'lupa-password';
     static $PENDAFTARAN_PASIEN_BARU = 'pendaftaran-pasien-baru';
+    static $PENDAFTARAN_PASIEN_LAMA = 'pendaftaran-pasien-lama';
     // Isi Lagi Endpoint nya cuk
 }

@@ -154,4 +154,8 @@ class PasienController extends Controller
             ], 'Authentication Failed', 500);
         }
     }
+
+    public function pendaftaranPasienLama(Request $request){
+        //
+    }
 }
