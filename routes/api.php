@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
+use App\Http\Controllers\V1\UploadGambarController;
 use App\Http\Controllers\V1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,7 @@ class Routes
         $this->_auth();
         $this->_otpLupaPassword();
         $this->_daftarPasien();
+        $this->_ambilGambar();
 
         // API Pakai Token
         Route::middleware('auth:sanctum')->group(function () {
@@ -70,6 +72,11 @@ class Routes
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_BARU, [PasienController::class, 'pendaftaranPasienBaru']);
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_LAMA, [PasienController::class, 'pendaftaranPasienLama']);
     }
+
+    private function _ambilGambar()
+    {
+        Route::post(Endpoint::$AMBIL_GAMBAR, [UploadGambarController::class, 'trollGambar']);
+    }
 }
 
 class Endpoint
@@ -83,5 +90,6 @@ class Endpoint
     static $LUPA_PASSWORD = 'lupa-password';
     static $PENDAFTARAN_PASIEN_BARU = 'pendaftaran-pasien-baru';
     static $PENDAFTARAN_PASIEN_LAMA = 'pendaftaran-pasien-lama';
+    static $AMBIL_GAMBAR = 'ambil-gambar';
     // Isi Lagi Endpoint nya cuk
 }

@@ -118,8 +118,8 @@ class PasienController extends Controller
             $useer = User::where('kode', $pasien->id)->first();
 
             // create data penanggung bagian gambar
-            // create data penanggung
             $nama_foto_penannggung = Foto::simpan_foto($request, Penanggung::$FOTO_KARTU_PENANGGUNG);
+            // create data penanggung
             $create_penanggung = new Penanggung();
             $create_penanggung->nama_penanggung = $request->nama_penanggung;
             $create_penanggung->nomor_kartu = $request->nomor_kartu;
@@ -130,7 +130,6 @@ class PasienController extends Controller
             // create data foto_pasien bagian gambar swa dan identitas
             $nama_swafoto = Foto::simpan_foto($request, FotoPasien::$FOTO_SWA_PASIEN);
             $nama_kartu_identitas_foto = Foto::simpan_foto($request, FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN);
-
             //create data foto_pasien
             $create_foto_pasien = new FotoPasien();
             $create_foto_pasien->id_pasien = $pasien->id;
@@ -156,6 +155,70 @@ class PasienController extends Controller
     }
 
     public function pendaftaranPasienLama(Request $request){
-        //
+        // get value text
+        $no_rekam_medik = $request->kode;
+        $tgl_lahir = $request->tanggal_lahir;
+        $jenis_identitas = $request->jenis_identitas_kode;
+        $nomor_identitas = $request->nomor_identitas;
+        $email = $request->email;
+        $password = $request->password;
+        $ulang_password = $request->ulang_password;
+
+        // get value file
+        $nama_swafoto = Foto::simpan_foto($request, FotoPasien::$FOTO_SWA_PASIEN);
+        $nama_kartu_identitas_foto = Foto::simpan_foto($request, FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN);
+
+        // cek ke db pasien
+        $pasien = Pasien::where('kode', $no_rekam_medik)->first();
+
+        // cek apakah data pasien null atau tidak
+        if($pasien == null){
+            return "Data Pasien Tidak Ada Amda Jangan Macam2 Daftar Pulak";
+        }else{
+            //cek ke db user apakah pasien sudah mendaftar sebelumnya
+            $user = User::where('kode', $pasien->id)->first();
+            if($user != null){
+                //jika null atau tidak ada data maka lanjut ke step selanjutnya
+                if($pasien->id == $user->kode){
+                    //jika sudah ada data maka berhenti disni
+                    return "Sudah Terdafatar";
+                }
+            }
+        }
+
+        // logika seluruh validasi tidak termasuk angka/text/strinf dll
+        if ($pasien == null) return "Kode Rm Tidak TErdaftar";
+
+        if ($pasien->tanggal_lahir != $tgl_lahir) return "Tanggal Lahir Tak betul la";
+
+        if($pasien->jenis_identitas_kode != $jenis_identitas) return "Jenis Identitas Salah Goblok";
+  
+        if($pasien->no_identitas != $nomor_identitas) return "Nomor Identitas Salah";
+
+        if($password != $ulang_password) return "Password Tidak Sama";
+
+        // buat data di table users
+        $create_users = new User();
+        $create_users->name = $pasien->nama;
+        $create_users->email = $email;
+        $create_users->password = Hash::make($password);
+        $create_users->kode = $pasien->id;
+
+        // buat data di table foto pasien
+        $create_foto_pasien= new FotoPasien();
+        $create_foto_pasien->id_pasien = $pasien->id;
+        $create_foto_pasien->foto_swa_pasien = "/".FotoPasien::$FOTO_SWA_PASIEN."/" . $nama_swafoto;
+        $create_foto_pasien->foto_kartu_identitas_pasien = "/".FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN."/" . $nama_kartu_identitas_foto;
+
+        try{
+            //jika berhasil
+            $create_users->save();
+            $create_foto_pasien->save();
+            return ResponseFormatter::success_ok('Berhasil Mendaftar Akun', null);
+        }catch (Exception $e){
+            //jika gagal
+            return ResponseFormatter::internal_server_error('Ada Sesuatu Yang salah', $e);
+        }
+        
     }
 }
