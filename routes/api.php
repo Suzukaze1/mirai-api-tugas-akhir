@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\V1\KecamatanController;
+use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
+use App\Http\Controllers\V1\ProvinsiController;
 use App\Http\Controllers\V1\UploadGambarController;
 use App\Http\Controllers\V1\UserController;
 use Illuminate\Http\Request;
@@ -42,6 +45,7 @@ class Routes
         $this->_otpLupaPassword();
         $this->_daftarPasien();
         $this->_ambilGambar();
+        $this->_alamat();
 
         // API Pakai Token
         Route::middleware('auth:sanctum')->group(function () {
@@ -77,6 +81,13 @@ class Routes
     {
         Route::post(Endpoint::$AMBIL_GAMBAR, [UploadGambarController::class, 'trollGambar']);
     }
+
+    private function _alamat()
+    {
+        Route::get(Endpoint::$PROVINSI, [ProvinsiController::class, 'getAllProvinsi']);
+        Route::post(Endpoint::$KABUPATEN_KOTA, [KotaKabupatenController::class, 'getKabupatenKota']);
+        Route::post(Endpoint::$KECAMATAN, [KecamatanController::class, 'getKecamatan']);
+    }
 }
 
 class Endpoint
@@ -91,5 +102,8 @@ class Endpoint
     static $PENDAFTARAN_PASIEN_BARU = 'pendaftaran-pasien-baru';
     static $PENDAFTARAN_PASIEN_LAMA = 'pendaftaran-pasien-lama';
     static $AMBIL_GAMBAR = 'ambil-gambar';
+    static $PROVINSI = 'provinsi';
+    static $KABUPATEN_KOTA = 'kabupaten-kota';
+    static $KECAMATAN = 'kecamatan';
     // Isi Lagi Endpoint nya cuk
 }
