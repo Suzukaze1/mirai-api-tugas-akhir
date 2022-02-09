@@ -5,6 +5,7 @@ use App\Http\Controllers\V1\GolonganDarahController;
 use App\Http\Controllers\V1\JurusanController;
 use App\Http\Controllers\V1\KecamatanController;
 use App\Http\Controllers\V1\KedudukanKeluargaController;
+use App\Http\Controllers\V1\KewarganegaraanController;
 use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\NamaPenanggungController;
 use App\Http\Controllers\V1\OtpController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\V1\PasienController;
 use App\Http\Controllers\V1\PendidikanTerakhirController;
 use App\Http\Controllers\V1\PenghasilanController;
 use App\Http\Controllers\V1\ProvinsiController;
+use App\Http\Controllers\V1\StatusMenikahController;
 use App\Http\Controllers\V1\SukuController;
 use App\Http\Controllers\V1\UploadGambarController;
 use App\Http\Controllers\V1\UserController;
@@ -103,6 +105,8 @@ class Routes
         Route::get(Endpoint::$PENGHASILAN, [PenghasilanController::class, 'getPenghasilan']);
         Route::get(Endpoint::$NAMA_PENANGGUNG, [NamaPenanggungController::class, 'getNamaPenanggung']);
         Route::get(Endpoint::$JURUSAN, [JurusanController::class, 'getJurusan']);
+        Route::get(Endpoint::$STATUS_MENIKAH, [StatusMenikahController::class, 'getStatusMenikah']);
+        Route::get(Endpoint::$KEWARGANEGARAAN, [KewarganegaraanController::class, 'getKewarganegaraan']);
     }
 }
 
@@ -129,5 +133,7 @@ class Endpoint
     static $PENGHASILAN = 'penghasilan';
     static $NAMA_PENANGGUNG = 'nama-penanggung';
     static $JURUSAN = 'jurusan';
+    static $STATUS_MENIKAH = 'status-menikah';
+    static $KEWARGANEGARAAN = 'kewarganegaraan';
     // Isi Lagi Endpoint nya cuk
 }
