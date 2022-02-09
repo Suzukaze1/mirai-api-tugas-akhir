@@ -7,6 +7,7 @@ use App\Http\Controllers\V1\KedudukanKeluargaController;
 use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
+use App\Http\Controllers\V1\PendidikanTerakhirController;
 use App\Http\Controllers\V1\ProvinsiController;
 use App\Http\Controllers\V1\SukuController;
 use App\Http\Controllers\V1\UploadGambarController;
@@ -95,6 +96,7 @@ class Routes
         Route::get(Endpoint::$GOLONGAN_DARAH, [GolonganDarahController::class, 'getGolonganDarah']);
         Route::get(Endpoint::$KEDUDUKAN_KELUARGA, [KedudukanKeluargaController::class, 'getKedudukanKeluarga']);
         Route::get(Endpoint::$SUKU, [SukuController::class, 'getSuku']);
+        Route::get(Endpoint::$PENDIDIKAN_TERAKHIR, [PendidikanTerakhirController::class, 'getPendidikanTerakhir']);
     }
 }
 
@@ -117,5 +119,6 @@ class Endpoint
     static $GOLONGAN_DARAH = 'golongan-darah';
     static $KEDUDUKAN_KELUARGA = 'kedudukan-keluarga';
     static $SUKU = 'suku';
+    static $PENDIDIKAN_TERAKHIR = 'pendidikan-terakhir';
     // Isi Lagi Endpoint nya cuk
 }
