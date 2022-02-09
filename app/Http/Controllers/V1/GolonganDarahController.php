@@ -3,18 +3,16 @@
 namespace App\Http\Controllers\V1;
 
 use Illuminate\Http\Request;
+use App\Models\V1\GolonganDarah;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Models\V1\Kecamatan;
 use Exception;
 
-class KecamatanController extends Controller
+class GolonganDarahController extends Controller
 {
-    public function getKecamatan(Request $request){
-        $id_provinsi = $request->input('id_provinsi');
-        $id_kabupaten_kota = $request->input('id_kecamatan_kota');
+    public function getGolonganDarah(){
         try{
-            $list = Kecamatan::where('kode_prov', $id_provinsi)->where('kode_prov_kab', $id_kabupaten_kota)->orderBy('nama', 'ASC')->get();
+            $list = GolonganDarah::all();
             return ResponseFormatter::success_ok(
                 'Berhasil Mendapatkan Data',
                 $list

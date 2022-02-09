@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\V1\AgamaController;
+use App\Http\Controllers\V1\GolonganDarahController;
 use App\Http\Controllers\V1\KecamatanController;
 use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\OtpController;
@@ -86,9 +87,10 @@ class Routes
     private function _master()
     {
         Route::get(Endpoint::$PROVINSI, [ProvinsiController::class, 'getAllProvinsi']);
-        Route::post(Endpoint::$KABUPATEN_KOTA, [KotaKabupatenController::class, 'getKabupatenKota']);
-        Route::post(Endpoint::$KECAMATAN, [KecamatanController::class, 'getKecamatan']);
+        Route::get(Endpoint::$KABUPATEN_KOTA, [KotaKabupatenController::class, 'getKabupatenKota']);
+        Route::get(Endpoint::$KECAMATAN, [KecamatanController::class, 'getKecamatan']);
         Route::get(Endpoint::$AGAMA, [AgamaController::class, 'getAgama']);
+        Route::get(Endpoint::$GOLONGAN_DARAH, [GolonganDarahController::class, 'getGolonganDarah']);
     }
 }
 
@@ -108,5 +110,6 @@ class Endpoint
     static $KABUPATEN_KOTA = 'kabupaten-kota';
     static $KECAMATAN = 'kecamatan';
     static $AGAMA = 'agama';
+    static $GOLONGAN_DARAH = 'golongan-darah';
     // Isi Lagi Endpoint nya cuk
 }

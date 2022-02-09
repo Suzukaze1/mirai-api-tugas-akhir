@@ -5,13 +5,13 @@ namespace App\Models\V1;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Provinsi extends Model
+class GolonganDarah extends Model
 {
     use HasFactory;
 
-    protected $table = 'mirai_pasien.dm_provinsi';
+    protected $table = 'mirai_pasien.dm_golongan_darah';
 
-    protected $id = 'kode';
+    protected $id = 'id';
 
     /**
      * The attributes that are mass assignable.
@@ -21,9 +21,4 @@ class Provinsi extends Model
     protected $fillable = [
         'nama'
     ];
-
-    public function KotaKabupaten()
-    {
-        return $this->hasMany(KotaKabupaten::class, 'kode_prov', 'kode');
-    }
 }

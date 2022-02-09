@@ -11,9 +11,10 @@ use App\Http\Controllers\Controller;
 class KotaKabupatenController extends Controller
 {
     public function getKabupatenKota(Request $request){
-        $id_provinsi = $request->id_provinsi;
+        $kode_prov = $request->input('kode_prov');
         try{
-            $list = KotaKabupaten::where('kode_prov', $id_provinsi)->orderBy('nama', 'ASC')->get();
+            $list = KotaKabupaten::where('kode_prov', $kode_prov)->get();
+            
             return ResponseFormatter::success_ok(
                 'Berhasil Mendapatkan Data',
                 $list

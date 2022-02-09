@@ -23,4 +23,9 @@ class KotaKabupaten extends Model
         'jenis',
         'kode_prov'
     ];
+
+    public function provinsis()
+    {
+        return $this->belongsTo(Provinsi::class, 'kode_prov', 'kode');
+    }
 }
