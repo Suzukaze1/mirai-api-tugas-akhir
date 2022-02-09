@@ -8,6 +8,7 @@ use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
 use App\Http\Controllers\V1\ProvinsiController;
+use App\Http\Controllers\V1\SukuController;
 use App\Http\Controllers\V1\UploadGambarController;
 use App\Http\Controllers\V1\UserController;
 use Illuminate\Http\Request;
@@ -93,6 +94,7 @@ class Routes
         Route::get(Endpoint::$AGAMA, [AgamaController::class, 'getAgama']);
         Route::get(Endpoint::$GOLONGAN_DARAH, [GolonganDarahController::class, 'getGolonganDarah']);
         Route::get(Endpoint::$KEDUDUKAN_KELUARGA, [KedudukanKeluargaController::class, 'getKedudukanKeluarga']);
+        Route::get(Endpoint::$SUKU, [SukuController::class, 'getSuku']);
     }
 }
 
@@ -114,5 +116,6 @@ class Endpoint
     static $AGAMA = 'agama';
     static $GOLONGAN_DARAH = 'golongan-darah';
     static $KEDUDUKAN_KELUARGA = 'kedudukan-keluarga';
+    static $SUKU = 'suku';
     // Isi Lagi Endpoint nya cuk
 }
