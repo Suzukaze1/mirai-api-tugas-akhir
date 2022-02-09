@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\V1\AgamaController;
 use App\Http\Controllers\V1\KecamatanController;
 use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\OtpController;
@@ -45,7 +46,7 @@ class Routes
         $this->_otpLupaPassword();
         $this->_daftarPasien();
         $this->_ambilGambar();
-        $this->_alamat();
+        $this->_master();
 
         // API Pakai Token
         Route::middleware('auth:sanctum')->group(function () {
@@ -82,11 +83,12 @@ class Routes
         Route::post(Endpoint::$AMBIL_GAMBAR, [UploadGambarController::class, 'trollGambar']);
     }
 
-    private function _alamat()
+    private function _master()
     {
         Route::get(Endpoint::$PROVINSI, [ProvinsiController::class, 'getAllProvinsi']);
         Route::post(Endpoint::$KABUPATEN_KOTA, [KotaKabupatenController::class, 'getKabupatenKota']);
         Route::post(Endpoint::$KECAMATAN, [KecamatanController::class, 'getKecamatan']);
+        Route::get(Endpoint::$AGAMA, [AgamaController::class, 'getAgama']);
     }
 }
 
@@ -105,5 +107,6 @@ class Endpoint
     static $PROVINSI = 'provinsi';
     static $KABUPATEN_KOTA = 'kabupaten-kota';
     static $KECAMATAN = 'kecamatan';
+    static $AGAMA = 'agama';
     // Isi Lagi Endpoint nya cuk
 }
