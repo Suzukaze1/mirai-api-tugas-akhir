@@ -3,6 +3,7 @@
 use App\Http\Controllers\V1\AgamaController;
 use App\Http\Controllers\V1\GolonganDarahController;
 use App\Http\Controllers\V1\KecamatanController;
+use App\Http\Controllers\V1\KedudukanKeluargaController;
 use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
@@ -91,6 +92,7 @@ class Routes
         Route::get(Endpoint::$KECAMATAN, [KecamatanController::class, 'getKecamatan']);
         Route::get(Endpoint::$AGAMA, [AgamaController::class, 'getAgama']);
         Route::get(Endpoint::$GOLONGAN_DARAH, [GolonganDarahController::class, 'getGolonganDarah']);
+        Route::get(Endpoint::$KEDUDUKAN_KELUARGA, [KedudukanKeluargaController::class, 'getKedudukanKeluarga']);
     }
 }
 
@@ -111,5 +113,6 @@ class Endpoint
     static $KECAMATAN = 'kecamatan';
     static $AGAMA = 'agama';
     static $GOLONGAN_DARAH = 'golongan-darah';
+    static $KEDUDUKAN_KELUARGA = 'kedudukan-keluarga';
     // Isi Lagi Endpoint nya cuk
 }
