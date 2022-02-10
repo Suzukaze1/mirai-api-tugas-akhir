@@ -13,12 +13,9 @@ class CreateJenisIdentitasTable extends Migration
      */
     public function up()
     {
-        Schema::create('jenis_identitas', function (Blueprint $table) {
-            $table->string('kode', 10);
+        Schema::create('dm_jenis_identitas', function (Blueprint $table) {
+            $table->id();
             $table->string('nama', 255);
-            $table->char('aktif', 1);
-            $table->timestamps();
-            $table->softDeletes();
         });
     }
 

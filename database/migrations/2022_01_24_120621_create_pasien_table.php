@@ -33,6 +33,7 @@ class CreatePasienTable extends Migration
             $table->char('jkel', 1);
             $table->string('no_telp', 50)->nullable();
             $table->text('alergi')->nullable();
+            $table->string('status_perkawinan', 10);
             $table->string('kedudukan_keluarga', 50)->nullable();
             $table->string('golongan_darah', 50)->nullable();
             $table->string('provinsi', 10);

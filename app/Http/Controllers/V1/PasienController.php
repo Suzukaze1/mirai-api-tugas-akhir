@@ -85,8 +85,8 @@ class PasienController extends Controller
                 'suku_kode' => $request->suku,
                 'no_identitas' => $request->nomor_identitas,
                 'nama' => $request->nama_lengkap,
-                'ayah_nama' => $request->ayah_nama,
-                'ibu_nama' => $request->ibu_nama,
+                'ayah_nama' => $request->nama_ayah,
+                'ibu_nama' => $request->nama_ibu,
                 'nama_pasangan' => $request->nama_pasangan,
                 'tempat_lahir' => $request->tempat_lahir,
                 'tanggal_lahir' => $request->tanggal_lahir,
@@ -106,8 +106,8 @@ class PasienController extends Controller
                 'penghasilan' => $request->penghasilan,
                 'nama_tempat_bekerja' => $request->nama_tempat_bekerja,
                 'alamat_tempat_bekerja' => $request->alamat_tempat_bekerja,
-                'no_rekam_medik_ayah' => $request->no_rekam_medik_ayah,
-                'no_rekam_medik_ibu' => $request->no_rekam_medik_ibu
+                'no_rekam_medik_ayah' => $request->nomor_rekam_medis_ayah,
+                'no_rekam_medik_ibu' => $request->nomor_rekam_medis_ibu
             ]);
 
             $pasien = Pasien::where('kode', $kode_rm)->first();
@@ -126,7 +126,7 @@ class PasienController extends Controller
             // create data penanggung
             $create_penanggung = new Penanggung();
             $create_penanggung->nama_penanggung = $request->nama_penanggung;
-            $create_penanggung->nomor_kartu = $request->nomor_kartu;
+            $create_penanggung->nomor_kartu = $request->nomor_kartu_penanggung;
             $create_penanggung->pasien_id = $pasien->id;
             $create_penanggung->foto_kartu_penanggung = "/".Penanggung::$FOTO_KARTU_PENANGGUNG."/" . $nama_foto_penannggung;
             $create_penanggung->save();
@@ -137,8 +137,8 @@ class PasienController extends Controller
             //create data foto_pasien
             $create_foto_pasien = new FotoPasien();
             $create_foto_pasien->id_pasien = $pasien->id;
-            $create_foto_pasien->foto_swa_pasien = "/".FotoPasien::$FOTO_SWA_PASIEN."/" . $nama_swafoto;
-            $create_foto_pasien->foto_kartu_identitas_pasien = "/".FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN."/" . $nama_kartu_identitas_foto;
+            $create_foto_pasien->swafoto = "/".FotoPasien::$FOTO_SWA_PASIEN."/" . $nama_swafoto;
+            $create_foto_pasien->foto_identitas = "/".FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN."/" . $nama_kartu_identitas_foto;
             $create_foto_pasien->save();
 
             //create detail akun
