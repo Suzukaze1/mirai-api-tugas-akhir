@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Hash;
 class PasienController extends Controller
 {
     public function pendaftaranPasienBaru(Request $request){
+        // logika nomor rekam medik
         $cek_pasien = Pasien::latest()->first();
+
         $kode_rm = 1;
         if($cek_pasien == null) {
             $a = $kode_rm;
@@ -27,13 +29,14 @@ class PasienController extends Controller
             if ($cek_pasien->kode == null){
                 $a = 1;
             }else if($cek_pasien->kode >= 1){
-                $a = $cek_pasien->kode++;
+                $a = $cek_pasien->kode + 1; 
             }
         }
+
+        // nomor rekam medik
+        $nomor_rekam_medik = sprintf("%08s", $a);
         
-        try{
-            
-            // $request->validate([
+        // $request->validate([
             //     'kode' => ['required', 'string', 'max:10', 'unique:pasien'],
             //     'agama_kode' => ['required', 'string', 'max:10'],
             //     'pendidikan_kode' => ['required', 'string', 'max:10'],
@@ -72,90 +75,142 @@ class PasienController extends Controller
             //     'nomor_kartu' => ['required'],
             // ]);
 
-            // echo $request->no_identitas;
-            // die();
+        // get value text
+        $nomor_identitas = $request->nomor_identitas;
+        $jenis_identitas = $request->jenis_identitas;
+        $nama_lengkap = $request->nama_lengkap;
+        $tempat_lahir = $request->tempat_lahir;
+        $tanggal_lahir = $request->tanggal_lahir;
+        $kedudukan_keluarga = $request->kedudukan_keluarga;
+        $golongan_darah = $request->golongan_darah;
+        $agama= $request->agama;
+        $suku = $request->suku;
+        $nomor_telepon = $request->nomor_telepon;
+        $jenis_kelamin = $request->jenis_kelamin;
+        $alamat = $request->alamat;
+        $provinsi = $request->provinsi;
+        $kota_kabupaten = $request->kota_kabupaten;
+        $kecamatan = $request->kecamatan;
+        $status_perkawinan = $request->status_perkawinan;
+        $umur = $request->umur;
+        $anak_ke = $request->anak_ke;
+        $pendidikan_terakhir = $request->pendidikan_terakhir;
+        $jurusan = $request->jurusan;
+        $nama_tempat_bekerja = $request->nama_tempat_bekerja;
+        $alamat_tempat_bekerja = $request->alamat_tempat_bekerja;
+        $penghasilan = $request->penghasilan;
+        $nama_ayah = $request->nama_ayah;
+        $nomor_rekam_medis_ayah = $request->nomor_rekam_medis_ayah;
+        $nama_ibu = $request->nama_ibu;
+        $nomor_rekam_medis_ibu = $request->nomor_rekam_medis_ibu;
 
-            Pasien::create([
-                'kode' => $a,
-                'agama_kode' => $request->agama,
-                'pendidikan_kode' => $request->pendidikan_terakhir,
-                'pekerjaan_kode' => $request->pekerjaan_kode,
-                'kewarganegaraan_kode' => $request->kewarganegaraan_kode,
-                'jenis_identitas_kode' => $request->jenis_identitas,
-                'suku_kode' => $request->suku,
-                'no_identitas' => $request->nomor_identitas,
-                'nama' => $request->nama_lengkap,
-                'ayah_nama' => $request->nama_ayah,
-                'ibu_nama' => $request->nama_ibu,
-                'nama_pasangan' => $request->nama_pasangan,
-                'tempat_lahir' => $request->tempat_lahir,
-                'tanggal_lahir' => $request->tanggal_lahir,
-                'alamat' => $request->alamat,
-                'jkel' => $request->jenis_kelamin,
-                'no_telp' => $request->nomor_telepon,
-                'alergi' => $request->alergi,
-                'status_perkawinan' => $request->status_perkawinan,
-                'kedudukan_keluarga' => $request->kedudukan_keluarga,
-                'golongan_darah' => $request->golongan_darah,
-                'provinsi' => $request->provinsi,
-                'kabupaten' => $request->kota_kabupaten,
-                'kecamatan' => $request->kecamatan,
-                'umur' => $request->umur,
-                'anak_ke' => $request->anak_ke,
-                'jurusan' => $request->jurusan,
-                'penghasilan' => $request->penghasilan,
-                'nama_tempat_bekerja' => $request->nama_tempat_bekerja,
-                'alamat_tempat_bekerja' => $request->alamat_tempat_bekerja,
-                'no_rekam_medik_ayah' => $request->nomor_rekam_medis_ayah,
-                'no_rekam_medik_ibu' => $request->nomor_rekam_medis_ibu
-            ]);
+        $daftar_penanggung = $request->daftar_penanggung;
+        $nama_penanggung = $request->nama_penanggung;
+        $nomor_kartu_penanggung = $request->nomor_kartu_penanggung;
 
-            $pasien = Pasien::where('kode', $kode_rm)->first();
+        $email = $request->email;
+        $password = $request->password;
 
-            User::create([
-                'name' => $request->nama,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'kode' => $pasien->id
-            ]);
+        //get value file
+        $nama_foto_penannggung = Foto::simpan_foto($request, Penanggung::$FOTO_KARTU_PENANGGUNG);
+        $nama_swafoto = Foto::simpan_foto($request, FotoPasien::$FOTO_SWA_PASIEN);
+        $nama_kartu_identitas_foto = Foto::simpan_foto($request, FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN);
 
-            $useer = User::where('kode', $pasien->id)->first();
 
-            // create data penanggung bagian gambar
-            $nama_foto_penannggung = Foto::simpan_foto($request, Penanggung::$FOTO_KARTU_PENANGGUNG);
-            // create data penanggung
-            $create_penanggung = new Penanggung();
-            $create_penanggung->nama_penanggung = $request->nama_penanggung;
-            $create_penanggung->nomor_kartu = $request->nomor_kartu_penanggung;
-            $create_penanggung->pasien_id = $pasien->id;
-            $create_penanggung->foto_kartu_penanggung = "/".Penanggung::$FOTO_KARTU_PENANGGUNG."/" . $nama_foto_penannggung;
-            $create_penanggung->save();
+        // buat data di tb pasien
+        try{
+            $pasien = new Pasien();
+            $pasien->kode = $nomor_rekam_medik;
+            $pasien->no_identitas = $nomor_identitas;
+            $pasien->jenis_identitas_kode = $jenis_identitas;
+            $pasien->nama = $nama_lengkap;
+            $pasien->tempat_lahir = $tempat_lahir;
+            $pasien->tanggal_lahir = $tanggal_lahir;
+            $pasien->kedudukan_keluarga = $kedudukan_keluarga;
+            $pasien->golongan_darah = $golongan_darah;
+            $pasien->agama_kode = $agama;
+            $pasien->suku_kode = $suku;
+            $pasien->no_telp = $nomor_telepon;
+            $pasien->jkel = $jenis_kelamin;
+            $pasien->alamat = $alamat;
+            $pasien->provinsi = $provinsi;
+            $pasien->kabupaten = $kota_kabupaten;
+            $pasien->kecamatan = $kecamatan;
+            $pasien->status_perkawinan = $status_perkawinan;
+            $pasien->umur = $umur;
+            $pasien->anak_ke = $anak_ke;
+            $pasien->pendidikan_kode = $pendidikan_terakhir;
+            $pasien->jurusan = $jurusan;
+            $pasien->nama_tempat_bekerja = $nama_tempat_bekerja;
+            $pasien->alamat_tempat_bekerja = $alamat_tempat_bekerja;
+            $pasien->penghasilan = $penghasilan;
+            $pasien->ayah_nama = $nama_ayah;
+            $pasien->no_rekam_medik_ayah = $nomor_rekam_medis_ayah;
+            $pasien->ibu_nama = $nama_ibu;
+            $pasien->no_rekam_medik_ibu = $nomor_rekam_medis_ibu;
 
-            // create data foto_pasien bagian gambar swa dan identitas
-            $nama_swafoto = Foto::simpan_foto($request, FotoPasien::$FOTO_SWA_PASIEN);
-            $nama_kartu_identitas_foto = Foto::simpan_foto($request, FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN);
-            //create data foto_pasien
-            $create_foto_pasien = new FotoPasien();
-            $create_foto_pasien->id_pasien = $pasien->id;
-            $create_foto_pasien->swafoto = "/".FotoPasien::$FOTO_SWA_PASIEN."/" . $nama_swafoto;
-            $create_foto_pasien->foto_identitas = "/".FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN."/" . $nama_kartu_identitas_foto;
-            $create_foto_pasien->save();
-
-            //create detail akun
-            $create_detail_akun = new DetailAkun();
-            $create_detail_akun->id_pasien = $pasien->id;
-            $create_detail_akun->id_akun = $useer->id;
-            $create_detail_akun->save();
-
-            return ResponseFormatter::success_ok(
-                'user register',
-                ['user' => $pasien]);
-        } catch (Exception $e){
-            return ResponseFormatter::error_not_found([
-                'message' => 'something went wrong',
-                'error' => $e
-            ], 'Authentication Failed', 500);
+            $pasien->save();
+        }catch (Exception $e){
+            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
         }
+
+        // cari data pasien yang sudah dibuat tadi
+        $cari_pasien = Pasien::where('kode', $kode_rm)->first();
+
+        // buat data di tb users
+        try{
+            $akun = new User();
+            $akun->nama = $nama_lengkap;
+            $akun->email = $email;
+            $akun->password = Hash::make($password);
+            $akun->kode = $cari_pasien->id;
+
+            $akun->save();
+        }catch (Exception $e){
+            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
+        }
+
+        // cari data users yang sudah dibuat tadi
+        $cari_akun = User::where('kode', $pasien->id)->first();
+
+        // buat data di tb detail_akun
+        try{
+            $detail_akun = new DetailAkun();
+            $detail_akun->id_pasien = $cari_pasien->id;
+            $detail_akun->id_akun = $cari_akun->id;
+            $detail_akun->save();
+        }catch (Exception $e){
+            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
+        }
+
+        // buat data di tb foto_pasien
+        try{
+            $foto_pasien = new FotoPasien();
+            $foto_pasien->id_pasien = $cari_pasien->id;
+            $foto_pasien->swafoto = "/".FotoPasien::$FOTO_SWA_PASIEN."/" . $nama_swafoto;
+            $foto_pasien->foto_identitas = "/".FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN."/" . $nama_kartu_identitas_foto;
+            $foto_pasien->save();
+        }catch (Exception $e){
+            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
+        }
+
+        //buat data di tb penanggung
+        try{
+            $list_penanggung = array();
+            foreach ($daftar_penanggung as $penanggungs){
+                $penanggung = new Penanggung();
+                $penanggung->nama_penanggung = $penanggungs['nama_penanggung'];
+                $penanggung->nomor_kartu = $penanggung['nomor_kartu_penanggung'];
+                $penanggung->pasien_id = $penanggungs[$cari_pasien->id];
+                $penanggung->foto_kartu_penanggung = $penanggung["/".Penanggung::$FOTO_KARTU_PENANGGUNG."/" . $nama_foto_penannggung];
+                $penanggung->save();
+                $list_penanggung[] = $penanggung;
+            }
+            
+        }catch (Exception $e){
+            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
+        }
+        
     }
 
     public function pendaftaranPasienLama(Request $request){

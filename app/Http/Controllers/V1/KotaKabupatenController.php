@@ -13,7 +13,7 @@ class KotaKabupatenController extends Controller
     public function getKabupatenKota(Request $request){
         $kode_prov = $request->input('kode_prov');
         try{
-            $list = KotaKabupaten::where('kode_prov', $kode_prov)->get();
+            $list = KotaKabupaten::where('kode_prov', $kode_prov)->orderBy('nama', 'ASC')->get();
             
             return ResponseFormatter::success_ok(
                 'Berhasil Mendapatkan Data',
