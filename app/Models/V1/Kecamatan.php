@@ -11,7 +11,7 @@ class Kecamatan extends Model
 
     protected $table = 'mirai_pasien.dm_kecamatan';
 
-    protected $id = 'kode_prov_kab_kecamatan';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

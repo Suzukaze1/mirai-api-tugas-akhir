@@ -11,7 +11,7 @@ class KotaKabupaten extends Model
 
     protected $table = 'mirai_pasien.dm_kabupaten';
 
-    protected $id = 'kode_prov_kabupaten';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.
