@@ -11,7 +11,7 @@ class PendidikanTerakhir extends Model
 
     protected $table = 'mirai_pasien.dm_pendidikan_terakhir';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

@@ -11,7 +11,7 @@ class StatusMenikah extends Model
 
     protected $table = 'mirai_pasien.dm_status_menikah';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

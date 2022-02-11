@@ -12,7 +12,7 @@ class AgamaController extends Controller
 {
     public function getAgama(Request $request){
         try{
-            $list = Agama::orderBy('id', 'ASC')->get();
+            $list = Agama::orderBy('kode', 'ASC')->get();
             return ResponseFormatter::success_ok(
                 'Berhasil Mendapatkan Data',
                 $list

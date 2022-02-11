@@ -11,7 +11,7 @@ class KedudukanKeluarga extends Model
 
     protected $table = 'mirai_pasien.dm_kedudukan_keluarga';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

@@ -12,7 +12,7 @@ class JenisIdentitasController extends Controller
 {
     public function getJenisIdentitas(Request $request){
         try{
-            $list = jenis_identitas::orderBy('id', 'ASC')->get();
+            $list = jenis_identitas::orderBy('kode', 'ASC')->get();
             return ResponseFormatter::success_ok(
                 'Berhasil Mendapatkan Data',
                 $list

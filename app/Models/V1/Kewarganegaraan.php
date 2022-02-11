@@ -11,7 +11,7 @@ class Kewarganegaraan extends Model
 
     protected $table = 'mirai_pasien.dm_kewarganegaraan';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

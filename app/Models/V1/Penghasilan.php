@@ -11,7 +11,7 @@ class Penghasilan extends Model
 
     protected $table = 'mirai_pasien.dm_penghasilan';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

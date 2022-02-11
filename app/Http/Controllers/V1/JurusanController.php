@@ -12,7 +12,7 @@ class JurusanController extends Controller
 {
     public function getJurusan(){
         try{
-            $list = Jurusan::orderBy('id', 'ASC')->get();
+            $list = Jurusan::orderBy('kode', 'ASC')->get();
             return ResponseFormatter::success_ok(
                 'Berhasil Mendapatkan Data',
                 $list

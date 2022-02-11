@@ -11,7 +11,7 @@ class GolonganDarah extends Model
 
     protected $table = 'mirai_pasien.dm_golongan_darah';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

@@ -11,7 +11,7 @@ class Suku extends Model
 
     protected $table = 'mirai_pasien.dm_suku';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.
