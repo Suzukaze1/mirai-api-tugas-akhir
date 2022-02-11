@@ -22,20 +22,20 @@ class PasienController extends Controller
     public function pendaftaranPasienBaru(Request $request){
         // logika nomor rekam medik
         $cek_pasien = Pasien::latest()->first();
-
-        $kode_rm = 1;
+        
+        $kode_rm = 0;
         if($cek_pasien == null) {
-            $a = $kode_rm;
+            $kode_rm = 1;
         } else {
             if ($cek_pasien->kode == null){
-                $a = 1;
+                $kode_rm = 1;
             }else if($cek_pasien->kode >= 1){
-                $a = $cek_pasien->kode + 1; 
+                $kode_rm = (int)$cek_pasien->kode + 1; 
             }
         }
 
         // nomor rekam medik
-        $nomor_rekam_medik = sprintf("%08s", $a);
+        $nomor_rekam_medik = sprintf("%08s", strval($kode_rm));
         
         // $request->validate([
             //     'kode' => ['required', 'string', 'max:10', 'unique:pasien'],
@@ -100,6 +100,9 @@ class PasienController extends Controller
         $nama_tempat_bekerja = $request->nama_tempat_bekerja;
         $alamat_tempat_bekerja = $request->alamat_tempat_bekerja;
         $penghasilan = $request->penghasilan;
+        $pekerjaan_kode = $request->pekerjaan_kode;
+        $kewarganegaraan_kode = $request->kewarganegaraan_kode;
+        $nama_pasangan = $request->nama_pasangan;
         $nama_ayah = $request->nama_ayah;
         $nomor_rekam_medis_ayah = $request->nomor_rekam_medis_ayah;
         $nama_ibu = $request->nama_ibu;
@@ -114,39 +117,6 @@ class PasienController extends Controller
 
         //get value file
         
-        // $nama_swafoto = Foto::simpan_foto($request, FotoPasien::$FOTO_SWA_PASIEN);
-        // $nama_kartu_identitas_foto = Foto::simpan_foto($request, FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN);
-
-
-        //buat data di tb penanggung
-        try{
-            $list_penanggung = array();
-            foreach ($request->daftar_penanggung as $penanggungs){
-                $nama_foto_penanggung = Foto::simpan_foto_ganda($penanggungs, Penanggung::$FOTO_KARTU_PENANGGUNG, $nama_lengkap);
-                $path_foto = "/" . Penanggung::$FOTO_KARTU_PENANGGUNG ."/" . $nama_foto_penanggung;
-                $penanggung = new Penanggung();
-                $penanggung->nama_penanggung = $penanggungs['nama_penanggung'];
-                $penanggung->nomor_kartu = $penanggungs['nomor_kartu_penanggung'];
-                $penanggung->pasien_id = "1";
-                $penanggung->foto_kartu_penanggung = $path_foto;
-                // $gambar_string = $penanggungs['foto_kartu_penanggung'];
-                // $gambar_asli = base64_decode($gambar_string);
-                // file_put_contents()
-                // $penanggung->foto_kartu_penanggung = $penanggungs['foto_kartu_penanggung'];
-                // return $daftar_penanggung;
-                // die();
-                //$penanggung->save();
-                $list_penanggung[] = $penanggung;
-            }
-            return ResponseFormatter::success_ok('Berhasil Membuat Penanggung', $list_penanggung);
-        }catch (Exception $e){
-            return ResponseFormatter::internal_server_error('Ada Yang Error Dari Server', 
-            [$list_penanggung,
-            $e
-            ]);
-        }
-
-        die();
 
         // buat data di tb pasien
         try{
@@ -175,14 +145,20 @@ class PasienController extends Controller
             $pasien->nama_tempat_bekerja = $nama_tempat_bekerja;
             $pasien->alamat_tempat_bekerja = $alamat_tempat_bekerja;
             $pasien->penghasilan = $penghasilan;
+            $pasien->pekerjaan_kode = $pekerjaan_kode;
+            $pasien->kewarganegaraan_kode = $kewarganegaraan_kode;
+            $pasien->nama_pasangan = $nama_pasangan;
             $pasien->ayah_nama = $nama_ayah;
             $pasien->no_rekam_medik_ayah = $nomor_rekam_medis_ayah;
             $pasien->ibu_nama = $nama_ibu;
             $pasien->no_rekam_medik_ibu = $nomor_rekam_medis_ibu;
 
+            return ResponseFormatter::success_ok('Berhasil Membuat Penanggung', $$pasien);
+            die();
+
             //$pasien->save();
         }catch (Exception $e){
-            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
+            return ResponseFormatter::internal_server_error('Ada Yang Error Dari Server (pasien)', $pasien);
         }
 
         // cari data pasien yang sudah dibuat tadi
@@ -194,38 +170,66 @@ class PasienController extends Controller
             $akun->nama = $nama_lengkap;
             $akun->email = $email;
             $akun->password = Hash::make($password);
-            //$akun->kode = $cari_pasien->id;
+            $akun->kode = $cari_pasien->id;
 
             $akun->save();
         }catch (Exception $e){
-            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
+            return ResponseFormatter::internal_server_error('Ada Yang Error Dari Server (users)', $e);
         }
 
         // cari data users yang sudah dibuat tadi
-        $cari_akun = User::where('kode', $pasien->id)->first();
+        $cari_akun = User::where('kode', $cari_pasien->id)->first();
 
         // buat data di tb detail_akun
         try{
             $detail_akun = new DetailAkun();
             $detail_akun->id_pasien = $cari_pasien->id;
             $detail_akun->id_akun = $cari_akun->id;
-            //$detail_akun->save();
+            $detail_akun->save();
         }catch (Exception $e){
-            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
+            return ResponseFormatter::internal_server_error('Ada Yang Error Dari Server (detail_akun)', $e);
         }
 
         // buat data di tb foto_pasien
         try{
             $foto_pasien = new FotoPasien();
+            $nama_swafoto = Foto::simpan_foto($request, FotoPasien::$FOTO_SWA_PASIEN);
+            $nama_kartu_identitas_foto = Foto::simpan_foto($request, FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN);
             $foto_pasien->id_pasien = $cari_pasien->id;
-            //$foto_pasien->swafoto = "/".FotoPasien::$FOTO_SWA_PASIEN."/" . $nama_swafoto;
-            //$foto_pasien->foto_identitas = "/".FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN."/" . $nama_kartu_identitas_foto;
-            //$foto_pasien->save();
+            $foto_pasien->swafoto = "/".FotoPasien::$FOTO_SWA_PASIEN."/" . $nama_swafoto;
+            $foto_pasien->foto_identitas = "/".FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN."/" . $nama_kartu_identitas_foto;
+            $foto_pasien->save();
         }catch (Exception $e){
-            return ResponseFormatter::error_not_found('Ada Yang Error Dari Server', $e);
+            return ResponseFormatter::internal_server_error('Ada Yang Error Dari Server (foto_pasien)', $e);
         }
 
-        
+        //buat data di tb penanggung
+        try{
+            $list_penanggung = array();
+            foreach ($request->daftar_penanggung as $penanggungs){
+                $nama_foto_penanggung = Foto::simpan_foto_ganda($penanggungs, Penanggung::$FOTO_KARTU_PENANGGUNG, $nama_lengkap);
+                $path_foto = "/" . Penanggung::$FOTO_KARTU_PENANGGUNG ."/" . $nama_foto_penanggung;
+                $penanggung = new Penanggung();
+                $penanggung->nama_penanggung = $penanggungs['nama_penanggung'];
+                $penanggung->nomor_kartu = $penanggungs['nomor_kartu_penanggung'];
+                $penanggung->pasien_id = $cari_pasien->id;
+                $penanggung->foto_kartu_penanggung = $path_foto;
+                // $gambar_string = $penanggungs['foto_kartu_penanggung'];
+                // $gambar_asli = base64_decode($gambar_string);
+                // file_put_contents()
+                // $penanggung->foto_kartu_penanggung = $penanggungs['foto_kartu_penanggung'];
+                // return $daftar_penanggung;
+                // die();
+                $penanggung->save();
+                $list_penanggung[] = $penanggung;
+            }
+            // return ResponseFormatter::success_ok('Berhasil Membuat Penanggung', $list_penanggung);
+        }catch (Exception $e){
+            return ResponseFormatter::internal_server_error('Ada Yang Error Dari Server(penangggung)', 
+            [$list_penanggung,
+            $e
+            ]);
+        }
         
     }
 

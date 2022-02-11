@@ -3,6 +3,7 @@
 use App\Http\Controllers\V1\AgamaController;
 use App\Http\Controllers\V1\GolonganDarahController;
 use App\Http\Controllers\V1\JenisIdentitasController;
+use App\Http\Controllers\V1\JenisKelaminController;
 use App\Http\Controllers\V1\JurusanController;
 use App\Http\Controllers\V1\KecamatanController;
 use App\Http\Controllers\V1\KedudukanKeluargaController;
@@ -109,6 +110,7 @@ class Routes
         Route::get(Endpoint::$STATUS_MENIKAH, [StatusMenikahController::class, 'getStatusMenikah']);
         Route::get(Endpoint::$KEWARGANEGARAAN, [KewarganegaraanController::class, 'getKewarganegaraan']);
         Route::get(Endpoint::$JENIS_IDENTIAS, [JenisIdentitasController::class, 'getJenisIdentitas']);
+        Route::get(Endpoint::$JENIS_KELAMIN, [JenisKelaminController::class, 'getJenisKelamin']);
     }
 }
 
@@ -138,5 +140,6 @@ class Endpoint
     static $STATUS_MENIKAH = 'status-menikah';
     static $KEWARGANEGARAAN = 'kewarganegaraan';
     static $JENIS_IDENTIAS = 'jenis-identitas';
+    static $JENIS_KELAMIN = 'jenis-kelamin';
     // Isi Lagi Endpoint nya cuk
 }
