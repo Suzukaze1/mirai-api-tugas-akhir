@@ -43,4 +43,19 @@ class Foto
         move_uploaded_file($files[0]['file'], $target_path);
         return $nama_foto;
     }
+
+    public static function base_64_foto($path, $key, $nama){
+        $folder_path = $path;
+        $base64Image = explode(";base64,", $key);
+        $explodeImage = explode("image/", $base64Image[0]);
+        $imageType = $explodeImage[1];
+        $image_base64 = base64_decode($base64Image[1]);
+        $unique = uniqid('', true);
+        $unik = substr($unique, strlen($unique) - 6, strlen($unique));
+        $file = $folder_path . "/". $nama. "-" .$unik . '.' .$imageType;
+        //$image_compress = app(Spatie\ImageOptimizer\OptimizerChain::class)->optimize($file);
+        file_put_contents($file, $image_base64);
+        $nama = "/".$folder_path . "/". $nama. "-" .$unik . '.' .$imageType;
+        return $nama;
+    }
 }

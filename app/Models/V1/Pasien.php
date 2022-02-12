@@ -10,6 +10,10 @@ class Pasien extends Model
 {
     use HasFactory, SoftDeletes; 
 
+    protected $table = 'mirai_pasien.pasien';
+
+    protected $id = 'id';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -34,7 +38,6 @@ class Pasien extends Model
         'jkel',
         'no_telp',
         'alergi',
-        'status_perkawinan',
         'kedudukan_keluarga',
         'golongan_darah',
         'provinsi',
@@ -46,10 +49,9 @@ class Pasien extends Model
         'nama_tempat_bekerja',
         'alamat_tempat_bekerja',
         'no_rekam_medik_ayah',
-        'no_rekam_medik_ibu'
+        'no_rekam_medik_ibu',
+        'status_perkawinan',
+        'penghasilan'
     ];
 
-    protected $table = 'mirai_pasien.pasien';
-
-    protected $id = 'id';
 }
