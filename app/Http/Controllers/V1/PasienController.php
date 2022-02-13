@@ -22,7 +22,7 @@ class PasienController extends Controller
     public function pendaftaranPasienBaru(Request $request)
     {
         // logika nomor rekam medik
-        $cek_pasien = Pasien::orderBy('nomor_rekam_medik', 'DESC')->first();
+        $cek_pasien = Pasien::orderBy('kode', 'DESC')->first();
 
         $kode_rm = 0;
         if ($cek_pasien == null) {
@@ -84,10 +84,6 @@ class PasienController extends Controller
         // cek apakah jenis identitas dan nomor identitas sudah dipakai sebelumnya
         $nomor_identitas_pakai = Pasien::where('no_identitas', $nomor_identitas)->first();
         if ($nomor_identitas_pakai != null) return "Nomor Identitas Sudah Dipakai";
-        if ($nomor_identitas_pakai->jenis_identitas_kode != $jenis_identitas) return "Nomor Identitas Sudah Dipakai";
-
-        return "Dsini";
-        die();
 
         try {
             // buat data di tb pasien
@@ -171,9 +167,9 @@ class PasienController extends Controller
                 $foto_swa_pasien_tb = Foto::base_64_foto($path_swa, $swafoto, $nama_lengkap);
                 $foto_kartu_identitas_tb = Foto::base_64_foto($path_kartu_identitas, $foto_identitas, $nama_lengkap);
                 $foto_pasien->id_pasien = $cari_pasien->kode;
-                $foto_pasien->swafoto = $foto_swa_pasien_tb;
-                $foto_pasien->foto_identitas = $foto_kartu_identitas_tb;
-                //$foto_pasien->save();
+                $foto_pasien->foto_swa_pasien = $foto_swa_pasien_tb;
+                $foto_pasien->foto_kartu_identitas_pasien = $foto_kartu_identitas_tb;
+                $foto_pasien->save();
             } catch (Exception $e) {
                 return ResponseFormatter::internal_server_error(
                     'Ada Yang Error Dari Server (foto_pasien)', $e);
@@ -195,7 +191,7 @@ class PasienController extends Controller
                         $file = Foto::base_64_foto($path, $key, $nama_lengkap);
                         $penanggung->foto_kartu_penanggung = $file;
                     }
-                    //$penanggung->save();
+                    $penanggung->save();
                     $list_penanggung[] = $penanggung;
                 }
                 // return ResponseFormatter::success_ok('Berhasil Membuat Penanggung', $list_penanggung);
@@ -245,8 +241,8 @@ class PasienController extends Controller
             $response["foto_kartu_identitas_pasien"] = $foto_kartu_identitas_tb;
             
             $response["nama_penanggung"] = $penanggungs['nama_penanggung'];
-            $response["password"] = $penanggungs['nomor_kartu_penanggung'];
-            $response["password"] = $file;
+            $response["nomor_kartu"] = $penanggungs['nomor_kartu_penanggung'];
+            $response["foto_kartu_penanggung"] = $file;
 
             return ResponseFormatter::success_ok("Berhasil Mendaftar", $response);
         } catch (Exception $e) {
