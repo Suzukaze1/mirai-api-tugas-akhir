@@ -16,7 +16,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Support\Facades\Password;
-use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 
 class PasienController extends Controller
 {
@@ -38,45 +37,6 @@ class PasienController extends Controller
 
         // nomor rekam medik
         $nomor_rekam_medik = sprintf("%08s", strval($kode_rm));
-
-        // $request->validate([
-        //     'kode' => ['required', 'string', 'max:10', 'unique:pasien'],
-        //     'agama_kode' => ['required', 'string', 'max:10'],
-        //     'pendidikan_kode' => ['required', 'string', 'max:10'],
-        //     'pekerjaan_kode' => ['required', 'string', 'max:10'],
-        //     'kewarganegaraan_kode' => ['required', 'string', 'max:10'],
-        //     'jenis_identitas_kode' => ['required', 'string', 'max:10'],
-        //     'suku_kode' => ['required', 'string', 'max:10'],
-        //     'no_identitas' => ['required', 'string', 'max:10', 'unique:users'],
-        //     'nama' => ['nullable', 'string', 'max:150'],
-        //     'ayah_nama' => ['nullable', 'string', 'max:150'],
-        //     'ibu_nama' => ['nullable', 'string', 'max:150'],
-        //     'nama_pasangan' => ['nullable', 'string', 'max:150'],
-        //     'tempat_lahir' => ['required', 'string', 'max:255'],
-        //     'tanggal_lahir' => ['required'],
-        //     'alamat' => ['required', 'string'],
-        //     'jkel' => ['required', 'string', 'max:11'],
-        //     'no_telp' => ['nullable', 'string', 'max:50'],
-        //     'alergi' => ['nullable'],
-        //     'kedudukan_keluarga' => ['nullable'],
-        //     'golongan_darah' => ['nullable'],
-        //     'provinsi' => ['required'],
-        //     'kabupaten' => ['required'],
-        //     'kecamatan' => ['required'],
-        //     'umur' => ['nullable'],
-        //     'anak_ke' => ['nullable'],
-        //     'jurusan' => ['nullable'],
-        //     'nama_tempat_bekerja' => ['required'],
-        //     'alamat_tempat_bekerja' => ['required'],
-        //     'no_rekam_medik_ayah' => ['nullable'],
-        //     'no_rekam_medik_ibu' => ['nullable'],
-
-        //     'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-        //     'password' => ['required', 'string'],
-
-        //     'nama_penanggung' => ['required'],
-        //     'nomor_kartu' => ['required'],
-        // ]);
 
         // get value text
         $nomor_identitas = $request->nomor_identitas;
@@ -124,7 +84,7 @@ class PasienController extends Controller
         // cek apakah jenis identitas dan nomor identitas sudah dipakai sebelumnya
         $nomor_identitas_pakai = Pasien::where('no_identitas', $nomor_identitas)->first();
         if ($nomor_identitas_pakai != null) return "Nomor Identitas Sudah Dipakai";
-        if ($nomor_identitas_pakai->jenis_identitas_kode != $jenis_identitas) return "Jenis Identitas Salah";
+        if ($nomor_identitas_pakai->jenis_identitas_kode != $jenis_identitas) return "Nomor Identitas Sudah Dipakai";
 
         return "Dsini";
         die();
