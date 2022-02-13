@@ -12,7 +12,7 @@ class Pasien extends Model
 
     protected $table = 'mirai_pasien.pasien';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

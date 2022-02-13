@@ -87,6 +87,7 @@ class Routes
     {
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_BARU, [PasienController::class, 'pendaftaranPasienBaru']);
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_LAMA, [PasienController::class, 'pendaftaranPasienLama']);
+        Route::post(Endpoint::$VALIDASI_PASIEN_LAMA, [PasienController::class, 'validasiPasienLama']);
     }
 
     private function _ambilGambar()
@@ -125,6 +126,7 @@ class Endpoint
     static $LUPA_PASSWORD = 'lupa-password';
     static $PENDAFTARAN_PASIEN_BARU = 'pendaftaran-pasien-baru';
     static $PENDAFTARAN_PASIEN_LAMA = 'pendaftaran-pasien-lama';
+    static $VALIDASI_PASIEN_LAMA = 'validasi-pasien-lama';
     static $AMBIL_GAMBAR = 'ambil-gambar';
     static $PROVINSI = 'provinsi';
     static $KABUPATEN_KOTA = 'kabupaten-kota';

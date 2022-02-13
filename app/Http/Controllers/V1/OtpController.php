@@ -27,16 +27,13 @@ class OtpController extends Controller
             $kode_otp = Hash::make($pass);
 
             // waktu expired untuk otp
-            $date_now = time();
+            //$date_now = time();
             $date_expired = time()+1800;
             // $date = $date_now - $date_expired;
 
             // email mengcek db
             $user = User::where('email', $email)->first();
 
-            // cek email di table otp
-            $otp = Otp::whereEmail($email)->first();
-            
             if($user === null){
                 return ResponseFormatter::error_not_found(
                     'Email Tidak Terdaftar',
@@ -44,6 +41,9 @@ class OtpController extends Controller
                 );
             }
 
+            // cek email di table otp
+            $otp = Otp::whereEmail($email)->first();
+            
             $getEmail =  $user->email;
 
             if($user =! $otp){
@@ -54,8 +54,8 @@ class OtpController extends Controller
                 $create_otp->save();
 
                 $details = [
-                    'title' => 'Mail from Keqing For MIRAI Pasien OTP',
-                    'body' => 'This is for testing email using smtp google',
+                    'title' => 'MIRAI Pasien OTP',
+                    'body' => 'OTP Untuk Lupa Password',
                     'hash_otp' => $pass
                 ];
 
@@ -73,8 +73,8 @@ class OtpController extends Controller
                 $update_otp->save();
 
                 $details = [
-                    'title' => 'Mail from Keqing MD',
-                    'body' => 'This is for testing email using smtp',
+                    'title' => 'MIRAI Pasien OTP',
+                    'body' => 'OTP Untuk Lupa Password',
                     'hash_otp' => $pass
                 ];
         
