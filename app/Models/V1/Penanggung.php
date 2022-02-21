@@ -16,7 +16,7 @@ class Penanggung extends Model
      */
     protected $fillable = [
         'nama_penanggung',
-        'nomor_kartu',
+        'nomor_kartu_penanggung',
         'foto_kartu_penanggung',
         'pasien_id'
     ];

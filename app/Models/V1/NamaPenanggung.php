@@ -11,7 +11,7 @@ class NamaPenanggung extends Model
 
     protected $table = 'mirai_pasien.dm_nama_penanggung';
 
-    protected $id = 'id';
+    protected $id = 'kode';
 
     /**
      * The attributes that are mass assignable.

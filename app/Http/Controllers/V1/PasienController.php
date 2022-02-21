@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\V1;
 
+use stdClass;
 use Exception;
 use App\Models\User;
 use App\Helpers\Foto;
+use App\Models\V1\Otp;
+use App\Mail\MyTestMail;
 use App\Helpers\Constant;
 use App\Models\V1\Pasien;
 use Illuminate\Http\Request;
@@ -13,7 +16,10 @@ use App\Models\V1\FotoPasien;
 use App\Models\V1\Penanggung;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Support\Facades\Password;
 
@@ -79,11 +85,11 @@ class PasienController extends Controller
 
         // cek apakah email sudah dipakai sebelumnya
         $email_pakai = User::where('email', $email)->first();
-        if ($email_pakai != null) return "Email Sudah Dipakai";
+        if ($email_pakai != null) return ResponseFormatter::error_not_found("Email Sudah Dipakai", null);
 
         // cek apakah jenis identitas dan nomor identitas sudah dipakai sebelumnya
         $nomor_identitas_pakai = Pasien::where('no_identitas', $nomor_identitas)->first();
-        if ($nomor_identitas_pakai != null) return "Nomor Identitas Sudah Dipakai";
+        if ($nomor_identitas_pakai != null) return ResponseFormatter::error_not_found("Nomor Identitas Sudah Dipakai", null);
 
         try {
             // buat data di tb pasien
@@ -181,7 +187,7 @@ class PasienController extends Controller
                 foreach ($request->daftar_penanggung as $penanggungs) {
                     $penanggung = new Penanggung();
                     $penanggung->nama_penanggung = $penanggungs['nama_penanggung'];
-                    $penanggung->nomor_kartu = $penanggungs['nomor_kartu_penanggung'];
+                    $penanggung->nomor_kartu_penanggung = $penanggungs['nomor_kartu_penanggung'];
                     $penanggung->pasien_id = $cari_pasien->kode;
 
                     $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
@@ -194,14 +200,16 @@ class PasienController extends Controller
                     $penanggung->save();
                     $list_penanggung[] = $penanggung;
                 }
-                // return ResponseFormatter::success_ok('Berhasil Membuat Penanggung', $list_penanggung);
+                
+                
+                //return ResponseFormatter::success_ok('Berhasil Membuat Penanggung', $list_penanggung);
             } catch (Exception $e) {
                 return ResponseFormatter::internal_server_error(
                     'Ada Yang Error Dari Server(penangggung)',[$list_penanggung,$e]);
             }
 
             $response = [];
-            $response["no_identitas"] = $nomor_identitas;
+            $response["nomor_identitas"] = $nomor_identitas;
             $response["jenis_identitas"] = $jenis_identitas;
             $response["nama_lengkap"] = $nama_lengkap;
             $response["tempat_lahir"] = $tempat_lahir;
@@ -240,9 +248,23 @@ class PasienController extends Controller
             $response["foto_swa_pasien"] = $foto_swa_pasien_tb;
             $response["foto_kartu_identitas_pasien"] = $foto_kartu_identitas_tb;
             
-            $response["nama_penanggung"] = $penanggungs['nama_penanggung'];
-            $response["nomor_kartu"] = $penanggungs['nomor_kartu_penanggung'];
-            $response["foto_kartu_penanggung"] = $file;
+            $list_penanggung1 = array();
+            foreach ($request->daftar_penanggung as $penanggungs) {
+                $penanggung = new Penanggung();
+                $penanggung->nama_penanggung = $penanggungs['nama_penanggung'];
+                $penanggung->nomor_kartu_penanggung = $penanggungs['nomor_kartu_penanggung'];
+
+                $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
+                $key = $penanggungs['foto_kartu_penanggung'];
+
+                if ($penanggungs['foto_kartu_penanggung']) {
+                    $file = Foto::base_64_foto_pindah_aja($path, $key, $nama_lengkap);
+                    $penanggung->foto_kartu_penanggung = $file;
+                }
+                $list_penanggung1[] = $penanggung;
+            }
+
+            $response["daftar_penanggung"] = $list_penanggung1;
 
             return ResponseFormatter::success_ok("Berhasil Mendaftar", $response);
         } catch (Exception $e) {
@@ -252,107 +274,22 @@ class PasienController extends Controller
 
     public function pendaftaranPasienLama(Request $request)
     {
-        // get value text
-        $no_rekam_medik = $request->kode;
-        $tgl_lahir = $request->tanggal_lahir;
-        $jenis_identitas = $request->jenis_identitas_kode;
-        $nomor_identitas = $request->nomor_identitas;
-        $foto_swa_pasien = $request->foto_swa_pasien;
-        $foto_kartu_identitas_pasien = $request->foto_kartu_identitas_pasien;
-        $email = $request->email;
-        $password = $request->password;
-        $ulang_password = $request->ulang_password;
-
-        // cek ke db pasien
-        $pasien = Pasien::where('kode', $no_rekam_medik)->first();
-
-        // cek apakah data pasien null atau tidak
-        if ($pasien == null) {
-            return ResponseFormatter::error_not_found("Data Pasien Tidak Ada", null);
-        } else {
-            //cek ke db user apakah pasien sudah mendaftar sebelumnya
-            $user = User::where('kode', $pasien->kode)->first();
-            if ($user != null) {
-                //jika null atau tidak ada data maka lanjut ke step selanjutnya
-                if ($pasien->kode == $user->kode) {
-                    //jika sudah ada data maka berhenti disni
-                    ResponseFormatter::error_not_found("Akun Sudah Terdaftar", null);
-                }
-            }
-        }
-
-        // logika seluruh validasi tidak termasuk angka/text/strinf dll
-        if ($pasien == null) return ResponseFormatter::error_not_found("Nomor Rekam Medik Tidak Terdaftar", null);
-
-        if ($pasien->tanggal_lahir != $tgl_lahir) return ResponseFormatter::error_not_found("Tanggal Lahir Salah", null);
-
-        if ($pasien->jenis_identitas_kode != $jenis_identitas) return ResponseFormatter::error_not_found("Jenis Identitas Salah", null);
-
-        if ($pasien->no_identitas != $nomor_identitas) return ResponseFormatter::error_not_found("Nomor Identitas Salah", null);
-
-        if ($password != $ulang_password) return ResponseFormatter::error_not_found("Password Tidak Sama", null);
-
-        // path 
-        $path_kartu_identitas = FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN;
-        $path_swa = FotoPasien::$FOTO_SWA_PASIEN;
-
-        //base64 to image
-        $nama_kartu_identitas_foto = Foto::base_64_foto($path_kartu_identitas, $foto_kartu_identitas_pasien, $pasien->nama);
-        $nama_swafoto = Foto::base_64_foto($path_swa, $foto_swa_pasien, $pasien->nama);
-
-        // buat data di table users
-        $create_users = new User();
-        $create_users->name = $pasien->nama;
-        $create_users->email = $email;
-        $create_users->password = Hash::make($password);
-        $create_users->kode = $pasien->kode;
-
-        // buat data di table foto pasien
-        $create_foto_pasien = new FotoPasien();
-        $create_foto_pasien->id_pasien = $pasien->kode;
-        $create_foto_pasien->foto_swa_pasien = $nama_swafoto;
-        $create_foto_pasien->foto_kartu_identitas_pasien = $nama_kartu_identitas_foto;
-
-
-
-        //$c = array($create_users->first(), $create_foto_pasien->first());
-        // $data[] = array($create_users->first() + $create_foto_pasien->first());
-
-        try {
-            //jika berhasil
-            $create_users->save();
-            $create_foto_pasien->save();
-            $response = [];
-            $response["kode"] = $no_rekam_medik;
-            $response["email"] = $email;
-            $response["password"] = $password;
-            $response["ulang_password"] = $ulang_password;
-            $response["foto_swa_pasien"] = $nama_swafoto;
-            $response["foto_kartu_identitas_pasien"] = $nama_kartu_identitas_foto;
-            $response["tanggal_lahir"] = $tgl_lahir;
-            $response["jenis_identitas"] = $jenis_identitas;
-            $response["no_identitas"] = $nomor_identitas;
-            return ResponseFormatter::success_ok('Berhasil Mendaftar Akun', $response);
-        } catch (Exception $e) {
-            //jika gagal
-            return ResponseFormatter::internal_server_error('Ada Sesuatu Yang salah', $e);
-        }
-    }
-
-    public function validasiPasienLama(Request $request)
-    {
         try{
             // get value text
             $no_rekam_medik = $request->kode;
             $tgl_lahir = $request->tanggal_lahir;
-            $jenis_identitas = $request->jenis_identitas_kode;
+            $jenis_identitas = $request->jenis_identitas;
             $nomor_identitas = $request->nomor_identitas;
+            $foto_swa_pasien = $request->foto_swa_pasien;
+            $foto_kartu_identitas_pasien = $request->foto_kartu_identitas_pasien;
             $email = $request->email;
             $password = $request->password;
             $ulang_password = $request->ulang_password;
 
             // cek ke db pasien
             $pasien = Pasien::where('kode', $no_rekam_medik)->first();
+
+            $x = new stdClass();
 
             // cek apakah data pasien null atau tidak
             if ($pasien == null) {
@@ -372,26 +309,213 @@ class PasienController extends Controller
             // logika seluruh validasi tidak termasuk angka/text/strinf dll
             if ($pasien == null) return ResponseFormatter::error_not_found("Nomor Rekam Medik Tidak Terdaftar", null);
 
-            if ($pasien->tanggal_lahir != $tgl_lahir) return ResponseFormatter::error_not_found("Tanggal Lahir Salah", null);
+            if ($pasien->tanggal_lahir != $tgl_lahir) return ResponseFormatter::error_not_found("Tanggal Lahir Tidak Sesuai", null);
 
-            if ($pasien->jenis_identitas_kode != $jenis_identitas) return ResponseFormatter::error_not_found("Jenis Identitas Salah", null);
+            if ($pasien->jenis_identitas_kode != $jenis_identitas) return ResponseFormatter::error_not_found("Jenis Identitas Tidak Sesuai", null);
 
-            if ($pasien->no_identitas != $nomor_identitas) return ResponseFormatter::error_not_found("Nomor Identitas Salah", null);
+            if ($pasien->no_identitas != $nomor_identitas) return ResponseFormatter::error_not_found("Nomor Identitas Tidak Benar", null);
 
             if ($password != $ulang_password) return ResponseFormatter::error_not_found("Password Tidak Sama", null);
 
-            $response = [];
-            $response["kode"] = $no_rekam_medik;
-            $response["email"] = $email;
-            $response["password"] = $password;
-            $response["ulang_password"] = $ulang_password;
-            $response["tanggal_lahir"] = $tgl_lahir;
-            $response["jenis_identitas_kode"] = $jenis_identitas;
-            $response["no_identitas"] = $nomor_identitas;
+            // path 
+            $path_kartu_identitas = FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN;
+            $path_swa = FotoPasien::$FOTO_SWA_PASIEN;
 
-            return ResponseFormatter::success_ok('Berhasil Validasi', $response);
-        }catch (Exception $e){
+            //base64 to image
+            $nama_kartu_identitas_foto = Foto::base_64_foto($path_kartu_identitas, $foto_kartu_identitas_pasien, $pasien->nama);
+            $nama_swafoto = Foto::base_64_foto($path_swa, $foto_swa_pasien, $pasien->nama);
+
+            // buat data di table users
+            $create_users = new User();
+            $create_users->name = $pasien->nama;
+            $create_users->email = $email;
+            $create_users->password = Hash::make($password);
+            $create_users->kode = $pasien->kode;
+            $create_users->save();
+
+            // cari data users yang sudah dibuat tadi
+            $cari_akun = User::where('kode', $pasien->kode)->first();
+
+            // buat data di table foto pasien
+            $create_foto_pasien = new FotoPasien();
+            $create_foto_pasien->id_pasien = $pasien->kode;
+            $create_foto_pasien->foto_swa_pasien = $nama_swafoto;
+            $create_foto_pasien->foto_kartu_identitas_pasien = $nama_kartu_identitas_foto;
+            
+            // buat data di tb detail_akun
+            try {
+                $detail_akun = new DetailAkun();
+                $detail_akun->id_pasien = $pasien->kode;
+                $detail_akun->id_akun = $cari_akun->id;
+                
+            } catch (Exception $e) {
+                return ResponseFormatter::internal_server_error(
+                    'Ada Yang Error Dari Server (detail_akun)', [$detail_akun, $e]);
+            }
+
+            //$c = array($create_users->first(), $create_foto_pasien->first());
+            // $data[] = array($create_users->first() + $create_foto_pasien->first());
+
+            try {
+                //jika berhasil
+                $create_foto_pasien->save();
+                $detail_akun->save();
+                $response = [];
+                $response["kode"] = $no_rekam_medik;
+                $response["email"] = $email;
+                $response["password"] = $password;
+                $response["ulang_password"] = $ulang_password;
+                $response["foto_swa_pasien"] = $nama_swafoto;
+                $response["foto_kartu_identitas_pasien"] = $nama_kartu_identitas_foto;
+                $response["tanggal_lahir"] = $tgl_lahir;
+                $response["jenis_identitas"] = $jenis_identitas;
+                $response["no_identitas"] = $nomor_identitas;
+                return ResponseFormatter::success_ok('Berhasil Mendaftar Akun', $response);
+            } catch (Exception $e) {
+                //jika gagal
+                return ResponseFormatter::internal_server_error('Ada Sesuatu Yang salah', $e);
+            }
+        }catch(Exception $e){
             return ResponseFormatter::internal_server_error('Ada Sesuatu Yang salah', $e);
+        }
+    }
+
+    public function dapatkanKodeOtpPendaftaranAKun(Request $request)
+    {
+        try{
+            // input email
+            $email = $request->email;
+
+            // angka random untuk otp diubah menjadi hash
+            $pass= rand(1000, 9999);
+            $kode_otp = Hash::make($pass);
+
+            // waktu expired untuk otp
+            //$date_now = time();
+            $date_expired = time()+1800;
+            // $date = $date_now - $date_expired;
+
+            // email mengcek db
+            // $user = User::where('email', $email)->first();
+
+            // if($user === null){
+            //     return ResponseFormatter::error_not_found(
+            //         'Email Tidak Terdaftar',
+            //         null
+            //     );
+            // }
+
+            // cek email di table otp
+            $otp = Otp::whereEmail($email)->first();
+            // echo $otp;
+            // die();
+            
+            //$getEmail =  $user->email;
+            $response = [];
+            $response['email'] = $email;
+            $response['kode_otp'] = $pass;
+
+            if($user =! $otp){
+                $create_otp = new Otp();
+                $create_otp->email = $email;
+                $create_otp->kode_otp = $kode_otp;
+                $create_otp->expired_time = $date_expired;
+                $create_otp->save();
+
+                $details = [
+                    'title' => 'MIRAI Pasien OTP',
+                    'body' => 'OTP Untuk Pasien Baru',
+                    'hash_otp' => $pass
+                ];
+
+                Mail::to($email)->send(new MyTestMail($details));
+
+                return ResponseFormatter::success_ok(
+                    "Berhasil Mengirim OTP", 
+                    $response
+                );
+            }else if ($otp->email == $email){
+                $update_otp = Otp::find($otp->id);
+                $update_otp->email = $email;
+                $update_otp->kode_otp = $kode_otp;
+                $update_otp->expired_time = $date_expired;
+                $update_otp->save();
+
+                $details = [
+                    'title' => 'MIRAI Pasien OTP',
+                    'body' => 'OTP Untuk Pasien Baru',
+                    'hash_otp' => $pass
+                ];
+        
+                Mail::to($email)->send(new MyTestMail($details));
+
+                return ResponseFormatter::success_ok(
+                    'Berhasil Update OTP',
+                    $response
+                );
+            }else{
+                return ResponseFormatter::internal_server_error(
+                    'Kesalahan Pada Server',
+                    $user
+                );
+            }
+        }catch(Exception $e){   
+            return ResponseFormatter::internal_server_error(
+                'Kesalahan Pada Server',
+                $e
+            );
+        }
+    }
+
+    public function konfirmasiKodeOtpPendaftaranAkun(Request $request)
+    {
+        try{
+            $email = $request->email;
+            $kode_otp = $request->kode_otp;
+
+            // email mengcek db
+            $otp = Otp::where('email', $email)->first();
+
+            // cek apakah ada data? jika tidak return
+            if($otp === null){
+                return ResponseFormatter::error_not_found(
+                    'Email Tidak Terdaftar',
+                    null
+                );
+            }
+
+            $otpHash =  $otp->kode_otp;
+            $expired_time = $otp->expired_time;
+            $getOtp = Hash::check($kode_otp, $otpHash);
+
+            $response = [];
+            $response['email'] = $email;
+            $response['kode_otp'] = intval($kode_otp);
+
+            if($kode_otp == $getOtp){
+                if($expired_time >= time()){
+                    $otp_delete = Otp::find($otp->id);
+                    $otp_delete->delete();
+                    return ResponseFormatter::success_ok(
+                        'Berhasil Validasi OTP',
+                        $response
+                    );
+                }else{
+                    return ResponseFormatter::error_not_found(
+                        'Kode OTP Sudah Expired',
+                        null
+                    );
+                }
+            }else{
+                return ResponseFormatter::error_not_found(
+                    'Kode OTP Salah',
+                    null
+                );
+            }
+        }catch (Exception $e){
+            return ResponseFormatter::internal_server_error(
+                'Kesalahan Pada Server', $e
+            );
         }
     }
 }

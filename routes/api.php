@@ -74,6 +74,8 @@ class Routes
     {
         Route::post(Endpoint::$REGISTER, [UserController::class, 'register']);
         Route::post(Endpoint::$LOGIN, [UserController::class, 'login']);
+        Route::post(Endpoint::$CEK_PASSWORD_GANTI_PASSWORD, [UserController::class, 'cekPasswordGantiPassword']);
+        Route::post(Endpoint::$GANTI_PASSWORD, [UserController::class, 'gantiPassword']);
     }
 
     private function _otpLupaPassword()
@@ -87,7 +89,8 @@ class Routes
     {
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_BARU, [PasienController::class, 'pendaftaranPasienBaru']);
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_LAMA, [PasienController::class, 'pendaftaranPasienLama']);
-        Route::post(Endpoint::$VALIDASI_PASIEN_LAMA, [PasienController::class, 'validasiPasienLama']);
+        Route::post(Endpoint::$DAPAT_OTP_PENDAFTARAN_AKUN, [PasienController::class, 'dapatkanKodeOtpPendaftaranAKun']);
+        Route::post(Endpoint::$KONFIRMASI_OTP_PENDAFTARAN_AKUN, [PasienController::class, 'konfirmasiKodeOtpPendaftaranAkun']);
     }
 
     private function _ambilGambar()
@@ -126,7 +129,6 @@ class Endpoint
     static $LUPA_PASSWORD = 'lupa-password';
     static $PENDAFTARAN_PASIEN_BARU = 'pendaftaran-pasien-baru';
     static $PENDAFTARAN_PASIEN_LAMA = 'pendaftaran-pasien-lama';
-    static $VALIDASI_PASIEN_LAMA = 'validasi-pasien-lama';
     static $AMBIL_GAMBAR = 'ambil-gambar';
     static $PROVINSI = 'provinsi';
     static $KABUPATEN_KOTA = 'kabupaten-kota';
@@ -143,5 +145,9 @@ class Endpoint
     static $KEWARGANEGARAAN = 'kewarganegaraan';
     static $JENIS_IDENTIAS = 'jenis-identitas';
     static $JENIS_KELAMIN = 'jenis-kelamin';
+    static $DAPAT_OTP_PENDAFTARAN_AKUN = 'dapat-otp-pendaftaran-akun';
+    static $KONFIRMASI_OTP_PENDAFTARAN_AKUN= 'konfirmasi-otp-pendaftaran-akun';
+    static $CEK_PASSWORD_GANTI_PASSWORD = 'cek-password-ganti-password';
+    static $GANTI_PASSWORD = 'ganti-password';
     // Isi Lagi Endpoint nya cuk
 }

@@ -31,7 +31,6 @@ class MyTestMail extends Mailable
     public function build()
     {
         return $this->subject('OTP Mail Dari Keqing')
-                    ->from('keqing.md@gmail.com')
                     ->view('email.MyTestEmail');
     }
 }

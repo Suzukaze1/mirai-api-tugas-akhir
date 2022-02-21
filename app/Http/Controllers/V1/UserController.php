@@ -6,6 +6,7 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\V1\Otp;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,8 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function register(Request $request){
+    public function register(Request $request)
+    {
         return "KLLELE";
         die();
         try{
@@ -47,7 +49,10 @@ class UserController extends Controller
         }
     }
 
-    public function login(Request $request){
+    public function login(Request $request)
+    {
+        $getTime = Carbon::now()->addMinute(10);
+        $exp_time = $getTime->format('Y-m-d H:i:s');
         try {
             $request->validate([
                 'email' => 'email|required',
@@ -64,18 +69,24 @@ class UserController extends Controller
     
             $user = User::where('email', $request->email)->first();
 
+            $kode_rm = sprintf("%08s", strval($user->kode));
+
             if(!Hash::check($request->password, $user->password, [])){
                 throw new \Exception('Invalid Credentials');
             }
 
             $tokenResult = $user->createToken('authToken')->plainTextToken;
 
+            $response = [];
+            $response['id'] = $user->id;
+            $response['email'] = $user->email;
+            $response['password'] = $user->password; 
+            $response['nomor_rekam_medik'] = $kode_rm;
+            $response['access_token'] = $tokenResult;
+            $response['token_expired'] = $exp_time;
+
             return ResponseFormatter::success_ok(
-                'Berhasil Login', [   
-                    'token_type' => 'Bearer',
-                    'access_token' => $tokenResult,
-                    'user' => $user
-                ]);
+                'Berhasil Login', $response);
         } catch (Exception $e) {
             return ResponseFormatter::internal_server_error(
                 'Kesalahan Pada Server',
@@ -84,14 +95,16 @@ class UserController extends Controller
         }
     }
 
-    public function tampilkanProfileUser(Request $request){
+    public function tampilkanProfileUser(Request $request)
+    {
         return ResponseFormatter::success_ok(
             'Data Profile User Berhasil Diambil',
             $request->user()
         );
     }
 
-    public function lupaPassword(Request $request){
+    public function lupaPassword(Request $request)
+    {
         try{
             $email = $request->email;
             $password = $request->password;
@@ -108,6 +121,10 @@ class UserController extends Controller
             $update_akun_saya->email = $email;
             $update_akun_saya->password = $password_hash;
 
+            $response = [];
+            $response['email'] = $email;
+            $response['password'] = $password;
+
             $otp = Otp::find($otp_email->id);
 
             if($otp){
@@ -116,7 +133,7 @@ class UserController extends Controller
 
                 return ResponseFormatter::success_ok(
                     'Berhasil Dihapus OTP dan Mengubah Data di profil',
-                    null
+                    $response
                 );
             }else{
                 return ResponseFormatter::error_not_found(
@@ -133,7 +150,54 @@ class UserController extends Controller
         
     }
 
-    public function logout(Request $request){
+    public function cekPasswordGantiPassword(Request $request)
+    {
+        try{
+            $email = $request->email;
+            $password_lama = $request->password_lama;
+
+            $response = [];
+            $response['email'] = $email;
+            $response['password_lama'] = $password_lama;
+
+            if(!$user = User::where('email', $email)->first()) return ResponseFormatter::error_not_found("Email Tidak Ditemukan", null);
+            if(!Hash::check($password_lama, $user->password, [])) return ResponseFormatter::error_not_found("Password Salah", null);
+            return ResponseFormatter::success_ok("Password Benar", $response);
+        }catch (Exception $e){
+            return ResponseFormatter::internal_server_error("Ada Yang Salah Pada Server", $e);
+        }
+    }
+
+    public function gantiPassword(Request $request)
+    {
+        try{
+            $email = $request->email;
+            $password_lama = $request->password_lama;
+            $password_baru = $request->password_baru;
+            $ulangi_password_baru = $request->ulangi_password_baru;
+
+            $response = [];
+            $response['email'] = $email;
+            $response['password_lama'] = $password_lama;
+            $response['password_baru'] = $password_baru;
+            $response['ulangi_password_baru'] = $ulangi_password_baru;
+
+            if(!$user = User::where('email', $email)->first()) return ResponseFormatter::error_not_found("Email Tidak Ditemukan", null);
+            if(!Hash::check($password_lama, $user->password, [])) return ResponseFormatter::error_not_found("Password Salah", null);
+            if($password_baru != $ulangi_password_baru) return ResponseFormatter::error_not_found("Password Baru Tidak Sama", null);
+
+            $ganti_password = User::find($user->id);
+            $ganti_password->password = Hash::make($password_baru);
+            $ganti_password->save();
+
+            return ResponseFormatter::success_ok("Berhasil Ganti Password", $response);
+        }catch (Exception $e){
+            return ResponseFormatter::internal_server_error("Ada Yang Salah Pada Server", $e);
+        }
+    }
+
+    public function logout(Request $request)
+    {
         $token = $request->user()->currentAccessToken()->delete();
 
         return ResponseFormatter::success_ok($token, 'Token Revoked/Dihapus');

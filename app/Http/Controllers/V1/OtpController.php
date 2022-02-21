@@ -17,7 +17,8 @@ use Facade\FlareClient\Http\Response;
 
 class OtpController extends Controller
 {
-    public function dapatkanKodeOtpLupaPassword(Request $request){
+    public function dapatkanKodeOtpLupaPassword(Request $request)
+    {
         try{
             // input email
             $email = $request->email;
@@ -46,6 +47,10 @@ class OtpController extends Controller
             
             $getEmail =  $user->email;
 
+            $response = [];
+            $response['email'] = $email;
+            $response['kode_otp'] = $pass;
+
             if($user =! $otp){
                 $create_otp = new Otp();
                 $create_otp->email = $email;
@@ -62,8 +67,8 @@ class OtpController extends Controller
                 Mail::to($email)->send(new MyTestMail($details));
 
                 return ResponseFormatter::success_ok(
-                    $pass, 
-                    'Berhasil Membuat OTP'
+                    "Berhasil Membuat OTP", 
+                    $response
                 );
             }else if ($getEmail == $email){
                 $update_otp = Otp::find($otp->id);
@@ -82,7 +87,7 @@ class OtpController extends Controller
 
                 return ResponseFormatter::success_ok(
                     'Berhasil Update OTP',
-                    $pass
+                    $response
                 );
             }else{
                 return ResponseFormatter::internal_server_error(
@@ -98,7 +103,8 @@ class OtpController extends Controller
         }
     }
 
-    public function konfirmasiKodeOtpLupaPassword(Request $request){
+    public function konfirmasiKodeOtpLupaPassword(Request $request)
+    {
         try{
             $email = $request->email;
             $kode_otp = $request->kode_otp;
@@ -118,11 +124,15 @@ class OtpController extends Controller
             $expired_time = $otp->expired_time;
             $getOtp = Hash::check($kode_otp, $otpHash);
 
+            $response = [];
+            $response['email'] = $email;
+            $response['kode_otp'] = intval($kode_otp);
+
             if($kode_otp == $getOtp){
                 if($expired_time >= time()){
                     return ResponseFormatter::success_ok(
                         'Berhasil Validasi OTP',
-                        null
+                        $response
                     );
                 }else{
                     return ResponseFormatter::error_not_found(
