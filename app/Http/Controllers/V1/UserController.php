@@ -154,14 +154,14 @@ class UserController extends Controller
     {
         try{
             $email = $request->email;
-            $password_lama = $request->password_lama;
+            $password = $request->password;
 
             $response = [];
             $response['email'] = $email;
-            $response['password_lama'] = $password_lama;
+            $response['password'] = $password;
 
             if(!$user = User::where('email', $email)->first()) return ResponseFormatter::error_not_found("Email Tidak Ditemukan", null);
-            if(!Hash::check($password_lama, $user->password, [])) return ResponseFormatter::error_not_found("Password Salah", null);
+            if(!Hash::check($password, $user->password, [])) return ResponseFormatter::error_not_found("Password Salah", null);
             return ResponseFormatter::success_ok("Password Benar", $response);
         }catch (Exception $e){
             return ResponseFormatter::internal_server_error("Ada Yang Salah Pada Server", $e);

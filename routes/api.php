@@ -12,6 +12,7 @@ use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\NamaPenanggungController;
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
+use App\Http\Controllers\V1\PasienSementaraController;
 use App\Http\Controllers\V1\PendidikanTerakhirController;
 use App\Http\Controllers\V1\PenghasilanController;
 use App\Http\Controllers\V1\ProvinsiController;
@@ -89,6 +90,7 @@ class Routes
     {
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_BARU, [PasienController::class, 'pendaftaranPasienBaru']);
         Route::post(Endpoint::$PENDAFTARAN_PASIEN_LAMA, [PasienController::class, 'pendaftaranPasienLama']);
+        Route::post(Endpoint::$DAFTAR_PASIEN_BARU_KE_TABEL_SEMENTARA, [PasienSementaraController::class, 'pendaftaranPasienBaruKeTabelSementara']);
         Route::post(Endpoint::$DAPAT_OTP_PENDAFTARAN_AKUN, [PasienController::class, 'dapatkanKodeOtpPendaftaranAKun']);
         Route::post(Endpoint::$KONFIRMASI_OTP_PENDAFTARAN_AKUN, [PasienController::class, 'konfirmasiKodeOtpPendaftaranAkun']);
     }
@@ -149,5 +151,6 @@ class Endpoint
     static $KONFIRMASI_OTP_PENDAFTARAN_AKUN= 'konfirmasi-otp-pendaftaran-akun';
     static $CEK_PASSWORD_GANTI_PASSWORD = 'cek-password-ganti-password';
     static $GANTI_PASSWORD = 'ganti-password';
+    static $DAFTAR_PASIEN_BARU_KE_TABEL_SEMENTARA = 'pendaftaran-pasien-baru-sementara';
     // Isi Lagi Endpoint nya cuk
 }
