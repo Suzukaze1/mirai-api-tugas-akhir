@@ -121,7 +121,7 @@ class PasienSementaraController extends Controller
                 $akun = new User();
                 $akun->name = $nama_lengkap;
                 $akun->email = $email;
-                $akun->kode = $cari_pasien->id;
+                $akun->id_pasien_temp = $cari_pasien->id;
                 $akun->password = Hash::make($password);
 
                 $akun->save();
@@ -131,7 +131,7 @@ class PasienSementaraController extends Controller
             }
 
             // cari data users yang sudah dibuat tadi
-            $cari_akun = User::where('kode', $cari_pasien->id)->first();
+            $cari_akun = User::where('id_pasien_temp', $cari_pasien->id)->first();
 
             // buat data di tb detail_akun
             try {
@@ -151,7 +151,7 @@ class PasienSementaraController extends Controller
                 $path_kartu_identitas = FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN;
                 $foto_swa_pasien_tb = Foto::base_64_foto($path_swa, $swafoto, $nama_lengkap);
                 $foto_kartu_identitas_tb = Foto::base_64_foto($path_kartu_identitas, $foto_identitas, $nama_lengkap);
-                $foto_pasien->id_pasien = $cari_pasien->id;
+                $foto_pasien->id_pasien_temp = $cari_pasien->id;
                 $foto_pasien->foto_swa_pasien = $foto_swa_pasien_tb;
                 $foto_pasien->foto_kartu_identitas_pasien = $foto_kartu_identitas_tb;
                 $foto_pasien->save();
@@ -167,7 +167,7 @@ class PasienSementaraController extends Controller
                     $penanggung = new Penanggung();
                     $penanggung->nama_penanggung = $penanggungs['nama_penanggung'];
                     $penanggung->nomor_kartu_penanggung = $penanggungs['nomor_kartu_penanggung'];
-                    $penanggung->pasien_id = $cari_pasien->id;
+                    $penanggung->id_pasien_temp = $cari_pasien->id;
 
                     $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
                     $key = $penanggungs['foto_kartu_penanggung'];

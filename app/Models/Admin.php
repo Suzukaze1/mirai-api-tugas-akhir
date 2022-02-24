@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Models\V1;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Agama extends Model
+class Admin extends Model
 {
     use HasFactory;
 
-    protected $table = 'mirai_pasien.dm_agama';
-
-    protected $primaryKey = 'kode';
+    protected $table = 'mirai_pasien.admin';
 
     /**
      * The attributes that are mass assignable.
@@ -19,6 +17,8 @@ class Agama extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'agama'
+        'nip',
+        'password',
+        'nama'
     ];
 }

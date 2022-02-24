@@ -30,7 +30,7 @@ class MyTestMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('OTP Mail Dari Keqing')
+        return $this->subject('MIRAI PASIEN')
                     ->view('email.MyTestEmail');
     }
 }

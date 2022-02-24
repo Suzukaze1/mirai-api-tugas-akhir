@@ -60,6 +60,7 @@ class OtpController extends Controller
 
                 $details = [
                     'title' => 'MIRAI Pasien OTP',
+                    'otp' => 'Ini Adalah Kode Anda',
                     'body' => 'OTP Untuk Lupa/Ganti Password',
                     'hash_otp' => $pass
                 ];
@@ -79,6 +80,7 @@ class OtpController extends Controller
 
                 $details = [
                     'title' => 'MIRAI Pasien OTP',
+                    'otp' => 'Ini Adalah Kode Anda',
                     'body' => 'OTP Untuk Lupa/Ganti Password',
                     'hash_otp' => $pass
                 ];

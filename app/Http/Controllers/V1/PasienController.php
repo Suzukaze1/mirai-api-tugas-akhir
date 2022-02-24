@@ -425,6 +425,7 @@ class PasienController extends Controller
                 $details = [
                     'title' => 'MIRAI Pasien OTP',
                     'body' => 'OTP Untuk Pasien Baru',
+                    'otp' => 'Ini Adalah Kode Anda',
                     'hash_otp' => $pass
                 ];
 
@@ -444,6 +445,7 @@ class PasienController extends Controller
                 $details = [
                     'title' => 'MIRAI Pasien OTP',
                     'body' => 'OTP Untuk Pasien Baru',
+                    'otp' => 'Ini Adalah Kode Anda',
                     'hash_otp' => $pass
                 ];
         

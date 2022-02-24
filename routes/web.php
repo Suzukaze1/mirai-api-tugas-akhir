@@ -14,8 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::get('login', [LoginViewController::class,'index']);
+Route::get('/', [LoginViewController::class,'index']);
+Route::post('/login', [LoginViewController::class, 'login']);
+Route::get('/logout', [LoginViewController::class, 'logout']);
+
+Route::get('/home', [LoginViewController::class, 'home'])->middleware('CekLogin');
+Route::get('/list-pasien', [LoginViewController::class, 'listPasien'])->middleware('CekLogin');
+Route::get('/list-pasien/validasi/{id}', [LoginViewController::class, 'validasiPasien'])->middleware('CekLogin');
+Route::post('/list-pasien/validasi/verifikasi', [LoginViewController::class, 'verifikasiPasien'])->middleware('CekLogin');

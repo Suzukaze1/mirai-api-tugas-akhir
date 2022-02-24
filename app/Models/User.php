@@ -26,7 +26,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'kode'
+        'kode',
+        'id_pasien_temp'
     ];
 
     // /**

@@ -18,7 +18,8 @@ class Penanggung extends Model
         'nama_penanggung',
         'nomor_kartu_penanggung',
         'foto_kartu_penanggung',
-        'pasien_id'
+        'pasien_id',
+        'id_pasien_temp'
     ];
 
     protected $table = 'mirai_pasien.penanggung';

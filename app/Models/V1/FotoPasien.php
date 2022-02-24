@@ -17,7 +17,8 @@ class FotoPasien extends Model
     protected $fillable = [
         'foto_swa_pasien',
         'foto_kartu_identitas_pasien',
-        'id_pasien'
+        'id_pasien',
+        'id_pasien_temp'
     ];
 
     protected $table = 'mirai_pasien.foto_pasien';
