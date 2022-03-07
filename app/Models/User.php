@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\V1\DetailAkun;
 use App\Models\V1\Pasien;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,8 +50,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function pasiens()
-    {
-        return $this->hasMany(Pasien::class, 'kode', 'id');
+    public function details(){
+    	return $this->hasMany(DetailAkun::class, 'id_akun', 'id');
     }
 }

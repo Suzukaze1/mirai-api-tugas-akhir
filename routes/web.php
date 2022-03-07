@@ -23,6 +23,6 @@ Route::post('/login', [LoginViewController::class, 'login']);
 Route::get('/logout', [LoginViewController::class, 'logout']);
 
 Route::get('/home', [LoginViewController::class, 'home'])->middleware('CekLogin');
-Route::get('/list-pasien', [LoginViewController::class, 'listPasien'])->middleware('CekLogin');
+Route::get('/list-pasien-baru', [LoginViewController::class, 'listPasien'])->middleware('CekLogin');
 Route::get('/list-pasien/validasi/{id}', [LoginViewController::class, 'validasiPasien'])->middleware('CekLogin');
 Route::post('/list-pasien/validasi/verifikasi', [LoginViewController::class, 'verifikasiPasien'])->middleware('CekLogin');

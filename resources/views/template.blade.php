@@ -61,7 +61,11 @@
                             </li>
 
                             <li>
-                                <a href="/list-pasien" class="waves-effect"><i class="mdi mdi-book-outline"></i> <span> List Pasien </span> </a>
+                                <a href="/list-pasien-baru" class="waves-effect"><i class="mdi mdi-book-outline"></i> <span> List Pasien Baru </span> </a>
+                            </li>
+
+                            <li>
+                                <a href="/list-pasien-lama" class="waves-effect"><i class="mdi mdi-book-outline"></i> <span> List Pasien Lama </span> </a>
                             </li>
                             
                             <li>

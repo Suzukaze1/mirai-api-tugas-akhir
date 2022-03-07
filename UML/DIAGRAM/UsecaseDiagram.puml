@@ -1,0 +1,68 @@
+@startuml Usecase
+Left to Right Direction
+skinParam packageStyle rectangle
+
+actor Aktor
+
+
+rectangle "Use Case Diagram Sistem Prediksi Nilai NTPP Provinsi Riau"{
+
+    ' Aktor
+    Aktor -- (Melihat Dashboard)
+
+    Aktor -- (Melihat Profil)
+    Aktor -- (Mengubah Profil)
+
+    Aktor -- (Melihat Users)
+    Aktor -- (Menambah Users)
+    Aktor -- (Mengubah Users)
+    Aktor -- (Menghapus Users)
+
+    Aktor -- (Melihat Data)
+    Aktor -- (Menambah Data)
+    Aktor -- (Mengubah Data)
+    Aktor -- (Menghapus Data)
+    Aktor -- (Mengimport Data)
+
+    Aktor -- (Melihat Grafik)
+    
+    Aktor -- (Penerapan Metode)
+
+    Aktor -- (Mengubah Konfigurasi)
+
+    
+
+    ' semua aktor
+
+    (Dashboard)<.. (Login) : <<include>>
+    (Melihat Dashboard)<..(Dashboard)
+
+    (My Profil)<.. (Login) : <<include>>
+    (Melihat Profil)<.. (My Profil)
+    (Mengubah Profil)<.. (My Profil)
+
+    (Users)<.. (Login) : <<include>>
+    (Melihat Users)<.. (Users)
+    (Menambah Users)<.. (Users)
+    (Mengubah Users)<.. (Users)
+    (Menghapus Users)<.. (Users)
+
+    (Data)<.. (Login) : <<include>>
+    (Melihat Data)<.. (Data)
+    (Menambah Data)<.. (Data)
+    (Mengubah Data)<.. (Data)
+    (Menghapus Data)<.. (Data)
+    (Mengimport Data)<.. (Data)
+
+    (Grafik)<.. (Login) : <<include>>
+    (Melihat Grafik)<.. (Grafik)
+
+    (Penerapan Metode)<.. (Login) : <<include>>
+
+    (Konfigurasi)<.. (Login) : <<include>>
+    (Mengubah Konfigurasi)<.. (Konfigurasi)
+
+    
+}
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+
+autonumber
+hide footbox
+title Login
+
+Actor customer
+boundary Toko_V
+boundary Login_V
+boundary Dashboard_V
+control Auth_C
+Entity User_M
+
+Auth_C --> Login_V: load->index()
+Login_V --> customer: Halaman Toko
+customer --> Toko_V: klik tombol login
+
+customer --> Login_V: Mengisi Inputan
+    note right of customer
+        Inputan username dan password
+            end note
+customer --> Login_V: Klik Tombol Login
+
+Login_V --> Auth_C: do_login()
+Auth_C --> User_M: is_user_exist(), get_password()
+
+    User_M --> Dashboard_V: redirect()
+
+
+@enduml

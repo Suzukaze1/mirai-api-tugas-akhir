@@ -7,6 +7,7 @@ use App\Mail\MyTestMail;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\V1\Agama;
+use App\Models\V1\DetailAkun;
 use App\Models\V1\FotoPasien;
 use App\Models\V1\GolonganDarah;
 use App\Models\V1\jenis_identitas;
@@ -16,6 +17,7 @@ use App\Models\V1\Kecamatan;
 use App\Models\V1\KedudukanKeluarga;
 use App\Models\V1\Kewarganegaraan;
 use App\Models\V1\KotaKabupaten;
+use App\Models\V1\Pasien;
 use App\Models\V1\PasienSementara;
 use App\Models\V1\Penanggung;
 use App\Models\V1\PendidikanTerakhir;
@@ -125,16 +127,121 @@ class LoginViewController extends Controller
             $pesan = "Data Pasien Gagal Di Verifikasi";
         }
 
-        $akun = User::where('id', $id_akun)->first();
+        if($id_status_validasi == 1){
+            // ambil data pasien temp dari id akun
+            $akun = User::where('id', $id_akun)->first();
+            $list_pasien = PasienSementara::where('id', $akun->id_pasien_temp)->first();
+            return $id_akun;
+            die();
 
-        $details = [
-            'title' => $title,
-            'body' => $alasan_berhasil_gagal,
-            'otp' => '',
-            'hash_otp' => ''
-        ];
+            // logika nomor rekam medik
+            $cek_pasien = Pasien::orderBy('kode', 'DESC')->first();
+            $kode_rm = 0;
+            if ($cek_pasien == null) {
+                $kode_rm = 1;
+            } else {
+                if ($cek_pasien->kode == null) {
+                    $kode_rm = 1;
+                } else if ($cek_pasien->kode >= 1) {
+                    $kode_rm = (int)$cek_pasien->kode + 1;
+                }
+            }
 
-        Mail::to($akun->email)->send(new MyTestMail($details));
-        return redirect('list-pasien')->with('pesan', $pesan);
+            // nomor rekam medik
+            $nomor_rekam_medik = sprintf("%08s", strval($kode_rm));
+
+            // input data
+            $pasien = new Pasien();
+            $pasien->kode = $nomor_rekam_medik;
+            $pasien->no_identitas = $list_pasien->no_identitas;
+            $pasien->jenis_identitas_kode = $list_pasien->jenis_identitas_kode;
+            $pasien->nama = $list_pasien->nama;
+            $pasien->tempat_lahir = $list_pasien->tempat_lahir;
+            $pasien->tanggal_lahir = $list_pasien->tanggal_lahir;
+            $pasien->kedudukan_keluarga = $list_pasien->kedudukan_keluarga;
+            $pasien->golongan_darah = $list_pasien->golongan_darah;
+            $pasien->agama_kode = $list_pasien->agama_kode;
+            $pasien->suku_kode = $list_pasien->suku_kode;
+            $pasien->no_telp = $list_pasien->no_telp;
+            $pasien->jkel = $list_pasien->jkel;
+            $pasien->alamat = $list_pasien->alamat;
+            $pasien->provinsi = $list_pasien->provinsi;
+            $pasien->kabupaten = $list_pasien->kabupaten;
+            $pasien->kecamatan = $list_pasien->kecamatan;
+            $pasien->status_perkawinan = $list_pasien->status_perkawinan;
+            $pasien->umur = $list_pasien->umur;
+            $pasien->anak_ke = $list_pasien->anak_ke;
+            $pasien->pendidikan_kode = $list_pasien->pendidikan_kode;
+            $pasien->jurusan = $list_pasien->jurusan;
+            $pasien->nama_tempat_bekerja = $list_pasien->nama_tempat_bekerja;
+            $pasien->alamat_tempat_bekerja = $list_pasien->alamat_tempat_bekerja;
+            $pasien->penghasilan = $list_pasien->penghasilan;
+            $pasien->pekerjaan_kode = $list_pasien->pekerjaan_kode;
+            $pasien->kewarganegaraan_kode = $list_pasien->kewarganegaraan_kode;
+            $pasien->nama_pasangan = $list_pasien->nama_pasangan;
+            $pasien->ayah_nama = $list_pasien->ayah_nama;
+            $pasien->no_rekam_medik_ayah = $list_pasien->no_rekam_medik_ayah;
+            $pasien->ibu_nama = $list_pasien->ibu_nama;
+            $pasien->no_rekam_medik_ibu = $list_pasien->no_rekam_medik_ibu;
+            $pasien->alergi = $list_pasien->alergi;
+            return $pasien;
+            die();
+
+            // update table users atau akun
+            $user = User::find($id_akun);
+            $user->id_pasien_temp = null;
+            $user->kode = $nomor_rekam_medik;
+            $user->save();
+
+            // cari dan update detail akun 
+            $cari_detail_akun = DetailAkun::where('id_pasien_temp', $akun->id_pasien_temp)->first();
+            $detail_akun = DetailAkun::find($cari_detail_akun->id);
+            $detail_akun->id_pasien_temp = null;
+            $detail_akun->id_pasien = $nomor_rekam_medik;
+            $detail_akun->save();
+
+            // cari dan update penanggung
+            $cari_penanggung = Penanggung::where('id_pasien_temp', $akun->id_pasien_temp)->first();
+            $penanggung = Penanggung::find($cari_penanggung->id);
+            $penanggung->id_pasien_temp = null;
+            $penanggung->pasien_id = $nomor_rekam_medik;
+            $penanggung->save();
+
+            // cari dan update foto pasien
+            $cari_foto_pasien = FotoPasien::where('id_pasien_temp', $akun->id_pasien_temp)->first();
+            $foto_pasien = FotoPasien::find($cari_foto_pasien->id);
+            $foto_pasien->id_pasien_temp = null;
+            $foto_pasien->id_pasien = $nomor_rekam_medik;
+            $foto_pasien->save();
+
+            // hapus data di tabel pasien sementara
+            $hapus_pasien_sementara = PasienSementara::find($list_pasien->id);
+            $hapus_pasien_sementara->delete();
+
+            $details = [
+                'title' => $title,
+                'body' => $alasan_berhasil_gagal,
+                'otp' => '',
+                'hash_otp' => ''
+            ];
+
+            Mail::to($akun->email)->send(new MyTestMail($details));
+            return redirect('list-pasien-baru')->with('pesan', $pesan);
+            
+        }else if($id_status_validasi == 2){
+            // ambil data pasien temp dari id akun
+            $akun = User::where('id', $id_akun)->first();
+            $list_pasien = PasienSementara::where('id', $akun->id_pasien_temp)->first();
+
+            // update data di tabel pasien sementara
+            $update_pasien_sementara = PasienSementara::find($list_pasien->id);
+            $update_pasien_sementara->status_validasi = "2";
+            $update_pasien_sementara->save();
+
+            $pesan = "Verifikasi data pasien di tolak";
+
+            return redirect('/list-pasien-baru')->with('pesangagal', $pesan);
+        }
+        
     }
 }

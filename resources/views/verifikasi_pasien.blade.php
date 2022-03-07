@@ -66,7 +66,7 @@
                                             <td style="color:green">Menunggu Validasi</td>
                                         @endif
                                         @if($p->status_validasi == 2)
-                                            <td style="color:red">Gagal Validasi</td>
+                                            <td style="color:red">Validasi Ditolak</td>
                                         @endif
                                         <td>
                                             <a href="/list-pasien/validasi/{{$p->id}}" class="btn btn-sm btn-warning">Validasi</a>

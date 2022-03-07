@@ -14,7 +14,7 @@
             <div class="col-md-12">
                 <div class="card-box">
                     <h3 class="header-title m-b-30">Detail Pasien</h3>
-                    <a href="/list-pasien" class="btn btn-small btn-primary">Kembali</a>
+                    <a href="/list-pasien-baru" class="btn btn-small btn-primary">Kembali</a>
                     <br><br>
                     @foreach($pasien as $p)
                     @foreach ($agama as $a)

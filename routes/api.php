@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\V1\AgamaController;
+use App\Http\Controllers\V1\BantuanController;
+use App\Http\Controllers\V1\DaftarAntrianController;
+use App\Http\Controllers\V1\DokterController;
 use App\Http\Controllers\V1\GolonganDarahController;
 use App\Http\Controllers\V1\JenisIdentitasController;
 use App\Http\Controllers\V1\JenisKelaminController;
 use App\Http\Controllers\V1\JurusanController;
+use App\Http\Controllers\V1\KamarController;
 use App\Http\Controllers\V1\KecamatanController;
 use App\Http\Controllers\V1\KedudukanKeluargaController;
 use App\Http\Controllers\V1\KewarganegaraanController;
@@ -13,8 +17,10 @@ use App\Http\Controllers\V1\NamaPenanggungController;
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
 use App\Http\Controllers\V1\PasienSementaraController;
+use App\Http\Controllers\V1\PendaftaranPoliklinikController;
 use App\Http\Controllers\V1\PendidikanTerakhirController;
 use App\Http\Controllers\V1\PenghasilanController;
+use App\Http\Controllers\V1\PoliController;
 use App\Http\Controllers\V1\ProvinsiController;
 use App\Http\Controllers\V1\StatusMenikahController;
 use App\Http\Controllers\V1\SukuController;
@@ -58,6 +64,7 @@ class Routes
         $this->_otpLupaPassword();
         $this->_daftarPasien();
         $this->_ambilGambar();
+        $this->_pendaftaranPoliklinik();
         $this->_master();
 
         // API Pakai Token
@@ -65,10 +72,20 @@ class Routes
             // YOW
             Route::post(Endpoint::$LOGOUT, [UserController::class, 'logout']);
             Route::get(Endpoint::$USER, [UserController::class, 'tampilkanProfileUser']);
+            Route::post(Endpoint::$DETAIL_PASIEN, [UserController::class, 'tampilkanSeluruhProfilUser']);
         });
     }
     public function v2()
     {
+    }
+
+    private function _pendaftaranPoliklinik()
+    {
+        Route::get(Endpoint::$DATA_PASIEN, [PendaftaranPoliklinikController::class, 'getNomorRM']);
+        Route::get(Endpoint::$HARI_BEROBAT, [PendaftaranPoliklinikController::class, 'getHariBerobat']);
+        Route::get(Endpoint::$DEBITUR, [PendaftaranPoliklinikController::class, 'getDebitur']);
+        Route::post(Endpoint::$PENDAFTARAN_POLIKLINIK, [PendaftaranPoliklinikController::class, 'daftarPoliklinik']);
+        Route::get(Endpoint::$LIST_PENDAFTARAN_POLIKLINIK, [PendaftaranPoliklinikController::class, 'getPendaftaranPoliklinik']);
     }
 
     private function _auth()
@@ -77,6 +94,7 @@ class Routes
         Route::post(Endpoint::$LOGIN, [UserController::class, 'login']);
         Route::post(Endpoint::$CEK_PASSWORD_GANTI_PASSWORD, [UserController::class, 'cekPasswordGantiPassword']);
         Route::post(Endpoint::$GANTI_PASSWORD, [UserController::class, 'gantiPassword']);
+        
     }
 
     private function _otpLupaPassword()
@@ -117,6 +135,16 @@ class Routes
         Route::get(Endpoint::$KEWARGANEGARAAN, [KewarganegaraanController::class, 'getKewarganegaraan']);
         Route::get(Endpoint::$JENIS_IDENTIAS, [JenisIdentitasController::class, 'getJenisIdentitas']);
         Route::get(Endpoint::$JENIS_KELAMIN, [JenisKelaminController::class, 'getJenisKelamin']);
+        Route::get(Endpoint::$POLI, [PoliController::class, 'getPoli']);
+        Route::get(Endpoint::$LIST_DOKTER_POLI, [DokterController::class, 'getDokterPerPoli']);
+        Route::get(Endpoint::$LIST_KAMAR, [KamarController::class, 'getListKamar']);
+        Route::get(Endpoint::$LIST_DAFTAR_ANTRIAN, [DaftarAntrianController::class, 'getDaftarAntrian']);
+        Route::get(Endpoint::$DETAIL_KAMAR, [KamarController::class, 'getDetailKamar']);
+        Route::get(Endpoint::$BANTUAN, [BantuanController::class, 'getBantuan']);
+        Route::get(Endpoint::$ANTRIAN_ANTRIAN_PENDAFTARAN, [DaftarAntrianController::class, 'getDaftarAntrianPendaftaran']);
+        Route::get(Endpoint::$ANTRIAN_ANTRIAN_POLIKLINIK, [DaftarAntrianController::class, 'getDaftarAntrianPoliklinik']);
+        Route::get(Endpoint::$ANTRIAN_ANTRIAN_APOTEK, [DaftarAntrianController::class, 'getDaftarAntrianApotek']);
+        
     }
 }
 
@@ -152,5 +180,20 @@ class Endpoint
     static $CEK_PASSWORD_GANTI_PASSWORD = 'cek-password-ganti-password';
     static $GANTI_PASSWORD = 'ganti-password';
     static $DAFTAR_PASIEN_BARU_KE_TABEL_SEMENTARA = 'pendaftaran-pasien-baru-sementara';
+    static $POLI = 'poli';
+    static $LIST_DOKTER_POLI = 'get-dokter-poliklinik';
+    static $LIST_KAMAR = 'list-kamar';
+    static $LIST_DAFTAR_ANTRIAN = 'list-daftar-antrian';
+    static $DETAIL_PASIEN = 'get-seluruh-data-akun-pasien';
+    static $DETAIL_KAMAR = 'detail-kamar';
+    static $BANTUAN = 'bantuan';
+    static $ANTRIAN_ANTRIAN_PENDAFTARAN = 'antrian-pendaftaran';
+    static $ANTRIAN_ANTRIAN_POLIKLINIK = 'antrian-poliklinik';
+    static $ANTRIAN_ANTRIAN_APOTEK = 'antrian-apotek';
+    static $DATA_PASIEN = 'data-akun';
+    static $HARI_BEROBAT = 'hari-berobat';
+    static $DEBITUR = 'debitur';
+    static $PENDAFTARAN_POLIKLINIK = 'daftar-poliklinik';
+    static $LIST_PENDAFTARAN_POLIKLINIK = 'list-pendaftaran-poliklinik';
     // Isi Lagi Endpoint nya cuk
 }
