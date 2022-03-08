@@ -22,6 +22,7 @@ use App\Http\Controllers\V1\PendidikanTerakhirController;
 use App\Http\Controllers\V1\PenghasilanController;
 use App\Http\Controllers\V1\PoliController;
 use App\Http\Controllers\V1\ProvinsiController;
+use App\Http\Controllers\V1\RiwayatPoliklinikController;
 use App\Http\Controllers\V1\StatusMenikahController;
 use App\Http\Controllers\V1\SukuController;
 use App\Http\Controllers\V1\UploadGambarController;
@@ -65,6 +66,7 @@ class Routes
         $this->_daftarPasien();
         $this->_ambilGambar();
         $this->_pendaftaranPoliklinik();
+        $this->_riwayatPoliklinik();
         $this->_master();
 
         // API Pakai Token
@@ -79,6 +81,11 @@ class Routes
     {
     }
 
+    private function _riwayatPoliklinik()
+    {
+        Route::get(Endpoint::$RIWAYAT_POLIKLINIK, [RiwayatPoliklinikController::class, 'getRiwayatPoliklinik']);
+    }
+
     private function _pendaftaranPoliklinik()
     {
         Route::get(Endpoint::$DATA_PASIEN, [PendaftaranPoliklinikController::class, 'getNomorRM']);
@@ -86,6 +93,8 @@ class Routes
         Route::get(Endpoint::$DEBITUR, [PendaftaranPoliklinikController::class, 'getDebitur']);
         Route::post(Endpoint::$PENDAFTARAN_POLIKLINIK, [PendaftaranPoliklinikController::class, 'daftarPoliklinik']);
         Route::get(Endpoint::$LIST_PENDAFTARAN_POLIKLINIK, [PendaftaranPoliklinikController::class, 'getPendaftaranPoliklinik']);
+        Route::post(Endpoint::$UBAH_STATUS_PENDAFTARAN, [PendaftaranPoliklinikController::class, 'ubahStatusPendaftaran']);
+        Route::post(Endpoint::$SELESAI_PENDAFTARAN, [PendaftaranPoliklinikController::class, 'selesaiPendaftaran']);
     }
 
     private function _auth()
@@ -195,5 +204,8 @@ class Endpoint
     static $DEBITUR = 'debitur';
     static $PENDAFTARAN_POLIKLINIK = 'daftar-poliklinik';
     static $LIST_PENDAFTARAN_POLIKLINIK = 'list-pendaftaran-poliklinik';
+    static $UBAH_STATUS_PENDAFTARAN = 'ubah-status-pendaftaran';
+    static $SELESAI_PENDAFTARAN = 'selesai-pendaftaran';
+    static $RIWAYAT_POLIKLINIK = 'riwayat-poliklinik-pasien';
     // Isi Lagi Endpoint nya cuk
 }
