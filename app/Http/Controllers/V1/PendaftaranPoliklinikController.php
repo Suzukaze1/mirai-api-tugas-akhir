@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers\V1;
 
+use Exception;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\V1\Poli;
 use App\Dummy\DataDummy;
+use App\Models\V1\Pasien;
+use App\Models\V1\Antrian;
+use Illuminate\Http\Request;
+use App\Models\V1\DetailAkun;
+use App\Models\V1\Penanggung;
+use App\Models\V1\NamaPenanggung;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\V1\Antrian;
-use App\Models\V1\DetailAkun;
-use App\Models\V1\Pasien;
-use App\Models\V1\PendaftaranPoliklinik;
-use App\Models\V1\Poli;
 use App\Models\V1\RiwayatPoliklinik;
-use Carbon\Carbon;
-use Exception;
-use Illuminate\Http\Request;
 
 use function PHPUnit\Framework\isEmpty;
+use App\Models\V1\PendaftaranPoliklinik;
 
 class PendaftaranPoliklinikController extends Controller
 {
@@ -39,7 +41,7 @@ class PendaftaranPoliklinikController extends Controller
             foreach($pasien as $p){
                 $list_pasien['nomor_rekam_medis'] = sprintf("%08s", strval($p->kode));
                 $list_pasien['nama'] = $p->nama;
-                $list_pasien['nama_nomor'] = (sprintf("%08s", strval($p->kode))."-". $p->nama);
+                $list_pasien['nama_nomor'] = (sprintf("%08s", strval($p->kode))." - ". $p->nama);
                 $response[] = $list_pasien;
             }
         }
@@ -52,15 +54,44 @@ class PendaftaranPoliklinikController extends Controller
         return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $hari);
     }
 
-    public function getDebitur()
+    public function getDebitur(Request $request)
     {
-        $debitur = DataDummy::dummyDebitur();
-        return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $debitur);
+        try{
+            $list_debitur = [];
+            $response = [];
+            // $list_debitur['jenis_debitur'] = "4";
+            
+            $nomor_rm = $request->nomor_rekam_medis;
+            $no_rm = (int) $nomor_rm;
+
+            $list_debitur['id_penanggung'] = 4;
+            $list_debitur['nama_penanggung'] = "Umum";
+            $list_debitur['nomor_penanggung'] = null;
+            $list_debitur['label_penanggung'] = "Umum";
+            $response[]= $list_debitur;
+
+            $get_debitur_pasien = Penanggung::where('pasien_id', $no_rm)->get();
+
+            foreach($get_debitur_pasien as $deb)
+            {
+                $nam_pen = NamaPenanggung::where('kode', $deb->nama_penanggung)->first();
+                $nam_deb = $nam_pen->nama;
+                $nama_debitur = $nam_deb." - ".$deb->nomor_kartu_penanggung;
+                $list_debitur['id_penanggung'] = (int)$deb->nama_penanggung;
+                $list_debitur['nama_penanggung'] = $nam_deb;
+                $list_debitur['nomor_penanggung'] = $deb->nomor_kartu_penanggung;
+                $list_debitur['label_penanggung'] = $nama_debitur;
+                $response[] = $list_debitur;
+            }
+
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $response);
+        }catch (Exception $e){
+            return ResponseFormatter::internal_server_error("Ada Yang Salah Dari Server, $e");
+        }
     }
 
     public function daftarPoliklinik(Request $request)
     {
-        
         try{
             $nama_pasien = $request->nama_pasien;
             $nomor_rekam_medis = $request->nomor_rekam_medis;

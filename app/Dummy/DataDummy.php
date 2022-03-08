@@ -295,16 +295,18 @@ class DataDummy
         $H_2 = Carbon::now()->addDay(2)->locale('id');
         $H_1->settings(['formatFunction' => 'translatedFormat']);
         $H_2->settings(['formatFunction' => 'translatedFormat']);
+        $id_1 = date('d-m-Y h:i:s');
+        $id_2 = date('d-m-Y h:i:s');
         $hari_1 = $H_1->isoFormat('dddd, D MMMM Y');
         $hari_2 = $H_2->isoFormat('dddd, D MMMM Y');
         $dumHari = [
             [
-                "id" => 1,
-                "Hari" =>$hari_1
+                "id_tanggal" => $id_1,
+                "label_hari" =>$hari_1
             ],
             [
-                "id" => 2,
-                "Hari" =>$hari_2
+                "id_tanggal" => $id_2,
+                "label_hari" =>$hari_2
             ],
         ];
 
@@ -315,8 +317,8 @@ class DataDummy
     {
         $dumDebitur = [
             [
-                "id" => 1,
-                "nama" => "Umum"
+                "jenis_debitur" => 1,
+                "nama_debitur" => "Umum"
             ]
         ];
 

@@ -17,6 +17,7 @@ use App\Http\Controllers\V1\NamaPenanggungController;
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
 use App\Http\Controllers\V1\PasienSementaraController;
+use App\Http\Controllers\V1\PenanggungController;
 use App\Http\Controllers\V1\PendaftaranPoliklinikController;
 use App\Http\Controllers\V1\PendidikanTerakhirController;
 use App\Http\Controllers\V1\PenghasilanController;
@@ -67,6 +68,7 @@ class Routes
         $this->_ambilGambar();
         $this->_pendaftaranPoliklinik();
         $this->_riwayatPoliklinik();
+        $this->_penanggung();
         $this->_master();
 
         // API Pakai Token
@@ -79,6 +81,14 @@ class Routes
     }
     public function v2()
     {
+    }
+
+    private function _penanggung()
+    {
+        Route::get(Endpoint::$LIST_PENANGGUNG, [PenanggungController::class, 'listPenanggung']);
+        Route::get(Endpoint::$CEK_PENANGGUNG, [PenanggungController::class, 'validasiPenanggung']);
+        Route::post(Endpoint::$TAMBAH_PENANGGUNG, [PenanggungController::class, 'tambahPenanggung']);
+        Route::delete(Endpoint::$HAPUS_PENANGGUNG, [PenanggungController::class, 'hapusPenanggung']);
     }
 
     private function _riwayatPoliklinik()
@@ -201,11 +211,15 @@ class Endpoint
     static $ANTRIAN_ANTRIAN_APOTEK = 'antrian-apotek';
     static $DATA_PASIEN = 'data-akun';
     static $HARI_BEROBAT = 'hari-berobat';
-    static $DEBITUR = 'debitur';
+    static $DEBITUR = 'get-penanggung';
     static $PENDAFTARAN_POLIKLINIK = 'daftar-poliklinik';
     static $LIST_PENDAFTARAN_POLIKLINIK = 'list-pendaftaran-poliklinik';
     static $UBAH_STATUS_PENDAFTARAN = 'ubah-status-pendaftaran';
     static $SELESAI_PENDAFTARAN = 'selesai-pendaftaran';
     static $RIWAYAT_POLIKLINIK = 'riwayat-poliklinik-pasien';
+    static $LIST_PENANGGUNG = 'list-penanggung';
+    static $CEK_PENANGGUNG = 'cek-penanggung';
+    static $TAMBAH_PENANGGUNG = 'tambah-penanggung';
+    static $HAPUS_PENANGGUNG = 'hapus-penanggung';
     // Isi Lagi Endpoint nya cuk
 }
