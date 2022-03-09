@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\V1\AgamaController;
+use App\Http\Controllers\V1\AnggotaPasienController;
 use App\Http\Controllers\V1\BantuanController;
 use App\Http\Controllers\V1\DaftarAntrianController;
 use App\Http\Controllers\V1\DokterController;
@@ -69,6 +70,7 @@ class Routes
         $this->_pendaftaranPoliklinik();
         $this->_riwayatPoliklinik();
         $this->_penanggung();
+        $this->_anggotaPasien();
         $this->_master();
 
         // API Pakai Token
@@ -81,6 +83,13 @@ class Routes
     }
     public function v2()
     {
+    }
+
+    private function _anggotaPasien()
+    {
+        Route::post(Endpoint::$PENAMBAHAN_ANGGOTA_PASIEN_BARU_SEMENTARA, [PasienSementaraController::class, 'pendaftaranAnggotaPasienBaruKeTabelSementara']);
+        Route::get(Endpoint::$DATA_ANGGGOTA_PASIEN, [AnggotaPasienController::class, 'getAnggotaIndukPasien']);
+        Route::get(Endpoint::$DETAIL_DATA_ANGGOTA_PASIEN, [AnggotaPasienController::class, 'getDetailAnggotaIndukPasien']);
     }
 
     private function _penanggung()
@@ -221,5 +230,8 @@ class Endpoint
     static $CEK_PENANGGUNG = 'cek-penanggung';
     static $TAMBAH_PENANGGUNG = 'tambah-penanggung';
     static $HAPUS_PENANGGUNG = 'hapus-penanggung';
+    static $PENAMBAHAN_ANGGOTA_PASIEN_BARU_SEMENTARA = 'pendaftaran-anggota-pasien-baru-sementara';
+    static $DATA_ANGGGOTA_PASIEN = 'get-data-anggota-pasien';
+    static $DETAIL_DATA_ANGGOTA_PASIEN = 'get-detail-data-anggota-pasien';
     // Isi Lagi Endpoint nya cuk
 }

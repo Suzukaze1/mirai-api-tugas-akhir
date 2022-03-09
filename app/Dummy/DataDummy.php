@@ -89,13 +89,13 @@ class DataDummy
             "foto" => "/foto_kelas/kelas-iii.png"],
             ["id" => 2,
             "nama_kelas" => "Kelas II",
-            "foto" => "/foto_poli/kelas-ii.png",],
+            "foto" => "/foto_kelas/kelas-ii.png",],
             ["id" => 3,
             "nama_kelas" => "Kelas I",
-            "foto" => "/foto_poli/kelas-i.png",],
+            "foto" => "/foto_kelas/kelas-i.png",],
             ["id" => 4,
             "nama_kelas" => "VIP",
-            "foto" => "/foto_poli/vip.png",]];
+            "foto" => "/foto_kelas/vip.png",]];
 
         return $dumListKamar;
     }
@@ -295,8 +295,8 @@ class DataDummy
         $H_2 = Carbon::now()->addDay(2)->locale('id');
         $H_1->settings(['formatFunction' => 'translatedFormat']);
         $H_2->settings(['formatFunction' => 'translatedFormat']);
-        $id_1 = date('d-m-Y h:i:s');
-        $id_2 = date('d-m-Y h:i:s');
+        $id_1 = date('d-m-Y');
+        $id_2 = date('d-m-Y');
         $hari_1 = $H_1->isoFormat('dddd, D MMMM Y');
         $hari_2 = $H_2->isoFormat('dddd, D MMMM Y');
         $dumHari = [

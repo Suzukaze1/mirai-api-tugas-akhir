@@ -393,6 +393,6 @@ class UserController extends Controller
     {
         $token = $request->user()->currentAccessToken()->delete();
 
-        return ResponseFormatter::success_ok($token, 'Token Revoked/Dihapus');
+        return ResponseFormatter::success_ok('Token Revoked/Dihapus', $token);
     }
 }

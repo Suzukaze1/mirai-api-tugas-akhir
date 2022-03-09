@@ -93,29 +93,31 @@ class PendaftaranPoliklinikController extends Controller
     public function daftarPoliklinik(Request $request)
     {
         try{
-            $nama_pasien = $request->nama_pasien;
             $nomor_rekam_medis = $request->nomor_rekam_medis;
             $kunjungan = $request->kunjungan;
-            $nomor_debitur = $request->nomor_debitur;
+            $nomor_debitur = $request->nomor_penanggung;
             $id_poliklinik = $request->id_poliklinik;
-            $id_user = $request->id_user;
+            $email = $request->email;
+
+            $user = User::where('email', $email)->first();
+            if($user == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
+
+            $id_user = $user->id;
 
             $a = Antrian::where('id_poli', $id_poliklinik)->orderBy('id', 'DESC')->first();
             $antrian = $a->nomor_antrian+1;
             $antrian_real = sprintf("%03s", strval($antrian));
 
             $response = [];
-            $response['nama_pasien'] = $nama_pasien;
             $response['nomor_rekam_medis'] = $nomor_rekam_medis;
             $response['kunjungan'] = $kunjungan;
-            $response['nomor_debitur'] = $nomor_debitur;
+            $response['nomor_penanggung'] = $nomor_debitur;
             $response['id_poliklinik'] = $id_poliklinik;
-            $response['id_user'] = $id_user;
+            $response['email'] = $email;
 
             $daftar = new PendaftaranPoliklinik();
-            $daftar->nama_pasien = $nama_pasien;
             $daftar->nomor_rekam_medis = $nomor_rekam_medis;
-            $daftar->kunjungan = $kunjungan;
+            $daftar->kunjungan = date('d-m-Y');
             $daftar->nomor_debitur = $nomor_debitur;
             $daftar->id_poliklinik = $id_poliklinik;
             $daftar->id_user = $id_user;
@@ -158,9 +160,12 @@ class PendaftaranPoliklinikController extends Controller
                 }else{
                     $detail_antrian = $antrian_a->nomor_antrian;
                 }
+                $pasien = Pasien::where('kode', sprintf("%08s", strval($p->nomor_rekam_medis)))->first();
+                $nama_pas = $pasien->nama;
                 if($p->status_pendaftaran == "1"){
+                    
                     $list_pendaftaran['id'] = $p->id;
-                    $list_pendaftaran['nama_pasien'] = $p->nama_pasien;
+                    $list_pendaftaran['nama_pasien'] = $nama_pas;
                     $list_pendaftaran['nomor_rekam_medis'] = sprintf("%08s", strval($p->nomor_rekam_medis));
                     $list_pendaftaran['kunjungan'] = $p->kunjungan;
                     $list_pendaftaran['nomor_debitur'] = $nomor_debitur;
@@ -170,7 +175,7 @@ class PendaftaranPoliklinikController extends Controller
                     $list_pendaftaran['nomor_antrian_berjalan'] = $detail_antrian;
                 }elseif ($p->status_pendaftaran == "0"){
                     $list_pendaftaran['id'] = $p->id;
-                    $list_pendaftaran['nama_pasien'] = $p->nama_pasien;
+                    $list_pendaftaran['nama_pasien'] = $nama_pas;
                     $list_pendaftaran['nomor_rekam_medis'] = sprintf("%08s", strval($p->nomor_rekam_medis));
                     $list_pendaftaran['kunjungan'] = $p->kunjungan;
                     $list_pendaftaran['nomor_debitur'] = $nomor_debitur;
