@@ -5,15 +5,13 @@ namespace App\Models\V1;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Antrian extends Model
+class PendaftaranPoliklinik extends Model
 {
     use HasFactory;
 
-    protected $table = 'mirai_pasien.antrian';
+    protected $table = 'mirai_pasien.pendaftaran_poliklinik';
 
     protected $primaryKey = 'id';
-
-    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -21,8 +19,12 @@ class Antrian extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'nomor_rekam_medis',
+        'kunjungan',
+        'nomor_debitur',
+        'id_poliklinik',
+        'status_pendaftaran',
         'nomor_antrian',
-        'id_poli',
-        'panggil'
+        'id_user'
     ];
 }

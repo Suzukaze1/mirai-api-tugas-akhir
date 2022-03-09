@@ -92,43 +92,61 @@ class PendaftaranPoliklinikController extends Controller
 
     public function daftarPoliklinik(Request $request)
     {
-        try{
-            $nomor_rekam_medis = $request->nomor_rekam_medis;
-            $kunjungan = $request->kunjungan;
-            $nomor_debitur = $request->nomor_penanggung;
-            $id_poliklinik = $request->id_poliklinik;
-            $email = $request->email;
+        $nomor_rekam_medis = $request->nomor_rekam_medis;
+        $kunjungan = $request->kunjungan;
+        $nomor_debitur = $request->nomor_penanggung;
+        $id_poliklinik = $request->id_poliklinik;
+        $email = $request->email;
 
-            $user = User::where('email', $email)->first();
-            if($user == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
+        $user = User::where('email', $email)->first();
+        if($user == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
 
-            $id_user = $user->id;
+        $id_user = $user->id;
 
-            $a = Antrian::where('id_poli', $id_poliklinik)->orderBy('id', 'DESC')->first();
+        $a = Antrian::where('id_poli', $id_poliklinik)->orderBy('id', 'DESC')->first();
+        if($a == null){
+            $buat_atrian = new Antrian();
+            $buat_atrian->nomor_antrian = "001";
+            $buat_atrian->id_poli = $id_poliklinik;
+            $buat_atrian->panggil = "0";
+            $buat_atrian->save();
+            
+            $antrian_real = "001";
+        }elseif (!$a == null){
             $antrian = $a->nomor_antrian+1;
             $antrian_real = sprintf("%03s", strval($antrian));
 
-            $response = [];
-            $response['nomor_rekam_medis'] = $nomor_rekam_medis;
-            $response['kunjungan'] = $kunjungan;
-            $response['nomor_penanggung'] = $nomor_debitur;
-            $response['id_poliklinik'] = $id_poliklinik;
-            $response['email'] = $email;
-
-            $daftar = new PendaftaranPoliklinik();
-            $daftar->nomor_rekam_medis = $nomor_rekam_medis;
-            $daftar->kunjungan = date('d-m-Y');
-            $daftar->nomor_debitur = $nomor_debitur;
-            $daftar->id_poliklinik = $id_poliklinik;
-            $daftar->id_user = $id_user;
-            $daftar->status_pendaftaran = "0";
-            $daftar->nomor_antrian = $antrian_real;
-            $daftar->save();
-            
-            return ResponseFormatter::success_ok("Berhasil Mendaftar", $response);
-        }catch (Exception $e){
-            return ResponseFormatter::internal_server_error("Ada Yang Salah Dari Server", $e);
+            $buat_atrian1 = new Antrian();
+            $buat_atrian1->nomor_antrian = $antrian_real;
+            $buat_atrian1->id_poli = $id_poliklinik;
+            $buat_atrian1->panggil = "0";
+            $buat_atrian1->save();
         }
+        
+
+        $response = [];
+        $response['nomor_rekam_medis'] = $nomor_rekam_medis;
+        $response['kunjungan'] = $kunjungan;
+        $response['nomor_penanggung'] = $nomor_debitur;
+        $response['id_poliklinik'] = $id_poliklinik;
+        $response['email'] = $email;
+
+        $daftar = new PendaftaranPoliklinik();
+        $daftar->nomor_rekam_medis = $nomor_rekam_medis;
+        $daftar->kunjungan = date('d-m-Y');
+        $daftar->nomor_debitur = $nomor_debitur;
+        $daftar->id_poliklinik = $id_poliklinik;
+        $daftar->id_user = $id_user;
+        $daftar->status_pendaftaran = "0";
+        $daftar->nomor_antrian = $antrian_real;
+        $daftar->save();
+        
+        return ResponseFormatter::success_ok("Berhasil Mendaftar", $response);
+        // try{
+            //
+        // }catch (Exception $e){
+        //     return ResponseFormatter::internal_server_error("Ada Yang Salah Dari Server", $response);
+        // }
     }
 
     public function getPendaftaranPoliklinik(Request $request)

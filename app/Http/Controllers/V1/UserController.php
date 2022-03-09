@@ -67,7 +67,7 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        $getTime = Carbon::now()->addMinute(10);
+        $getTime = Carbon::now()->addHour(10);
         $exp_time = $getTime->format('Y-m-d H:i:s');
         try {
             $request->validate([
