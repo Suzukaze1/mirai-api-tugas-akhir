@@ -152,11 +152,12 @@ class PendaftaranPoliklinikController extends Controller
     public function getPendaftaranPoliklinik(Request $request)
     {
         try{
-            $id_user = $request->input('id_user');
-            $validasi_pendaftaran = PendaftaranPoliklinik::where('id_user', $id_user)->first();
-            if($validasi_pendaftaran == null) return "Data Kosong";
+            $email = $request->input('email');
+            $ambil_id = User::where('email', $email)->first();
+            $validasi_pendaftaran = PendaftaranPoliklinik::where('id_user', $ambil_id->id)->first();
+            if($validasi_pendaftaran == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
 
-            $pendaftaran = PendaftaranPoliklinik::where('id_user', $id_user)->get();
+            $pendaftaran = PendaftaranPoliklinik::where('id_user', $ambil_id->id)->get();
             $antrian_a = Antrian::where('panggil', "1")->where('id_poli', "1")->orderBy('id', 'asc')->first();
             $list_pendaftaran = [];
             $response = [];
@@ -166,40 +167,70 @@ class PendaftaranPoliklinikController extends Controller
                 }else if($p->status_pendaftaran == "1"){
                     $status_pendaftaran_detail = "Aktif";
                 }
+                
                 $poli = DataDummy::dummyPilihPoli($p->id_poliklinik);
                 $nama_poli = $poli[0]['nama'];
                 if($p->nomor_debitur == null){
-                    $nomor_debitur = "Umum";
+                    $nomor_penanggung = "-";
                 }else{
-                    $nomor_debitur = $p->nomor_debitur;
+                    $nomor_penanggung = $p->nomor_debitur;
                 }
+
+                //cari nama penanggung
+                $cari_penanggung = Penanggung::where('pasien_id', (int)$p->nomor_rekam_medis)->where('nomor_kartu_penanggung', $nomor_penanggung)->first();
+                if($cari_penanggung == null){
+                    $nama_penanggung = "UMUM";
+                }else{
+                    $kode = $cari_penanggung->nama_penanggung;
+                    if($kode == "1") {
+                        $nama_penanggung = "BPJS";
+                    }elseif($kode == "2"){
+                        $nama_penanggung = "KIS";
+                    }elseif($kode == "3"){
+                        $nama_penanggung = "JAMKESDA";
+                    }
+                }
+
                 if($antrian_a == null){
                     $detail_antrian = "000";
                 }else{
                     $detail_antrian = $antrian_a->nomor_antrian;
                 }
+
                 $pasien = Pasien::where('kode', sprintf("%08s", strval($p->nomor_rekam_medis)))->first();
                 $nama_pas = $pasien->nama;
+                
+                $my_date = $p->kunjungan;
+                $date = Carbon::createFromFormat('Y-m-d', $my_date)->locale('id')->isoFormat('dddd, D MMMM Y ');
+
+                // no_rm
+                $no_rm_s = sprintf("%08s", strval($p->nomor_rekam_medis));
+
+                
+
                 if($p->status_pendaftaran == "1"){
                     
                     $list_pendaftaran['id'] = $p->id;
                     $list_pendaftaran['nama_pasien'] = $nama_pas;
-                    $list_pendaftaran['nomor_rekam_medis'] = sprintf("%08s", strval($p->nomor_rekam_medis));
-                    $list_pendaftaran['kunjungan'] = $p->kunjungan;
-                    $list_pendaftaran['nomor_debitur'] = $nomor_debitur;
-                    $list_pendaftaran['nama_poliklinik'] = ("Poli ". $nama_poli);
+                    $list_pendaftaran['nomor_rekam_medis'] = $no_rm_s;
+                    $list_pendaftaran['kunjungan'] = $date;
+                    $list_pendaftaran['nama_penanggung'] = $nama_penanggung;
+                    $list_pendaftaran['nomor_penanggung'] = $nomor_penanggung;
+                    $list_pendaftaran['nama_poliklinik'] = $nama_poli;
                     $list_pendaftaran['status_pendaftaran'] = $status_pendaftaran_detail;
                     $list_pendaftaran['nomor_antrian'] = $p->nomor_antrian;
                     $list_pendaftaran['nomor_antrian_berjalan'] = $detail_antrian;
                 }elseif ($p->status_pendaftaran == "0"){
                     $list_pendaftaran['id'] = $p->id;
                     $list_pendaftaran['nama_pasien'] = $nama_pas;
-                    $list_pendaftaran['nomor_rekam_medis'] = sprintf("%08s", strval($p->nomor_rekam_medis));
-                    $list_pendaftaran['kunjungan'] = $p->kunjungan;
-                    $list_pendaftaran['nomor_debitur'] = $nomor_debitur;
-                    $list_pendaftaran['nama_poliklinik'] = ("Poli ". $nama_poli);
+                    $list_pendaftaran['nomor_rekam_medis'] = $no_rm_s;
+                    $list_pendaftaran['kunjungan'] = $date;
+                    $list_pendaftaran['nama_penanggung'] = $nama_penanggung;
+                    $list_pendaftaran['nomor_penanggung'] = $nomor_penanggung;
+                    $list_pendaftaran['nama_poliklinik'] = $nama_poli;
                     $list_pendaftaran['status_pendaftaran'] = $status_pendaftaran_detail;
                     $list_pendaftaran['nomor_antrian'] = $p->nomor_antrian;
+                    $list_pendaftaran['nomor_antrian_berjalan'] = '-';
                 }
                 $response[] = $list_pendaftaran;
             }

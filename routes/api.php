@@ -169,10 +169,8 @@ class Routes
         Route::get(Endpoint::$LIST_DAFTAR_ANTRIAN, [DaftarAntrianController::class, 'getDaftarAntrian']);
         Route::get(Endpoint::$DETAIL_KAMAR, [KamarController::class, 'getDetailKamar']);
         Route::get(Endpoint::$BANTUAN, [BantuanController::class, 'getBantuan']);
-        Route::get(Endpoint::$ANTRIAN_ANTRIAN_PENDAFTARAN, [DaftarAntrianController::class, 'getDaftarAntrianPendaftaran']);
-        Route::get(Endpoint::$ANTRIAN_ANTRIAN_POLIKLINIK, [DaftarAntrianController::class, 'getDaftarAntrianPoliklinik']);
-        Route::get(Endpoint::$ANTRIAN_ANTRIAN_APOTEK, [DaftarAntrianController::class, 'getDaftarAntrianApotek']);
-        
+        Route::get(Endpoint::$ANTRIAN_DETAIL_PENDAFTARAN, [DaftarAntrianController::class, 'getDetailListAntrian']);
+        Route::get(Endpoint::$ANTRIAN_DETAIL_POLIKLINIK, [DaftarAntrianController::class, 'getDaftarAntrianPoliklinik']);
     }
 }
 
@@ -215,9 +213,8 @@ class Endpoint
     static $DETAIL_PASIEN = 'get-seluruh-data-akun-pasien';
     static $DETAIL_KAMAR = 'detail-kamar';
     static $BANTUAN = 'bantuan';
-    static $ANTRIAN_ANTRIAN_PENDAFTARAN = 'antrian-pendaftaran';
-    static $ANTRIAN_ANTRIAN_POLIKLINIK = 'antrian-poliklinik';
-    static $ANTRIAN_ANTRIAN_APOTEK = 'antrian-apotek';
+    static $ANTRIAN_DETAIL_PENDAFTARAN = 'list-daftar-antrian-detail';
+    static $ANTRIAN_DETAIL_POLIKLINIK = 'list-daftar-antrian-detail-poliklinik';
     static $DATA_PASIEN = 'data-akun';
     static $HARI_BEROBAT = 'hari-berobat';
     static $DEBITUR = 'get-penanggung';
