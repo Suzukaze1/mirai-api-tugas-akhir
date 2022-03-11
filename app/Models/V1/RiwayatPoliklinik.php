@@ -25,6 +25,7 @@ class RiwayatPoliklinik extends Model
         'id_poliklinik',
         'tanggal_daftar',
         'resume_medis',
-        'hasil_penunjang'
+        'hasil_penunjang',
+        'nomor_debitur'
     ];
 }

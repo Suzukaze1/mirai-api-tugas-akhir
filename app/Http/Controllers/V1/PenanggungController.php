@@ -50,58 +50,65 @@ class PenanggungController extends Controller
 
     public function validasiPenanggung(Request $request)
     {
-        try{
-            $no_rm = (int)$request->input('nomor_rekam_medis');
-            $cek = Penanggung::where('pasien_id', $no_rm)->get();
-            $penanggung = [];
-            $response = [];
-            foreach($cek as $c)
-            {
-                $penanggung[] = $c->nama_penanggung;
-            }
-
-            // validasi
-            if($penanggung[0] == "1" && $penanggung[1] == "2" && $penanggung[2] == "3")
-            {
-                return ResponseFormatter::error_not_found("Data Penanggung Sudah Penuh", null);
-            }
-            elseif ($penanggung[0] == "1" && $penanggung[1] == "2")
-            {
-                $nam_pen = NamaPenanggung::where('kode', '3')->get();
-                return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
-            }
-            elseif ($penanggung[0] == "1" && $penanggung[2] == "3")
-            {
-                $nam_pen = NamaPenanggung::where('kode', '2')->get();
-                return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
-            }
-            elseif ($penanggung[1] == "2" && $penanggung[2] == "3")
-            {
-                $nam_pen = NamaPenanggung::where('kode', '1')->get();
-                return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
-            }
-            elseif ($penanggung[2] == "3")
-            {
-                $nam_pen = NamaPenanggung::where('kode', '1')->oWhere('kode', '2')->get();
-                return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
-            }
-            elseif ($penanggung[1] == "2")
-            {
-                $nam_pen = NamaPenanggung::where('kode', '1')->oWhere('kode', '3')->get();
-                return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
-            }
-            elseif ($penanggung[0] == "1")
-            {
-                $nam_pen = NamaPenanggung::where('kode', '2')->oWhere('kode', '3')->get();
-                return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
-            }
-            else{
-                $nam_pen = NamaPenanggung::all();
-                return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
-            }
-        }catch(Exception $e){
-            return ResponseFormatter::internal_server_error("Kesalahan Dari Server", $e);
+        $no_rm = (int)$request->input('nomor_rekam_medis');
+        $cek = Penanggung::where('pasien_id', $no_rm)->get();
+        $penanggung = [];
+        $response = [];
+        foreach($cek as $c)
+        {
+            $penanggung[] = $c->nama_penanggung;
         }
+
+        $a = array_search("2",$penanggung);
+        if($a){
+            return "KIS dan JAMKESDA";
+        }
+        die();
+
+        // validasi
+        if($penanggung[0] == "2" && $penanggung[1] == "3" && $penanggung[2] == "4")
+        {
+            return ResponseFormatter::error_not_found("Data Penanggung Sudah Penuh", null);
+        }
+        elseif ($penanggung[0] == "2" && $penanggung[1] == "3")
+        {
+            $nam_pen = NamaPenanggung::where('kode', '3')->get();
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
+        }
+        elseif ($penanggung[0] == "2" && $penanggung[2] == "4")
+        {
+            $nam_pen = NamaPenanggung::where('kode', '2')->get();
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
+        }
+        elseif ($penanggung[1] == "3" && $penanggung[2] == "4")
+        {
+            $nam_pen = NamaPenanggung::where('kode', '1')->get();
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
+        }
+        elseif ($penanggung[2] == "4")
+        {
+            $nam_pen = NamaPenanggung::where('kode', '1')->oWhere('kode', '2')->get();
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
+        }
+        elseif ($penanggung[1] == "3")
+        {
+            $nam_pen = NamaPenanggung::where('kode', '1')->oWhere('kode', '3')->get();
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
+        }
+        elseif ($penanggung[0] == "2")
+        {
+            $nam_pen = NamaPenanggung::where('kode', '2')->oWhere('kode', '3')->get();
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
+        }
+        else{
+            $nam_pen = NamaPenanggung::all();
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $nam_pen);
+        }
+        // try{
+            
+        // }catch(Exception $e){
+        //     return ResponseFormatter::internal_server_error("Kesalahan Dari Server", $e);
+        // }
     }
 
     public function tambahPenanggung(Request $request)

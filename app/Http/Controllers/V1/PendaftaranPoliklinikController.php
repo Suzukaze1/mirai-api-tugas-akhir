@@ -64,13 +64,13 @@ class PendaftaranPoliklinikController extends Controller
             $nomor_rm = $request->nomor_rekam_medis;
             $no_rm = (int) $nomor_rm;
 
-            $list_debitur['id_penanggung'] = 4;
+            $list_debitur['id_penanggung'] = 1;
             $list_debitur['nama_penanggung'] = "Umum";
             $list_debitur['nomor_penanggung'] = null;
             $list_debitur['label_penanggung'] = "Umum";
             $response[]= $list_debitur;
 
-            $get_debitur_pasien = Penanggung::where('pasien_id', $no_rm)->get();
+            $get_debitur_pasien = Penanggung::where('pasien_id', $no_rm)->orderBy('nama_penanggung', 'asc')->get();
 
             foreach($get_debitur_pasien as $deb)
             {
@@ -133,7 +133,7 @@ class PendaftaranPoliklinikController extends Controller
 
         $daftar = new PendaftaranPoliklinik();
         $daftar->nomor_rekam_medis = $nomor_rekam_medis;
-        $daftar->kunjungan = date('d-m-Y');
+        $daftar->kunjungan = $kunjungan;
         $daftar->nomor_debitur = $nomor_debitur;
         $daftar->id_poliklinik = $id_poliklinik;
         $daftar->id_user = $id_user;
@@ -155,7 +155,7 @@ class PendaftaranPoliklinikController extends Controller
             $email = $request->input('email');
             $ambil_id = User::where('email', $email)->first();
             $validasi_pendaftaran = PendaftaranPoliklinik::where('id_user', $ambil_id->id)->first();
-            if($validasi_pendaftaran == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
+            if($validasi_pendaftaran == null) return ResponseFormatter::error_not_found("Belum Ada Data Silahkan Daftar Poliklinik", null);
 
             $pendaftaran = PendaftaranPoliklinik::where('id_user', $ambil_id->id)->get();
             $antrian_a = Antrian::where('panggil', "1")->where('id_poli', "1")->orderBy('id', 'asc')->first();
@@ -266,6 +266,9 @@ class PendaftaranPoliklinikController extends Controller
 
             $cari_pendaftaran = PendaftaranPoliklinik::where('id', $id_pendaftaran)->first();
 
+            $pasien = Pasien::where('kode', sprintf("%08s", strval($cari_pendaftaran->nomor_rekam_medis)))->first();
+            $nama_pasien = $pasien->nama;
+
             // untuk pembuatan nomor daftar
             $id_user = $cari_pendaftaran->id_user;
             $date = Carbon::now()->format('Ymd');
@@ -274,12 +277,13 @@ class PendaftaranPoliklinikController extends Controller
 
             $riwayat_pasien = new RiwayatPoliklinik();
             $riwayat_pasien->nomor_daftar = $nomor_daftar;
-            $riwayat_pasien->nama_pasien = $cari_pendaftaran->nama_pasien;
+            $riwayat_pasien->nama_pasien = $nama_pasien;
             $riwayat_pasien->nomor_rekam_medis = $cari_pendaftaran->nomor_rekam_medis;
             $riwayat_pasien->id_poliklinik = $cari_pendaftaran->id_poliklinik;
             $riwayat_pasien->tanggal_daftar = $cari_pendaftaran->kunjungan;
             $riwayat_pasien->resume_medis = null;
             $riwayat_pasien->hasil_penunjang = null;
+            $riwayat_pasien->nomor_debitur = $cari_pendaftaran->nomor_debitur;
             $riwayat_pasien->save();
 
             $response = [];
@@ -288,6 +292,7 @@ class PendaftaranPoliklinikController extends Controller
             $response['nomor_rekam_medis'] = $cari_pendaftaran->nomor_rekam_medis;
             $response['id_poliklinik'] = $cari_pendaftaran->id_poliklinik;
             $response['tanggal_daftar'] = $cari_pendaftaran->kunjungan;
+            $response['nomor_debitur'] = $cari_pendaftaran->nomor_debitur;
 
             // hapus data pendaftaran poliklinik
             $hapus_pendaftaran_poliklinik = PendaftaranPoliklinik::find($id_pendaftaran);

@@ -12,7 +12,7 @@ class NamaPenanggungController extends Controller
 {
     public function getNamaPenanggung(){
         try{
-            $list = NamaPenanggung::all();
+            $list = NamaPenanggung::orderBy('kode', 'asc')->get();
             return ResponseFormatter::success_ok(
                 'Berhasil Mendapatkan Data',
                 $list

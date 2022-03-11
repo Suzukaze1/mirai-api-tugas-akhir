@@ -295,8 +295,8 @@ class DataDummy
         $H_2 = Carbon::now()->addDay(2)->locale('id');
         $H_1->settings(['formatFunction' => 'translatedFormat']);
         $H_2->settings(['formatFunction' => 'translatedFormat']);
-        $id_1 = date('d-m-Y');
-        $id_2 = date('d-m-Y');
+        $id_1 = Carbon::now()->addDay(1)->format('Y-m-d');
+        $id_2 = Carbon::now()->addDay(2)->format('Y-m-d');
         $hari_1 = $H_1->isoFormat('dddd, D MMMM Y');
         $hari_2 = $H_2->isoFormat('dddd, D MMMM Y');
         $dumHari = [

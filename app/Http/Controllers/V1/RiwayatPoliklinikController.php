@@ -37,6 +37,9 @@ class RiwayatPoliklinikController extends Controller
             foreach($riwayat as $r){
                 $array_rm = [];
                 $array_hp = [];
+
+                $no_pen = "";
+
                 //cari nama penanggung
                 $cari_penanggung = Penanggung::where('pasien_id', (int)$r->nomor_rekam_medis)->where('nomor_kartu_penanggung', $r->nomor_debitur)->first();
                 if($cari_penanggung == null){
@@ -81,7 +84,12 @@ class RiwayatPoliklinikController extends Controller
                 $array_riwayat['nama_pasien'] = $r->nama_pasien;
                 $array_riwayat['nomor_rekam_medis'] = $r->nomor_rekam_medis;
                 $array_riwayat['nama_penanggung'] = $nama_penanggung;
-                $array_riwayat['nomor_penanggung'] = $r->nomor_debitur;
+                if($r->nomor_debitur == null){
+                    $no_pen = "-";
+                }else{
+                    $no_pen = $r->nomor_debitur;
+                }
+                $array_riwayat['nomor_penanggung'] = $no_pen;
                 $array_riwayat['nama_poliklinik'] = $nama_poli;
                 $array_riwayat['tanggal_daftar'] = $date;
                 $array_riwayat['resume_medis'] = $array_rm;
