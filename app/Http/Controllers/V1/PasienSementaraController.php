@@ -159,32 +159,37 @@ class PasienSementaraController extends Controller
                 return ResponseFormatter::internal_server_error(
                     'Ada Yang Error Dari Server (foto_pasien)', $e);
             }
-
+            
             //buat data di tb penanggung
-            try {
+            if($request->daftar_penanggung == 0){
+                $penanggung = new Penanggung();
+                $penanggung->nama_penanggung = "UMUM";
+                $penanggung->nomor_kartu_penanggung = "1";
+                $penanggung->id_pasien_temp = "20";
+                $penanggung->save();
+            }else{
+                $penanggung_umum = new Penanggung();
+                $penanggung_umum->nama_penanggung = "UMUM";
+                $penanggung_umum->nomor_kartu_penanggung = "1";
+                $penanggung_umum->id_pasien_temp = "20";
+                $penanggung_umum->save();
+
                 $list_penanggung = array();
                 foreach ($request->daftar_penanggung as $penanggungs) {
                     $penanggung = new Penanggung();
                     $penanggung->nama_penanggung = $penanggungs['nama_penanggung'];
                     $penanggung->nomor_kartu_penanggung = $penanggungs['nomor_kartu_penanggung'];
-                    $penanggung->id_pasien_temp = $cari_pasien->id;
+                    $penanggung->id_pasien_temp = "20";
 
                     $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
                     $key = $penanggungs['foto_kartu_penanggung'];
 
                     if ($penanggungs['foto_kartu_penanggung']) {
-                        $file = Foto::base_64_foto($path, $key, $nama_lengkap);
-                        $penanggung->foto_kartu_penanggung = $file;
+                        $penanggung->foto_kartu_penanggung = "dadada.jpg";
                     }
                     $penanggung->save();
                     $list_penanggung[] = $penanggung;
                 }
-                
-                
-                //return ResponseFormatter::success_ok('Berhasil Membuat Penanggung', $list_penanggung);
-            } catch (Exception $e) {
-                return ResponseFormatter::internal_server_error(
-                    'Ada Yang Error Dari Server(penangggung)',[$list_penanggung,$e]);
             }
 
             $response = [];

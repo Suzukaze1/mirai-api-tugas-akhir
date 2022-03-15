@@ -13,11 +13,17 @@ class NamaPenanggungController extends Controller
     public function getNamaPenanggung(){
         try{
             $list = NamaPenanggung::orderBy('kode', 'asc')->get();
+            $penanggung = [];
+            for ($i=0; $i < count($list) ; $i++) { 
+                if(!($list[0] == $list[$i]))
+                {
+                    $penanggung[] = $list[$i];
+                }
+            }
             return ResponseFormatter::success_ok(
                 'Berhasil Mendapatkan Data',
-                $list
+                $penanggung
             );
-
         }catch (Exception $e){
             return ResponseFormatter::internal_server_error(
                 'Ada yang Error Dari Server',
