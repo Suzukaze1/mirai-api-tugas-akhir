@@ -36,7 +36,6 @@ class PenanggungController extends Controller
             }
             elseif($akun->kode == null)
             {
-                echo "disana";
                 // ubah jadi int nyesuain db
                 $no_rm = (int) $akun->id_pasien_temp;
                 // cek apakah ada penanggung
@@ -198,7 +197,7 @@ class PenanggungController extends Controller
 
     public function tambahPenanggung(Request $request)
     {
-        $nama_penanggung = $request->nama_penanggung;
+        $nama_penanggung = $request->kode_penanggung;
         $nomor_kartu_penanggung = $request->nomor_kartu_penanggung;
         $foto_kartu_penanggung = $request->foto_kartu_penanggung;
         $email = $request->email;
