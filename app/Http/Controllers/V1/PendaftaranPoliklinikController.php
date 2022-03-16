@@ -161,7 +161,7 @@ class PendaftaranPoliklinikController extends Controller
             $email = $request->input('email');
             $ambil_id = User::where('email', $email)->first();
             $validasi_pendaftaran = PendaftaranPoliklinik::where('id_user', $ambil_id->id)->first();
-            if($validasi_pendaftaran == null) return ResponseFormatter::error_not_found("Belum Ada Data Silahkan Daftar Poliklinik", null);
+            if($validasi_pendaftaran == null) return ResponseFormatter::success_ok("Belum Ada Data Silahkan Daftar Poliklinik", []);
 
             $pendaftaran = PendaftaranPoliklinik::where('id_user', $ambil_id->id)->get();
             $antrian_a = Antrian::where('panggil', "1")->where('id_poli', "1")->orderBy('id', 'asc')->first();

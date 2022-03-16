@@ -211,12 +211,20 @@ class PenanggungController extends Controller
             $pasien_id = sprintf("%08s", strval($get_email->kode));
             $get_pasien = Pasien::where('kode', $pasien_id)->first();
             $nama_lengkap = $get_pasien->nama;
+
+            // ngecek apakah nama debitur sudah terpakai
+            $cek_debitur = Penanggung::where('nama_penanggung', $nama_penanggung)->where('pasien_id', (int)$pasien_id)->first();
+            if(!$cek_debitur == null) return ResponseFormatter::error_not_found("Penanggung Sudah Ada, Silahkan Menggunakan Penanggung Lain", null);  
         }
         elseif($get_email->kode == null)
         {
             $pasien_id = $get_email->id_pasien_temp;
             $get_pasien = PasienSementara::where('id', $pasien_id)->first();
             $nama_lengkap = $get_pasien->nama;
+
+            // ngecek apakah nama debitur sudah terpakai
+            $cek_debitur = Penanggung::where('nama_penanggung', $nama_penanggung)->where('id_pasien_temp', (int)$pasien_id)->first();
+            if(!$cek_debitur == null) return ResponseFormatter::error_not_found("Penanggung Sudah Ada, Silahkan Menggunakan Penanggung Lain", null);  
         }
 
         // path gambar
