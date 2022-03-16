@@ -27,6 +27,7 @@ use App\Http\Controllers\Controller;
 use App\Models\V1\KedudukanKeluarga;
 use App\Models\V1\PendidikanTerakhir;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
 use DateTime;
 
 class AnggotaPasienController extends Controller
@@ -265,6 +266,53 @@ class AnggotaPasienController extends Controller
 
     public function unlinkAnggotaIndukPasien(Request $request)
     {
-        //
+        try {
+            $email = $request->email;
+            $nomor_rekam_medis = $request->nomor_rekam_medis;
+
+            // cek induk
+            $akun_induk = User::where('email', $email)->first();
+            if($akun_induk == null) return ResponseFormatter::forbidden("Email Tidak Terdaftar, silahkan login ulang", null);
+
+            //cek anggota
+            $detail_akun = DetailAkun::where('id_pasien', (int)$nomor_rekam_medis)->first();
+            $hapus_detail_akun = DetailAkun::find($detail_akun->id);
+
+            //cek penanggung
+            $penanggung = Penanggung::where('pasien_id', (int)$nomor_rekam_medis)->first();
+            $foto_penanggung = $penanggung->foto_kartu_penanggung;
+            $hapus_penanggung = Penanggung::find($penanggung->id);
+
+            //cek foto pasien
+            $foto_pasien = FotoPasien::where('id_pasien', (int)$nomor_rekam_medis)->first();
+            $foto_swa = $foto_pasien->foto_swa_pasien;
+            $foto_kartu_pasien = $foto_pasien->foto_kartu_identitas_pasien;
+            $hapus_foto_pasien = FotoPasien::find($foto_pasien->id);
+
+            //hapus data detail akun
+            $hapus_detail_akun->delete();
+
+            //hapus data penanggung
+            if(File::exists(public_path($foto_penanggung))){
+                File::delete(public_path($foto_penanggung));
+                $hapus_penanggung->delete();
+                return ResponseFormatter::success_ok("Berhasil Mengahapus Penanggung", null);
+            }else{
+                return ResponseFormatter::error_not_found("Foto Penanggung Tidak Ada", null);
+            }
+
+            //hapus data foto pasien
+            if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
+                File::delete(public_path($foto_swa));
+                File::delete(public_path($foto_kartu_pasien));
+                $hapus_foto_pasien->delete();
+                return ResponseFormatter::success_ok("Berhasil Mengahapus Penanggung", null);
+            }else{
+                return ResponseFormatter::error_not_found("Foto Penanggung Tidak Ada", null);
+            }
+        } catch (\Throwable $th) {
+            return ResponseFormatter::internal_server_error("Kesalahan Dari Server", $th);
+        }
+        
     }
 }
