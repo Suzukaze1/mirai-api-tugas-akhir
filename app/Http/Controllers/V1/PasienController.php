@@ -347,7 +347,7 @@ class PasienController extends Controller
                 $detail_akun = new DetailAkun();
                 $detail_akun->id_pasien = $pasien->kode;
                 $detail_akun->id_akun = $cari_akun->id;
-                
+                $detail_akun->is_lama = "1";
             } catch (Exception $e) {
                 return ResponseFormatter::internal_server_error(
                     'Ada Yang Error Dari Server (detail_akun)', [$detail_akun, $e]);

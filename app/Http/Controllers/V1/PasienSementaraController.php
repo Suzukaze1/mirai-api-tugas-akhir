@@ -165,13 +165,13 @@ class PasienSementaraController extends Controller
                 $penanggung = new Penanggung();
                 $penanggung->nama_penanggung = "UMUM";
                 $penanggung->nomor_kartu_penanggung = "1";
-                $penanggung->id_pasien_temp = "20";
+                $penanggung->id_pasien_temp = $cari_pasien->id;
                 $penanggung->save();
             }else{
                 $penanggung_umum = new Penanggung();
                 $penanggung_umum->nama_penanggung = "UMUM";
                 $penanggung_umum->nomor_kartu_penanggung = "1";
-                $penanggung_umum->id_pasien_temp = "20";
+                $penanggung_umum->id_pasien_temp = $cari_pasien->id;
                 $penanggung_umum->save();
 
                 $list_penanggung = array();
@@ -179,13 +179,14 @@ class PasienSementaraController extends Controller
                     $penanggung = new Penanggung();
                     $penanggung->nama_penanggung = $penanggungs['nama_penanggung'];
                     $penanggung->nomor_kartu_penanggung = $penanggungs['nomor_kartu_penanggung'];
-                    $penanggung->id_pasien_temp = "20";
+                    $penanggung->id_pasien_temp = $cari_pasien->id;
 
                     $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
                     $key = $penanggungs['foto_kartu_penanggung'];
 
                     if ($penanggungs['foto_kartu_penanggung']) {
-                        $penanggung->foto_kartu_penanggung = "dadada.jpg";
+                        $file = Foto::base_64_foto($path, $key, $nama_lengkap);
+                        $penanggung->foto_kartu_penanggung = $file;
                     }
                     $penanggung->save();
                     $list_penanggung[] = $penanggung;
@@ -295,7 +296,6 @@ class PasienSementaraController extends Controller
         $swafoto = $request->foto_swa_pasien;
 
         $email = $request->email;
-        $password = $request->password;
 
         // cek apakah jenis identitas dan nomor identitas sudah dipakai sebelumnya
         $nomor_identitas_pakai = Pasien::where('no_identitas', $nomor_identitas)->first();
@@ -381,7 +381,19 @@ class PasienSementaraController extends Controller
             }
 
             //buat data di tb penanggung
-            try {
+            if($request->daftar_penanggung == 0){
+                $penanggung = new Penanggung();
+                $penanggung->nama_penanggung = "UMUM";
+                $penanggung->nomor_kartu_penanggung = "1";
+                $penanggung->id_pasien_temp = $cari_pasien->id;
+                $penanggung->save();
+            }else{
+                $penanggung_umum = new Penanggung();
+                $penanggung_umum->nama_penanggung = "UMUM";
+                $penanggung_umum->nomor_kartu_penanggung = "1";
+                $penanggung_umum->id_pasien_temp = $cari_pasien->id;
+                $penanggung_umum->save();
+
                 $list_penanggung = array();
                 foreach ($request->daftar_penanggung as $penanggungs) {
                     $penanggung = new Penanggung();
@@ -393,18 +405,11 @@ class PasienSementaraController extends Controller
                     $key = $penanggungs['foto_kartu_penanggung'];
 
                     if ($penanggungs['foto_kartu_penanggung']) {
-                        $file = Foto::base_64_foto($path, $key, $nama_lengkap);
-                        $penanggung->foto_kartu_penanggung = $file;
+                        $penanggung->foto_kartu_penanggung = "dadada.jpg";
                     }
                     $penanggung->save();
                     $list_penanggung[] = $penanggung;
                 }
-                
-                
-                //return ResponseFormatter::success_ok('Berhasil Membuat Penanggung', $list_penanggung);
-            } catch (Exception $e) {
-                return ResponseFormatter::internal_server_error(
-                    'Ada Yang Error Dari Server(penangggung)',[$list_penanggung,$e]);
             }
 
             $response = [];
@@ -432,8 +437,8 @@ class PasienSementaraController extends Controller
             $response["nama_tempat_bekerja"] = $nama_tempat_bekerja;
             $response["alamat_tempat_bekerja"] = $alamat_tempat_bekerja;
             $response["penghasilan"] = $penghasilan;
-            $response["pekerjaan_kode"] = $pekerjaan_kode;
-            $response["kewarganegaraan_kode"] = $kewarganegaraan_kode;
+            $response["pekerjaan"] = $pekerjaan_kode;
+            $response["kewarganegaraan"] = $kewarganegaraan_kode;
             $response["nama_pasangan"] = $nama_pasangan;
             $response["nama_ayah"] = $nama_ayah;
             $response["nomor_rekam_medis_ayah"] = $nomor_rekam_medis_ayah;
@@ -481,8 +486,6 @@ class PasienSementaraController extends Controller
             $foto_swa_pasien = $request->foto_swa_pasien;
             $foto_kartu_identitas_pasien = $request->foto_kartu_identitas_pasien;
             $email = $request->email;
-            $password = $request->password;
-            $ulang_password = $request->ulang_password;
 
             // cek ke db pasien
             $pasien = Pasien::where('kode', $no_rekam_medik)->first();
@@ -491,15 +494,9 @@ class PasienSementaraController extends Controller
             if ($pasien == null) {
                 return ResponseFormatter::error_not_found("Data Pasien Tidak Ada", null);
             } else {
-                //cek ke db user apakah pasien sudah mendaftar sebelumnya
-                $user = User::where('kode', $pasien->kode)->first();
-                if ($user != null) {
-                    //jika null atau tidak ada data maka lanjut ke step selanjutnya
-                    if ($pasien->kode == $user->kode) {
-                        //jika sudah ada data maka berhenti disni
-                        ResponseFormatter::error_not_found("Akun Sudah Terdaftar", null);
-                    }
-                }
+                //ambil data induk
+                $akun_induk = User::where('email', $email)->first();
+                if($akun_induk == null) return ResponseFormatter::error_not_found("Email Tidak Ditemukan", null);
             }
 
             // logika seluruh validasi tidak termasuk angka/text/strinf dll
@@ -511,8 +508,6 @@ class PasienSementaraController extends Controller
 
             if ($pasien->no_identitas != $nomor_identitas) return ResponseFormatter::error_not_found("Nomor Identitas Tidak Benar", null);
 
-            if ($password != $ulang_password) return ResponseFormatter::error_not_found("Password Tidak Sama", null);
-
             // path 
             $path_kartu_identitas = FotoPasien::$FOTO_KARTU_IDENTITAS_PASIEN;
             $path_swa = FotoPasien::$FOTO_SWA_PASIEN;
@@ -521,8 +516,11 @@ class PasienSementaraController extends Controller
             $nama_kartu_identitas_foto = Foto::base_64_foto($path_kartu_identitas, $foto_kartu_identitas_pasien, $pasien->nama);
             $nama_swafoto = Foto::base_64_foto($path_swa, $foto_swa_pasien, $pasien->nama);
 
-            // cari data users yang sudah dibuat tadi
-            $cari_akun = User::where('email', $email)->first();
+            // buat data penanggung umum
+            $penanggung = new Penanggung();
+            $penanggung->nama_penanggung = "1";
+            $penanggung->nomor_kartu_penanggung = null;
+            $penanggung->id_pasien_temp = $pasien->kode;
 
             // buat data di table foto pasien
             $create_foto_pasien = new FotoPasien();
@@ -534,7 +532,8 @@ class PasienSementaraController extends Controller
             try {
                 $detail_akun = new DetailAkun();
                 $detail_akun->id_pasien = $pasien->kode;
-                $detail_akun->id_akun = $cari_akun->id;
+                $detail_akun->id_akun = $akun_induk->id;
+                $detail_akun->is_lama = "1";
                 
             } catch (Exception $e) {
                 return ResponseFormatter::internal_server_error(
@@ -543,13 +542,12 @@ class PasienSementaraController extends Controller
 
             try {
                 //jika berhasil
+                $penanggung->save();
                 $create_foto_pasien->save();
                 $detail_akun->save();
                 $response = [];
                 $response["kode"] = $no_rekam_medik;
                 $response["email"] = $email;
-                $response["password"] = $password;
-                $response["ulang_password"] = $ulang_password;
                 $response["foto_swa_pasien"] = $nama_swafoto;
                 $response["foto_kartu_identitas_pasien"] = $nama_kartu_identitas_foto;
                 $response["tanggal_lahir"] = $tgl_lahir;
@@ -564,6 +562,4 @@ class PasienSementaraController extends Controller
             return ResponseFormatter::internal_server_error('Ada Sesuatu Yang salah', $e);
         }
     }
-
-    
 }

@@ -10,6 +10,7 @@ use App\Models\V1\Penanggung;
 use App\Models\V1\NamaPenanggung;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\V1\PasienSementara;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -20,9 +21,12 @@ class PenanggungController extends Controller
     {
         try{
             $nomor_rm = $request->input('nomor_rekam_medis');
+            $email = $request->input('email');
+
+            $akun = User::where('email', $email)->first();
 
             // ubah jadi int nyesuain db
-            $no_rm = (int) $nomor_rm;
+            $no_rm = (int) $akun->kode;
 
             // cek apakah ada penanggung
             $cek = Penanggung::where('pasien_id', $no_rm)->first();

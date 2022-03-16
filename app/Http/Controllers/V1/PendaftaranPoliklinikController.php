@@ -39,8 +39,14 @@ class PendaftaranPoliklinikController extends Controller
         foreach($a['details'] as $bc){
             $pasien = Pasien::where('kode', sprintf("%08s", strval($bc->id_pasien)))->orderBy('kode', 'desc')->get();
             foreach($pasien as $p){
+                // tanggal lahir 
+                $tgl_lahir = $p->tanggal_lahir;
+                $date = Carbon::createFromFormat('Y-m-d', $tgl_lahir)->locale('id')->isoFormat('dddd, D MMMM Y ');
+
+                // response
                 $list_pasien['nomor_rekam_medis'] = sprintf("%08s", strval($p->kode));
                 $list_pasien['nama'] = $p->nama;
+                $list_pasien['tanggal_lahir'] = $date;
                 $list_pasien['nama_nomor'] = (sprintf("%08s", strval($p->kode))." - ". $p->nama);
                 $response[] = $list_pasien;
             }

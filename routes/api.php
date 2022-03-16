@@ -88,6 +88,7 @@ class Routes
     private function _anggotaPasien()
     {
         Route::post(Endpoint::$PENAMBAHAN_ANGGOTA_PASIEN_BARU_SEMENTARA, [PasienSementaraController::class, 'pendaftaranAnggotaPasienBaruKeTabelSementara']);
+        Route::post(Endpoint::$PENAMBAHAN_ANGGOTA_PASIEN_LAMA_SEMENTARA, [PasienSementaraController::class, 'pendaftaranAnggotaPasienLama']);
         Route::get(Endpoint::$DATA_ANGGGOTA_PASIEN, [AnggotaPasienController::class, 'getAnggotaIndukPasien']);
         Route::get(Endpoint::$DETAIL_DATA_ANGGOTA_PASIEN, [AnggotaPasienController::class, 'getDetailAnggotaIndukPasien']);
     }
@@ -228,6 +229,7 @@ class Endpoint
     static $TAMBAH_PENANGGUNG = 'tambah-penanggung';
     static $HAPUS_PENANGGUNG = 'hapus-penanggung';
     static $PENAMBAHAN_ANGGOTA_PASIEN_BARU_SEMENTARA = 'pendaftaran-anggota-pasien-baru-sementara';
+    static $PENAMBAHAN_ANGGOTA_PASIEN_LAMA_SEMENTARA = 'pendaftaran-anggota-pasien-lama-sementara';
     static $DATA_ANGGGOTA_PASIEN = 'get-data-anggota-pasien';
     static $DETAIL_DATA_ANGGOTA_PASIEN = 'get-detail-data-anggota-pasien';
     // Isi Lagi Endpoint nya cuk

@@ -26,6 +26,8 @@ use App\Models\V1\PasienSementara;
 use App\Http\Controllers\Controller;
 use App\Models\V1\KedudukanKeluarga;
 use App\Models\V1\PendidikanTerakhir;
+use Carbon\Carbon;
+use DateTime;
 
 class AnggotaPasienController extends Controller
 {
@@ -38,9 +40,9 @@ class AnggotaPasienController extends Controller
 
             if($user == null) return ResponseFormatter::error_not_found("data tidak ditemukan", null);
 
-            $detail_akun = DetailAkun::where('id_akun', $user->id)->orderBy('id', 'asc')->get();
+            $detail_akun = DetailAkun::where('id_akun', $user->id)->where('id_pasien', '!=', $user->kode)->orderBy('id', 'asc')->get();
 
-            unset($detail_akun[0]) ;
+            if(count($detail_akun) == 0) return ResponseFormatter::error_not_found("Belum Ada Data, Silahkan Buat Data Anggota Keluarga", null);
 
             $data_anggota = [];
             $response = [];
@@ -69,52 +71,200 @@ class AnggotaPasienController extends Controller
 
     public function getDetailAnggotaIndukPasien(Request $request)
     {
-        $nomor_rekam_medis = $request->input('nomor_rekam_medis');
-        $id_status_validasi = $request->input('id_status_validasi');
+        try{
+            $nomor_rekam_medis = $request->input('nomor_rekam_medis');
+            $id_status_validasi = $request->input('id_status_validasi');
 
-        $response = [];
+            $response = [];
 
-        if($id_status_validasi == 1){
-            $detail = Pasien::where('kode', $nomor_rekam_medis)->first();
+            if($id_status_validasi == 1){
+                $pasien = Pasien::where('kode', $nomor_rekam_medis)->first();
 
-            if($detail == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
+                if($pasien == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
 
-            //data master
-            $agama = Agama::where('kode', $detail->agama_kode)->first();
-            $pendidikan_terakhir = PendidikanTerakhir::where('kode', $detail->pendidikan_kode)->first();
-            $kewarganegaraan_kode = Kewarganegaraan::where('kode', $detail->kewarganegaraan_kode)->first();
-            $jenis_identitas_kode = jenis_identitas::where('kode', $detail->jenis_identitas_kode)->first();
-            $suku_kode = Suku::where('kode', $detail->suku_kode)->first();
-            $jenis_kelamin = JenisKelamin::where('kode', $detail->jkel)->first();
-            $status_perkawinan = StatusMenikah::where('kode', $detail->status_perkawinan)->first();
-            $kedudukan_keluarga = KedudukanKeluarga::where('kode', $detail->kedudukan_keluarga)->first();
-            $golongan_darah = GolonganDarah::where('kode', $detail->golongan_darah)->first();
-            $provinsi = Provinsi::where('kode', $detail->provinsi)->first();
-            $kabupaten = KotaKabupaten::where('kode', $detail->kabupaten)->first();
-            $kecamatan = Kecamatan::where('kode', $detail->kecamatan)->first();
-            $jurusan = Jurusan::where('kode', $detail->jurusan)->first();
-            $penghasilan = Penghasilan::where('kode', $detail->penghasilan)->first();
-            $penanggung = Penanggung::where('id_pasien_temp', $detail->id)->first();
-            $foto_pasien = FotoPasien::where('id_pasien_temp', $detail->id)->first();
-            $akun = User::where('id_pasien_temp', $detail->id)->first();
+                //data master fetching
+                $agama_kode = Agama::where('kode', $pasien->agama_kode)->first();
+                $pendidikan_kode = PendidikanTerakhir::where('kode', $pasien->pendidikan_kode)->first();
+                $kewarganegaraan_kode1 = Kewarganegaraan::where('kode', $pasien->kewarganegaraan_kode)->first();
+                $jenis_identitas_kode = jenis_identitas::where('kode', $pasien->jenis_identitas_kode)->first();
+                $suku_kode = Suku::where('kode', $pasien->suku_kode)->first();
+                if($suku_kode == null){
+                    $suku = "-";
+                }else{
+                    $suku = $suku_kode->nama;
+                }
+                $jenis_kelamin_kode = JenisKelamin::where('kode', $pasien->jkel)->first();
+                $status_perkawinan_kode = StatusMenikah::where('kode', $pasien->status_perkawinan)->first();
+                $kedudukan_keluarga_kode = KedudukanKeluarga::where('kode', $pasien->kedudukan_keluarga)->first();
+                $golongan_darah_kode = GolonganDarah::where('kode', $pasien->golongan_darah)->first();
+                $provinsi_kode = Provinsi::where('kode', $pasien->provinsi)->first();
+                $kabupaten_kode = KotaKabupaten::where('kode', $pasien->kabupaten)->first();
+                $kecamatan_kode = Kecamatan::where('kode', $pasien->kecamatan)->first();
+                $jurusan_kode = Jurusan::where('kode', $pasien->jurusan)->first();
+                if($jurusan_kode == null){
+                    $jurusan = "-";
+                }else{
+                    $jurusan = $jurusan_kode->nama;
+                }
+                $penghasilan_kode = Penghasilan::where('kode', $pasien->penghasilan)->first();
 
-            $nama_agama = $agama->agama;
-            $pend_terakhir = $pendidikan_terakhir->nama;
-            $kewarganegaraan = $kewarganegaraan_kode->nama;
+                // value
+                $rekam_medis = sprintf("%08s", strval($pasien->kode));
+                $nomor_identitas = $pasien->no_identitas;
+                $jenis_identitas = $jenis_identitas_kode->nama;
+                $nama_lengkap = $pasien->nama;
+                $tempat_lahir = $pasien->tempat_lahir;
+                $kedudukan_keluarga = $kedudukan_keluarga_kode->nama;
+                $golongan_darah = $golongan_darah_kode->nama;
+                $agama = $agama_kode->agama;
+                $nomor_telepon = $pasien->no_telp;
+                $jenis_kelamin = $jenis_kelamin_kode->nama;
+                $alamat = $pasien->alamat;
+                $provinsi = $provinsi_kode->nama;
+                $kota_kabupaten = $kabupaten_kode->nama;
+                $kecamatan = $kecamatan_kode->nama;
+                $status_perkawinan = $status_perkawinan_kode->nama;
+                $anak_ke = $pasien->anak_ke;
+                $pendidikan_terakhir = $pendidikan_kode->nama;
+                $nama_tempat_bekerja = $pasien->nama_tempat_bekerja;
+                $alamat_tempat_bekerja = $pasien->alamat_tempat_bekerja;
+                $penghasilan = $penghasilan_kode->nama;
+                $pekerjaan_kode = $pasien->pekerjaan_kode;
+                $kewarganegaraan_kode = $kewarganegaraan_kode1->nama;
+                $nama_pasangan = $pasien->nama_pasangan;
+                $nama_ayah = $pasien->ayah_nama;
+                $nomor_rekam_medis_ayah = $pasien->no_rekam_medis_ayah;
+                $nama_ibu = $pasien->ibu_nama;
+                $nomor_rekam_medis_ibu = $pasien->no_rekam_medis_ibu;
+                $alergi = $pasien->alergi;
 
-            return $kewarganegaraan;
+                // umur 
+                $tanggal_lahir_db = new DateTime($pasien->tanggal_lahir);
+                $tgl_sekarang = new DateTime('today');
+                $y = $tgl_sekarang->diff($tanggal_lahir_db)->y;
+                $m = $tgl_sekarang->diff($tanggal_lahir_db)->m;
+                $d = $tgl_sekarang->diff($tanggal_lahir_db)->d;
+                $umur = $y . " tahun " . $m . " bulan " . $d . " hari";
 
-            $response['nomor_rekam_medis'] = $detail->kode; 
-            $response['nama_pasien'] = $detail->nama;
-        }else if($id_status_validasi == 2){
-            $detail_sem = PasienSementara::where('id', $nomor_rekam_medis)->first();
+                // tanggal lahir
+                $date = Carbon::createFromFormat('Y-m-d', $pasien->tanggal_lahir)->locale('id')->isoFormat('dddd, D MMMM Y ');
+                $tanggal_lahir = $date;
 
-            if($detail_sem == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
+            }else if($id_status_validasi == 0){
+                $pasien = PasienSementara::where('id', $nomor_rekam_medis)->first();
 
-            $response['nomor_rekam_medis'] = $detail_sem->id; 
-            $response['nama_pasien'] = $detail_sem->nama;
+                if($pasien == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
+
+                //data master fetching
+                $agama_kode = Agama::where('kode', $pasien->agama_kode)->first();
+                $pendidikan_kode = PendidikanTerakhir::where('kode', $pasien->pendidikan_kode)->first();
+                $kewarganegaraan_kode1 = Kewarganegaraan::where('kode', $pasien->kewarganegaraan_kode)->first();
+                $jenis_identitas_kode = jenis_identitas::where('kode', $pasien->jenis_identitas_kode)->first();
+                $suku_kode = Suku::where('kode', $pasien->suku_kode)->first();
+                if($suku_kode == null){
+                    $suku = "-";
+                }else{
+                    $suku = $suku_kode->nama;
+                }
+                $jenis_kelamin_kode = JenisKelamin::where('kode', $pasien->jkel)->first();
+                $status_perkawinan_kode = StatusMenikah::where('kode', $pasien->status_perkawinan)->first();
+                $kedudukan_keluarga_kode = KedudukanKeluarga::where('kode', $pasien->kedudukan_keluarga)->first();
+                $golongan_darah_kode = GolonganDarah::where('kode', $pasien->golongan_darah)->first();
+                $provinsi_kode = Provinsi::where('kode', $pasien->provinsi)->first();
+                $kabupaten_kode = KotaKabupaten::where('kode', $pasien->kabupaten)->first();
+                $kecamatan_kode = Kecamatan::where('kode', $pasien->kecamatan)->first();
+                $jurusan_kode = Jurusan::where('kode', $pasien->jurusan)->first();
+                if($jurusan_kode == null){
+                    $jurusan = "-";
+                }else{
+                    $jurusan = $jurusan_kode->nama;
+                }
+                $penghasilan_kode = Penghasilan::where('kode', $pasien->penghasilan)->first();
+
+                // value
+                $rekam_medis = null;
+                $nomor_identitas = $pasien->no_identitas;
+                $jenis_identitas = $jenis_identitas_kode->nama;
+                $nama_lengkap = $pasien->nama;
+                $tempat_lahir = $pasien->tempat_lahir;
+                $kedudukan_keluarga = $kedudukan_keluarga_kode->nama;
+                $golongan_darah = $golongan_darah_kode->nama;
+                $agama = $agama_kode->agama;
+                $nomor_telepon = $pasien->no_telp;
+                $jenis_kelamin = $jenis_kelamin_kode->nama;
+                $alamat = $pasien->alamat;
+                $provinsi = $provinsi_kode->nama;
+                $kota_kabupaten = $kabupaten_kode->nama;
+                $kecamatan = $kecamatan_kode->nama;
+                $status_perkawinan = $status_perkawinan_kode->nama;
+                $anak_ke = $pasien->anak_ke;
+                $pendidikan_terakhir = $pendidikan_kode->nama;
+                $nama_tempat_bekerja = $pasien->nama_tempat_bekerja;
+                $alamat_tempat_bekerja = $pasien->alamat_tempat_bekerja;
+                $penghasilan = $penghasilan_kode->nama;
+                $pekerjaan_kode = $pasien->pekerjaan_kode;
+                $kewarganegaraan_kode = $kewarganegaraan_kode1->nama;
+                $nama_pasangan = $pasien->nama_pasangan;
+                $nama_ayah = $pasien->ayah_nama;
+                $nomor_rekam_medis_ayah = $pasien->no_rekam_medis_ayah;
+                $nama_ibu = $pasien->ibu_nama;
+                $nomor_rekam_medis_ibu = $pasien->no_rekam_medis_ibu;
+                $alergi = $pasien->alergi;
+
+                // umur 
+                $tanggal_lahir_db = new DateTime($pasien->tanggal_lahir);
+                $tgl_sekarang = new DateTime('today');
+                $y = $tgl_sekarang->diff($tanggal_lahir_db)->y;
+                $m = $tgl_sekarang->diff($tanggal_lahir_db)->m;
+                $d = $tgl_sekarang->diff($tanggal_lahir_db)->d;
+                $umur = $y . " tahun " . $m . " bulan " . $d . " hari";
+
+                // tanggal lahir
+                $date = Carbon::createFromFormat('Y-m-d', $pasien->tanggal_lahir)->locale('id')->isoFormat('dddd, D MMMM Y ');
+                $tanggal_lahir = $date;
+            }
+
+            $response = [];
+            $response['nomor_rekam_medis'] = $rekam_medis;
+            $response['nomor_identitas'] = $nomor_identitas;
+            $response['jenis_identitas'] = $jenis_identitas;
+            $response['nama_lengkap'] = $nama_lengkap;
+            $response['tempat_lahir'] = $tempat_lahir;
+            $response['tanggal_lahir'] = $tanggal_lahir;
+            $response['kedudukan_keluarga'] = $kedudukan_keluarga;
+            $response['golongan_darah'] = $golongan_darah;
+            $response['agama'] = $agama;
+            $response['suku'] = $suku;
+            $response['nomor_telepon'] = $nomor_telepon;
+            $response['jenis_kelamin'] = $jenis_kelamin;
+            $response['alamat'] = $alamat;
+            $response['provinsi'] = $provinsi;
+            $response['kota_kabupaten'] = $kota_kabupaten;
+            $response['kecamatan'] = $kecamatan;
+            $response['status_perkawinan'] = $status_perkawinan;
+            $response['umur'] = $umur;
+            $response['anak_ke'] = $anak_ke;
+            $response['pendidikan_terakhir'] = $pendidikan_terakhir;
+            $response['jurusan'] = $jurusan;
+            $response['nama_tempat_bekerja'] = $nama_tempat_bekerja;
+            $response['alamat_tempat_bekerja'] = $alamat_tempat_bekerja;
+            $response['penghasilan'] = $penghasilan;
+            $response['pekerjaan'] = $pekerjaan_kode;
+            $response['kewarganegaraan'] = $kewarganegaraan_kode;
+            $response['nama_pasangan'] = $nama_pasangan;
+            $response['nama_ayah'] = $nama_ayah;
+            $response['nomor_rekam_medis_ayah'] = $nomor_rekam_medis_ayah;
+            $response['nama_ibu'] = $nama_ibu;
+            $response['nomor_rekam_medis_ibu'] = $nomor_rekam_medis_ibu;
+            $response['alergi'] = $alergi;
+            return ResponseFormatter::success_ok("Berhasil Mendapatkan Data Pasien", $response);
+        }catch (Exception $e){
+            return ResponseFormatter::internal_server_error("Kesalahan Dari Server", $e);
         }
+    }
 
-        return $response;
+    public function unlinkAnggotaIndukPasien(Request $request)
+    {
+        //
     }
 }

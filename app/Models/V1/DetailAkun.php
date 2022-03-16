@@ -20,7 +20,8 @@ class DetailAkun extends Model
     protected $fillable = [
         'id_akun',
         'id_pasien',
-        'id_pasien_temp'
+        'id_pasien_temp',
+        'is_lama'
     ];
 
     protected $table = 'mirai_pasien.detail_akun';

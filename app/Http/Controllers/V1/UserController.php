@@ -25,6 +25,7 @@ use App\Models\V1\jenis_identitas;
 use App\Models\V1\Kewarganegaraan;
 use App\Models\V1\PasienSementara;
 use App\Http\Controllers\Controller;
+use App\Models\V1\DetailAkun;
 use App\Models\V1\KedudukanKeluarga;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -149,8 +150,17 @@ class UserController extends Controller
 
             $tokenResult = $user->createToken('authToken')->plainTextToken;
 
-            if(!$user->kode == null) $status = true;
-            if($user->kode == null) $status = false;
+            $detail_akun = DetailAkun::where('id_pasien', $user->kode)->first();
+
+            if(!$user->kode == null) {
+                if($detail_akun->is_lama == null){ 
+                    $status = true;
+                }elseif($detail_akun->is_lama == 1){
+                    $status = false;
+                }
+            }else{
+                $status = false;
+            }
 
             $response = [];
             $response['id'] = $user->id;
@@ -232,11 +242,9 @@ class UserController extends Controller
             $jenis_identitas = $jenis_identitas_kode->nama;
             $nama_lengkap = $pasien->nama;
             $tempat_lahir = $pasien->tempat_lahir;
-            $tanggal_lahir = $pasien->tanggal_lahir;
             $kedudukan_keluarga = $kedudukan_keluarga_kode->nama;
             $golongan_darah = $golongan_darah_kode->nama;
             $agama = $agama_kode->agama;
-            $suku = $suku_kode->nama;
             $nomor_telepon = $pasien->no_telp;
             $jenis_kelamin = $jenis_kelamin_kode->nama;
             $alamat = $pasien->alamat;
@@ -246,7 +254,6 @@ class UserController extends Controller
             $status_perkawinan = $status_perkawinan_kode->nama;
             $anak_ke = $pasien->anak_ke;
             $pendidikan_terakhir = $pendidikan_kode->nama;
-            $jurusan = $jurusan_kode->nama;
             $nama_tempat_bekerja = $pasien->nama_tempat_bekerja;
             $alamat_tempat_bekerja = $pasien->alamat_tempat_bekerja;
             $penghasilan = $penghasilan_kode->nama;
@@ -266,6 +273,10 @@ class UserController extends Controller
             $m = $tgl_sekarang->diff($tanggal_lahir_db)->m;
             $d = $tgl_sekarang->diff($tanggal_lahir_db)->d;
             $umur = $y . " tahun " . $m . " bulan " . $d . " hari";
+
+            // tanggal lahir
+            $date = Carbon::createFromFormat('Y-m-d', $pasien->tanggal_lahir)->locale('id')->isoFormat('dddd, D MMMM Y ');
+            $tanggal_lahir = $date;
 
         }else if ($user->id_pasien_temp == null){
             $kode_rm = sprintf("%08s", strval($user->kode));
@@ -304,7 +315,6 @@ class UserController extends Controller
             $jenis_identitas = $jenis_identitas_kode->nama;
             $nama_lengkap = $pasien->nama;
             $tempat_lahir = $pasien->tempat_lahir;
-            $tanggal_lahir = $pasien->tanggal_lahir;
             $kedudukan_keluarga = $kedudukan_keluarga_kode->nama;
             $golongan_darah = $golongan_darah_kode->nama;
             $agama = $agama_kode->agama;
@@ -337,44 +347,48 @@ class UserController extends Controller
             $d = $tgl_sekarang->diff($tanggal_lahir_db)->d;
             $umur = $y . " tahun " . $m . " bulan " . $d . " hari";
 
-            }else{
-                return ResponseFormatter::error_not_found("Pasien Error", null);
-            }
+            // tanggal lahir
+            $date = Carbon::createFromFormat('Y-m-d', $pasien->tanggal_lahir)->locale('id')->isoFormat('dddd, D MMMM Y ');
+            $tanggal_lahir = $date;
 
-            $response = [];
-            $response['nomor_rekam_medis'] = $rekam_medis;
-            $response['nomor_identitas'] = $nomor_identitas;
-            $response['jenis_identitas'] = $jenis_identitas;
-            $response['nama_lengkap'] = $nama_lengkap;
-            $response['tempat_lahir'] = $tempat_lahir;
-            $response['tanggal_lahir'] = $tanggal_lahir;
-            $response['kedudukan_keluarga'] = $kedudukan_keluarga;
-            $response['golongan_darah'] = $golongan_darah;
-            $response['agama'] = $agama;
-            $response['suku'] = $suku;
-            $response['nomor_telepon'] = $nomor_telepon;
-            $response['jenis_kelamin'] = $jenis_kelamin;
-            $response['alamat'] = $alamat;
-            $response['provinsi'] = $provinsi;
-            $response['kota_kabupaten'] = $kota_kabupaten;
-            $response['kecamatan'] = $kecamatan;
-            $response['status_perkawinan'] = $status_perkawinan;
-            $response['umur'] = $umur;
-            $response['anak_ke'] = $anak_ke;
-            $response['pendidikan_terakhir'] = $pendidikan_terakhir;
-            $response['jurusan'] = $jurusan;
-            $response['nama_tempat_bekerja'] = $nama_tempat_bekerja;
-            $response['alamat_tempat_bekerja'] = $alamat_tempat_bekerja;
-            $response['penghasilan'] = $penghasilan;
-            $response['pekerjaan'] = $pekerjaan_kode;
-            $response['kewarganegaraan'] = $kewarganegaraan_kode;
-            $response['nama_pasangan'] = $nama_pasangan;
-            $response['nama_ayah'] = $nama_ayah;
-            $response['nomor_rekam_medis_ayah'] = $nomor_rekam_medis_ayah;
-            $response['nama_ibu'] = $nama_ibu;
-            $response['nomor_rekam_medis_ibu'] = $nomor_rekam_medis_ibu;
-            $response['alergi'] = $alergi;
-            return ResponseFormatter::success_ok($message, $response);
+        }else{
+            return ResponseFormatter::error_not_found("Pasien Error", null);
+        }
+
+        $response = [];
+        $response['nomor_rekam_medis'] = $rekam_medis;
+        $response['nomor_identitas'] = $nomor_identitas;
+        $response['jenis_identitas'] = $jenis_identitas;
+        $response['nama_lengkap'] = $nama_lengkap;
+        $response['tempat_lahir'] = $tempat_lahir;
+        $response['tanggal_lahir'] = $tanggal_lahir;
+        $response['kedudukan_keluarga'] = $kedudukan_keluarga;
+        $response['golongan_darah'] = $golongan_darah;
+        $response['agama'] = $agama;
+        $response['suku'] = $suku;
+        $response['nomor_telepon'] = $nomor_telepon;
+        $response['jenis_kelamin'] = $jenis_kelamin;
+        $response['alamat'] = $alamat;
+        $response['provinsi'] = $provinsi;
+        $response['kota_kabupaten'] = $kota_kabupaten;
+        $response['kecamatan'] = $kecamatan;
+        $response['status_perkawinan'] = $status_perkawinan;
+        $response['umur'] = $umur;
+        $response['anak_ke'] = $anak_ke;
+        $response['pendidikan_terakhir'] = $pendidikan_terakhir;
+        $response['jurusan'] = $jurusan;
+        $response['nama_tempat_bekerja'] = $nama_tempat_bekerja;
+        $response['alamat_tempat_bekerja'] = $alamat_tempat_bekerja;
+        $response['penghasilan'] = $penghasilan;
+        $response['pekerjaan'] = $pekerjaan_kode;
+        $response['kewarganegaraan'] = $kewarganegaraan_kode;
+        $response['nama_pasangan'] = $nama_pasangan;
+        $response['nama_ayah'] = $nama_ayah;
+        $response['nomor_rekam_medis_ayah'] = $nomor_rekam_medis_ayah;
+        $response['nama_ibu'] = $nama_ibu;
+        $response['nomor_rekam_medis_ibu'] = $nomor_rekam_medis_ibu;
+        $response['alergi'] = $alergi;
+        return ResponseFormatter::success_ok("Berhasil Mendapatkan Data Pasien", $response);
         try{
             
         }catch (Exception $e){
@@ -480,5 +494,10 @@ class UserController extends Controller
         $token = $request->user()->currentAccessToken()->delete();
 
         return ResponseFormatter::success_ok('Token Revoked/Dihapus', $token);
+    }
+
+    public function forbidden(Request $request)
+    {
+        return ResponseFormatter::forbidden("Token Tidak Ditemukan, anda akan dialihkan ke login", null);
     }
 }
