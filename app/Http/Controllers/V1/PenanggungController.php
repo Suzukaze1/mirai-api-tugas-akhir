@@ -88,9 +88,24 @@ class PenanggungController extends Controller
     public function validasiPenanggung(Request $request)
     {
         try{
-            $no_rm = (int)$request->input('nomor_rekam_medis');
+            $email = $request->input('email');
+
+            //cek email
+            $user = User::where('email', $email)->first();
+            if($user == null) return ResponseFormatter::forbidden("Email Salah Silahkan Login Kembali", null);
+
+            //jika ada
+            if($user->id_pasien_temp == null)
+            {
+                $no_rm = $user->kode;
+                $cek = Penanggung::where('pasien_id', $no_rm)->where('nama_penanggung', '!=', '1')->orderBy('nama_penanggung', 'asc')->get();
+            }
+            elseif($user->kode == null)
+            {
+                $no_rm = $user->id_pasien_temp;
+                $cek = Penanggung::where('id_pasien_temp', $no_rm)->where('nama_penanggung', '!=', '1')->orderBy('nama_penanggung', 'asc')->get();
+            }
             
-            $cek = Penanggung::where('pasien_id', $no_rm)->where('nama_penanggung', '!=', '1')->orderBy('nama_penanggung', 'asc')->get();
             if(count($cek) == 0) return ResponseFormatter::forbidden("Data Tidak Ditemukan Silahkan Login Ulang", null);
             $penanggung = [];
             $n_pen = [];
