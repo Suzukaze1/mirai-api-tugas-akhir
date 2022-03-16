@@ -20,20 +20,31 @@ class PenanggungController extends Controller
     public function listPenanggung(Request $request)
     {
         try{
-            $nomor_rm = $request->input('nomor_rekam_medis');
             $email = $request->input('email');
 
             $akun = User::where('email', $email)->first();
 
-            // ubah jadi int nyesuain db
-            $no_rm = (int) $akun->kode;
-
-            // cek apakah ada penanggung
-            $cek = Penanggung::where('pasien_id', $no_rm)->first();
-            if($cek == null) return ResponseFormatter::forbidden("Tidak Ditemukan Nomor Rekam Medis Silahkan Login Ulang", null);
-
-            // jika ada
-            $penanggung = Penanggung::where('pasien_id', $no_rm)->where('nama_penanggung', "!=" ,'1')->orderBy('id', 'asc')->get();
+            if($akun->id_pasien_temp == null)
+            {
+                // ubah jadi int nyesuain db
+                $no_rm = (int) $akun->kode;
+                // cek apakah ada penanggung
+                $cek = Penanggung::where('pasien_id', $no_rm)->first();
+                if($cek == null) return ResponseFormatter::forbidden("Tidak Ditemukan Email Silahkan Login Ulang", null);
+                // jika ada
+                $penanggung = Penanggung::where('pasien_id', $no_rm)->where('nama_penanggung', "!=" ,'1')->orderBy('id', 'asc')->get();
+            }
+            elseif($akun->kode == null)
+            {
+                // ubah jadi int nyesuain db
+                $no_rm = (int) $akun->id_pasien_temp;
+                // cek apakah ada penanggung
+                $cek = Penanggung::where('id_pasien_temp', $no_rm)->first();
+                if($cek == null) return ResponseFormatter::forbidden("Tidak Ditemukan Email Silahkan Login Ulang", null);
+                // jika ada
+                $penanggung = Penanggung::where('id_pasien_temp', $no_rm)->where('nama_penanggung', "!=" ,'1')->orderBy('id', 'asc')->get();
+            }
+        
             $list_penanggung = [];
             $response = [];
             foreach($penanggung as $p)
@@ -175,10 +186,23 @@ class PenanggungController extends Controller
             $nama_penanggung = $request->nama_penanggung;
             $nomor_kartu_penanggung = $request->nomor_kartu_penanggung;
             $foto_kartu_penanggung = $request->foto_kartu_penanggung;
-            $pasien_id = $request->nomor_rekam_medis;
+            $email = $request->email;
 
-            $get_pasien = Pasien::where('kode', $pasien_id)->first();
-            $nama_lengkap = $get_pasien->nama;
+            $get_email = User::where('email', $email)->first();
+            if($get_email == null) return ResponseFormatter::forbidden("Tidak Ditemukan Email Silahkan Login Ulang", null);
+
+            if($get_email->id_pasien_temp == null)
+            {
+                $pasien_id = $get_email->kode;
+                $get_pasien = Pasien::where('kode', $pasien_id)->first();
+                $nama_lengkap = $get_pasien->nama;
+            }
+            elseif($get_email->kode == null)
+            {
+                $pasien_id = $get_email->id_pasien_temp;
+                $get_pasien = PasienSementara::where('id', $pasien_id)->first();
+                $nama_lengkap = $get_pasien->nama;
+            }
 
             // path gambar
             $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
