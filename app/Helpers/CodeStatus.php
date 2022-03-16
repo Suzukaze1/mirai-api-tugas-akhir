@@ -13,6 +13,9 @@ class CodeStatus
     // The server can not find the requested resource. In the browser, this means the URL is not recognized.
     public static $NOT_FOUND = 404;
 
+    // Session expired
+    public static $TOKEN_EXPIRED = 419;
+
     // The server has encountered a situation it does not know how to handle.
     public static $INTERNAL_SERVER_ERROR = 500;
 }

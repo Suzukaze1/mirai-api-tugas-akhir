@@ -36,6 +36,7 @@ class PenanggungController extends Controller
             }
             elseif($akun->kode == null)
             {
+                echo "disana";
                 // ubah jadi int nyesuain db
                 $no_rm = (int) $akun->id_pasien_temp;
                 // cek apakah ada penanggung
@@ -197,51 +198,63 @@ class PenanggungController extends Controller
 
     public function tambahPenanggung(Request $request)
     {
-        try{
-            $nama_penanggung = $request->nama_penanggung;
-            $nomor_kartu_penanggung = $request->nomor_kartu_penanggung;
-            $foto_kartu_penanggung = $request->foto_kartu_penanggung;
-            $email = $request->email;
+        $nama_penanggung = $request->nama_penanggung;
+        $nomor_kartu_penanggung = $request->nomor_kartu_penanggung;
+        $foto_kartu_penanggung = $request->foto_kartu_penanggung;
+        $email = $request->email;
 
-            $get_email = User::where('email', $email)->first();
-            if($get_email == null) return ResponseFormatter::forbidden("Tidak Ditemukan Email Silahkan Login Ulang", null);
+        $get_email = User::where('email', $email)->first();
+        if($get_email == null) return ResponseFormatter::forbidden("Tidak Ditemukan Email Silahkan Login Ulang", null);
 
-            if($get_email->id_pasien_temp == null)
-            {
-                $pasien_id = $get_email->kode;
-                $get_pasien = Pasien::where('kode', $pasien_id)->first();
-                $nama_lengkap = $get_pasien->nama;
-            }
-            elseif($get_email->kode == null)
-            {
-                $pasien_id = $get_email->id_pasien_temp;
-                $get_pasien = PasienSementara::where('id', $pasien_id)->first();
-                $nama_lengkap = $get_pasien->nama;
-            }
-
-            // path gambar
-            $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
-            $key = $foto_kartu_penanggung;
-            $file = Foto::base_64_foto($path, $key, $nama_lengkap);
-
-            // response
-            $response = [];
-            $response['nama_penanggung'] = $nama_penanggung;
-            $response['nomor_kartu_penanggung'] = $nomor_kartu_penanggung;
-            $response['nomor_rekam_medik'] = (int)$nama_penanggung;
-            $response['nama_penanggung'] = $nama_penanggung;
-
-            $tambah_penanggung = new Penanggung();
-            $tambah_penanggung->nama_penanggung = $nama_penanggung;
-            $tambah_penanggung->nomor_kartu_penanggung = $nomor_kartu_penanggung;
-            $tambah_penanggung->pasien_id = $pasien_id;
-            $tambah_penanggung->foto_kartu_penanggung = $file;
-            $tambah_penanggung->save();
-
-            return ResponseFormatter::success_ok("Berhasil Mendaftar Penanggung", $response);
-        }catch (Exception $e){
-            return ResponseFormatter::error_not_found("Kesalahan dari Server", $e);
+        if($get_email->id_pasien_temp == null)
+        {
+            $pasien_id = sprintf("%08s", strval($get_email->kode));
+            $get_pasien = Pasien::where('kode', $pasien_id)->first();
+            $nama_lengkap = $get_pasien->nama;
         }
+        elseif($get_email->kode == null)
+        {
+            $pasien_id = $get_email->id_pasien_temp;
+            $get_pasien = PasienSementara::where('id', $pasien_id)->first();
+            $nama_lengkap = $get_pasien->nama;
+        }
+
+        // path gambar
+        $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
+        $key = $foto_kartu_penanggung;
+        $file = Foto::base_64_foto($path, $key, $nama_lengkap);
+
+        //get nama penanggung
+        $nama_pen = NamaPenanggung::where('kode', $nama_penanggung)->first();
+        $namapenanggung = $nama_pen->nama;
+
+        // response
+        $response = [];
+        $response['nama_penanggung'] = $namapenanggung;
+        $response['nomor_kartu_penanggung'] = $nomor_kartu_penanggung;
+        $response['foto_kartu_penanggung'] = $file;
+        $response['email'] = $email;
+
+        $tambah_penanggung = new Penanggung();
+        $tambah_penanggung->nama_penanggung = $nama_penanggung;
+        $tambah_penanggung->nomor_kartu_penanggung = $nomor_kartu_penanggung;
+        if($get_email->id_pasien_temp == null)
+        {
+            $tambah_penanggung->pasien_id = (int)$pasien_id;
+        }
+        elseif($get_email->kode == null)
+        {
+            $tambah_penanggung->id_pasien_temp = (int)$pasien_id;
+        }
+        $tambah_penanggung->foto_kartu_penanggung = $file;
+        $tambah_penanggung->save();
+
+        return ResponseFormatter::success_ok("Berhasil Mendaftar Penanggung", $response);
+        // try{
+            
+        // }catch (Exception $e){
+        //     return ResponseFormatter::error_not_found("Kesalahan dari Server", $e);
+        // }
     }
 
     public function hapusPenanggung(Request $request)

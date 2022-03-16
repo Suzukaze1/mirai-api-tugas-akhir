@@ -42,4 +42,12 @@ class ResponseFormatter
     return response()->json(self::$response, self::$response['code'])->header('Accept', 'application/json');
   }
 
+  public static function expired_token($status = null, $data = null){
+    self::$response['code'] = CodeStatus::$TOKEN_EXPIRED;
+    self::$response['message'] = $status;
+    self::$response['data'] = $data;
+
+    return response()->json(self::$response, self::$response['code'])->header('Accept', 'application/json');
+  }
+
 }

@@ -38,7 +38,7 @@ class Handler extends ExceptionHandler
     {
         $this->renderable(function (AuthenticationException $e, $request) {
             if ($request->is('api/*')) {
-                return ResponseFormatter::forbidden(
+                return ResponseFormatter::expired_token(
                     'Sesi Sudah Habis Silahkan Login',
                     null
                 );
