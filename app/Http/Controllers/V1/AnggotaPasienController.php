@@ -50,17 +50,25 @@ class AnggotaPasienController extends Controller
             foreach($detail_akun as $d){
                 if($d->id_pasien == null){
                     $data_pasien_sem = PasienSementara::where('id', $d->id_pasien_temp)->first();
-                    $data_anggota['nomor_rekam_medis'] = (string)$data_pasien_sem->id;
-                    $data_anggota['nama_anggota'] = $data_pasien_sem->nama;
-                    $data_anggota['id_status_validasi'] = "0";
-                    $data_anggota['nama_status'] = "Sedang di Validasi";
-                    $response[] = $data_anggota;
+                    if($data_pasien_sem->status_validasi == "2"){
+                        $data_anggota['nomor_rekam_medis'] = (string)$data_pasien_sem->id;
+                        $data_anggota['nama_anggota'] = $data_pasien_sem->nama;
+                        $data_anggota['id_status_validasi'] = "2";
+                        $data_anggota['nama_status'] = "Gagal Validasi";
+                        $response[] = $data_anggota;
+                    }else{
+                        $data_anggota['nomor_rekam_medis'] = (string)$data_pasien_sem->id;
+                        $data_anggota['nama_anggota'] = $data_pasien_sem->nama;
+                        $data_anggota['id_status_validasi'] = "0";
+                        $data_anggota['nama_status'] = "Sedang di Validasi";
+                        $response[] = $data_anggota;
+                    }
                 }else if($d->id_pasien_temp == null){
                     $data_pasien = Pasien::where('kode', sprintf("%08s", strval($d->id_pasien)))->first();
                     $data_anggota['nomor_rekam_medis'] = sprintf("%08s", strval($data_pasien->kode));
                     $data_anggota['nama_anggota'] = $data_pasien->nama;
                     $data_anggota['id_status_validasi'] = "1";
-                    $data_anggota['nama_status'] = "Berhasil di Validasi";
+                    $data_anggota['nama_status'] = "Aktif";
                     $response[] = $data_anggota;
                 }
             }

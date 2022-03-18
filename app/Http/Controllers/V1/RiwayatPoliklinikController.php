@@ -22,7 +22,7 @@ class RiwayatPoliklinikController extends Controller
 
             // cek kosong atau tidak datanya
             $cek = RiwayatPoliklinik::where('nomor_rekam_medis', $nomor_rm)->first();
-            if($cek == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
+            if($cek == null) return ResponseFormatter::success_ok("Data Tidak Ditemukan", []);
 
             // jika ada
             $riwayat = RiwayatPoliklinik::where('nomor_rekam_medis', $nomor_rm)->get();
