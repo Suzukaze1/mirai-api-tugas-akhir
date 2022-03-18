@@ -73,7 +73,7 @@
                                             <button type="button" class="btn btn-sm btn-warning" disabled>Validasi</button>
                                             @endif
                                             @if ($p->status_validasi == 0)
-                                            <a href="/list-pasien/validasi/{{$p->id}}" class="btn btn-sm btn-warning">Validasi</a>
+                                            <a href="/list-pasien-lama/validasi/{{$p->kode}}" class="btn btn-sm btn-warning">Validasi</a>
                                             @endif
                                             
                                         </td>

@@ -470,8 +470,8 @@ class PasienSementaraController extends Controller
             $response["daftar_penanggung"] = $list_penanggung1;
 
             return ResponseFormatter::success_ok("Berhasil Mendaftar", $response);
-        } catch (Exception $e) {
-            return ResponseFormatter::internal_server_error('Ada Yang Error Dari Server(all)', $e);
+        } catch (\Throwable $th) {
+            return ResponseFormatter::internal_server_error('Ada Yang Error Dari Server(all)', $th);
         }
     }
 
@@ -520,7 +520,7 @@ class PasienSementaraController extends Controller
             $penanggung = new Penanggung();
             $penanggung->nama_penanggung = "1";
             $penanggung->nomor_kartu_penanggung = null;
-            $penanggung->id_pasien_temp = $pasien->kode;
+            $penanggung->pasien_id = $pasien->kode;
 
             // buat data di table foto pasien
             $create_foto_pasien = new FotoPasien();

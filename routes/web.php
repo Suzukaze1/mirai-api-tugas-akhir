@@ -26,3 +26,5 @@ Route::get('/home', [LoginViewController::class, 'home'])->middleware('CekLogin'
 Route::get('/list-pasien-baru', [LoginViewController::class, 'listPasien'])->middleware('CekLogin');
 Route::get('/list-pasien/validasi/{id}', [LoginViewController::class, 'validasiPasien'])->middleware('CekLogin');
 Route::post('/list-pasien/validasi/verifikasi', [LoginViewController::class, 'verifikasiPasien'])->middleware('CekLogin');
+Route::get('/list-pasien-lama', [LoginViewController::class, 'listPasienLama'])->middleware('CekLogin');
+Route::get('/list-pasien-lama/validasi/{id}', [LoginViewController::class, 'validasiPasienLama'])->middleware('CekLogin');

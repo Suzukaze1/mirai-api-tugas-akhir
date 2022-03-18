@@ -244,4 +244,60 @@ class LoginViewController extends Controller
         }
         
     }
+
+    public function listPasienLama()
+    {
+        $cek_pasien_lama = DetailAkun::where('is_lama', '1')->get();
+
+        $response = [];
+
+        foreach($cek_pasien_lama as $cpl){
+            $pasien = Pasien::where('kode', sprintf("%08s", strval($cpl->id_pasien)))->first();
+            $response[] = $pasien;
+        }
+
+        return view('verifikasi_pasien_lama', ['pasien' => $response]);
+    }
+
+    public function validasiPasienLama(Request $request, $id)
+    {
+        $pasien = Pasien::where('kode', sprintf("%08s", strval($id)))->get();
+        $agama = Agama::where('kode', $pasien[0]->agama_kode)->get();
+        $pendidikan_terakhir = PendidikanTerakhir::where('kode', $pasien[0]->pendidikan_kode)->get();
+        $kewarganegaraan_kode = Kewarganegaraan::where('kode', $pasien[0]->kewarganegaraan_kode)->get();
+        $jenis_identitas_kode = jenis_identitas::where('kode', $pasien[0]->jenis_identitas_kode)->get();
+        $suku_kode = Suku::where('kode', $pasien[0]->suku_kode)->get();
+        $jenis_kelamin = JenisKelamin::where('kode', $pasien[0]->jkel)->get();
+        $status_perkawinan = StatusMenikah::where('kode', $pasien[0]->status_perkawinan)->get();
+        $kedudukan_keluarga = KedudukanKeluarga::where('kode', $pasien[0]->kedudukan_keluarga)->get();
+        $golongan_darah = GolonganDarah::where('kode', $pasien[0]->golongan_darah)->get();
+        $provinsi = Provinsi::where('kode', $pasien[0]->provinsi)->get();
+        $kabupaten = KotaKabupaten::where('kode', $pasien[0]->kabupaten)->get();
+        $kecamatan = Kecamatan::where('kode', $pasien[0]->kecamatan)->get();
+        $jurusan = Jurusan::where('kode', $pasien[0]->jurusan)->get();
+        $penghasilan = Penghasilan::where('kode', $pasien[0]->penghasilan)->get();
+        $penanggung = Penanggung::where('pasien_id', $pasien[0]->id)->get();
+        $foto_pasien = FotoPasien::where('id_pasien', $pasien[0]->id)->get();
+        $akun = User::where('kode', $pasien[0]->id)->get();
+        
+        return view('validasi_pasien_lama', 
+                    ['pasien' => $pasien, 
+                    'agama' => $agama,
+                    'pendidikan_terakhir' => $pendidikan_terakhir,
+                    'kewarganegaraan_kode' => $kewarganegaraan_kode,
+                    'jenis_identitas_kode' => $jenis_identitas_kode,
+                    'suku_kode' => $suku_kode,
+                    'jenis_kelamin' => $jenis_kelamin,
+                    'status_perkawinan' => $status_perkawinan,
+                    'kedudukan_keluarga' => $kedudukan_keluarga,
+                    'golongan_darah' => $golongan_darah,
+                    'provinsi' => $provinsi,
+                    'kabupaten' => $kabupaten,
+                    'kecamatan' => $kecamatan,
+                    'jurusan' => $jurusan,
+                    'penghasilan' => $penghasilan,
+                    'penanggung' => $penanggung,
+                    'foto_pasien' => $foto_pasien,
+                    'akun' => $akun]);
+    }
 }

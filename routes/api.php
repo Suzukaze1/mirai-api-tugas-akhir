@@ -91,6 +91,8 @@ class Routes
         Route::post(Endpoint::$PENAMBAHAN_ANGGOTA_PASIEN_LAMA_SEMENTARA, [PasienSementaraController::class, 'pendaftaranAnggotaPasienLama']);
         Route::get(Endpoint::$DATA_ANGGGOTA_PASIEN, [AnggotaPasienController::class, 'getAnggotaIndukPasien']);
         Route::get(Endpoint::$DETAIL_DATA_ANGGOTA_PASIEN, [AnggotaPasienController::class, 'getDetailAnggotaIndukPasien']);
+        Route::delete(Endpoint::$UNLINK_DATA_ANGGOTA_PASIEN, [AnggotaPasienController::class, 'unlinkAnggotaIndukPasien']);
+        Route::get(Endpoint::$GET_PENANGGUNG_ANGGOTA, [AnggotaPasienController::class, 'listPenanggungAnggota']);
     }
 
     private function _penanggung()
@@ -232,5 +234,7 @@ class Endpoint
     static $PENAMBAHAN_ANGGOTA_PASIEN_LAMA_SEMENTARA = 'pendaftaran-anggota-pasien-lama-sementara';
     static $DATA_ANGGGOTA_PASIEN = 'get-data-anggota-pasien';
     static $DETAIL_DATA_ANGGOTA_PASIEN = 'get-detail-data-anggota-pasien';
+    static $UNLINK_DATA_ANGGOTA_PASIEN = 'unlink-data-anggota-pasien';
+    static $GET_PENANGGUNG_ANGGOTA = 'get-penanggung-anggota';
     // Isi Lagi Endpoint nya cuk
 }
