@@ -15,6 +15,7 @@ use App\Http\Controllers\V1\KedudukanKeluargaController;
 use App\Http\Controllers\V1\KewarganegaraanController;
 use App\Http\Controllers\V1\KotaKabupatenController;
 use App\Http\Controllers\V1\NamaPenanggungController;
+use App\Http\Controllers\V1\NotifController;
 use App\Http\Controllers\V1\OtpController;
 use App\Http\Controllers\V1\PasienController;
 use App\Http\Controllers\V1\PasienSementaraController;
@@ -71,6 +72,7 @@ class Routes
         $this->_riwayatPoliklinik();
         $this->_penanggung();
         $this->_anggotaPasien();
+        $this->_notif();
         $this->_master();
 
         // API Pakai Token
@@ -83,6 +85,13 @@ class Routes
     }
     public function v2()
     {
+    }
+
+    private function _notif()
+    {
+        Route::get(Endpoint::$GET_NOTIF, [NotifController::class, 'listNotif']);
+        Route::post(Endpoint::$UBAH_STATUS_BACA_NOTIF, [NotifController::class, 'notifDibaca']);
+        Route::delete(Endpoint::$HAPUS_NOTIF, [NotifController::class, 'hapusNotif']);
     }
 
     private function _anggotaPasien()
@@ -236,5 +245,8 @@ class Endpoint
     static $DETAIL_DATA_ANGGOTA_PASIEN = 'get-detail-data-anggota-pasien';
     static $UNLINK_DATA_ANGGOTA_PASIEN = 'unlink-data-anggota-pasien';
     static $GET_PENANGGUNG_ANGGOTA = 'get-penanggung-anggota';
+    static $GET_NOTIF = 'get-notif';
+    static $UBAH_STATUS_BACA_NOTIF = 'ganti-status-baca-notif';
+    static $HAPUS_NOTIF = 'hapus-notif';
     // Isi Lagi Endpoint nya cuk
 }

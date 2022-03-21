@@ -17,6 +17,7 @@ use App\Models\V1\Kecamatan;
 use App\Models\V1\KedudukanKeluarga;
 use App\Models\V1\Kewarganegaraan;
 use App\Models\V1\KotaKabupaten;
+use App\Models\V1\Notif;
 use App\Models\V1\Pasien;
 use App\Models\V1\PasienSementara;
 use App\Models\V1\Penanggung;
@@ -119,15 +120,19 @@ class LoginViewController extends Controller
         $id_status_validasi = $request->id_status_validasi;
         $alasan_berhasil_gagal = $request->alasan_berhasil_gagal;
 
-        if($id_status_validasi == 1){
+        if($id_status_validasi == 1)
+        {
             $title = "Verifikasi Pasien Berhasil";
             $pesan = "Data Pasien Berhasil Di Verifikasi";
-        }else if($id_status_validasi == 2){
+        }
+        else if($id_status_validasi == 2)
+        {
             $title = "Verifikasi Pasien Gagal";
             $pesan = "Data Pasien Gagal Di Verifikasi";
         }
 
-        if($id_status_validasi == 1){
+        if($id_status_validasi == 1)
+        {
             // ambil data pasien temp dari id akun
             $akun = User::where('id', $id_akun)->first();
             $list_pasien = PasienSementara::where('id', $akun->id_pasien_temp)->first();
@@ -184,8 +189,6 @@ class LoginViewController extends Controller
             $pasien->ibu_nama = $list_pasien->ibu_nama;
             $pasien->no_rekam_medik_ibu = $list_pasien->no_rekam_medik_ibu;
             $pasien->alergi = $list_pasien->alergi;
-            return $pasien;
-            die();
 
             // update table users atau akun
             $user = User::find($id_akun);
@@ -226,9 +229,21 @@ class LoginViewController extends Controller
             ];
 
             Mail::to($akun->email)->send(new MyTestMail($details));
+
+            // cari email
+            $user_email = User::where('email', (int)$nomor_rekam_medik)->first();
+
+            //simpan data ke tb notif
+            $notif = new Notif();
+            $notif->email = $user_email->email;
+            $notif->subjek = $title;
+            $notif->isi = $alasan_berhasil_gagal;
+
             return redirect('list-pasien-baru')->with('pesan', $pesan);
             
-        }else if($id_status_validasi == 2){
+        }
+        else if($id_status_validasi == 2)
+        {
             // ambil data pasien temp dari id akun
             $akun = User::where('id', $id_akun)->first();
             $list_pasien = PasienSementara::where('id', $akun->id_pasien_temp)->first();
@@ -240,9 +255,17 @@ class LoginViewController extends Controller
 
             $pesan = "Verifikasi data pasien di tolak";
 
+            // cari email
+            $user_email = User::where('id', $id_akun)->first();
+
+            //simpan data ke tb notif
+            $notif = new Notif();
+            $notif->email = $user_email->email;
+            $notif->subjek = $title;
+            $notif->isi = $alasan_berhasil_gagal;
+
             return redirect('/list-pasien-baru')->with('pesangagal', $pesan);
         }
-        
     }
 
     public function listPasienLama()
