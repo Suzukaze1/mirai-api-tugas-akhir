@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\V1;
 
+use App\Helpers\Foto;
 use DateTime;
 use Exception;
 use Carbon\Carbon;
@@ -452,7 +453,6 @@ class AnggotaPasienController extends Controller
             if(File::exists(public_path($foto_penanggung))){
                 File::delete(public_path($foto_penanggung));
                 $hapus_penanggung->delete();
-                return ResponseFormatter::success_ok("Berhasil Mengahapus Penanggung", null);
             }else{
                 return ResponseFormatter::error_not_found("Foto Penanggung Tidak Ada", null);
             }
@@ -462,10 +462,11 @@ class AnggotaPasienController extends Controller
                 File::delete(public_path($foto_swa));
                 File::delete(public_path($foto_kartu_pasien));
                 $hapus_foto_pasien->delete();
-                return ResponseFormatter::success_ok("Berhasil Mengahapus Penanggung", null);
             }else{
                 return ResponseFormatter::error_not_found("Foto Penanggung Tidak Ada", null);
             }
+
+            return ResponseFormatter::success_ok("Berhasil Mengahapuskan Kaitan Dengan Induk", null);
         } catch (\Throwable $th) {
             return ResponseFormatter::internal_server_error("Kesalahan Dari Server", $th);
         }
@@ -504,7 +505,7 @@ class AnggotaPasienController extends Controller
                     $foto_penanggung = "/foto_penanggung/jamkesda.png";
                 }
 
-                $list_penanggung['nomor_rekam_medis'] = $p->id;
+                $list_penanggung['id_data_penanggung'] = $p->id;
                 $list_penanggung['nama_pasien'] = $nama_pasien;
                 $list_penanggung['nama_penanggung'] = $nama_penanggung;
                 $list_penanggung['nomor_kartu'] = $p->nomor_kartu_penanggung;
@@ -539,7 +540,7 @@ class AnggotaPasienController extends Controller
                     $foto_penanggung = "/foto_penanggung/jamkesda.png";
                 }
 
-                $list_penanggung['nomor_rekam_medis'] = $p->id;
+                $list_penanggung['id_data_penanggung'] = $p->id;
                 $list_penanggung['nama_pasien'] = $nama_pasien;
                 $list_penanggung['nama_penanggung'] = $nama_penanggung;
                 $list_penanggung['nomor_kartu'] = $p->nomor_kartu_penanggung;
@@ -574,7 +575,7 @@ class AnggotaPasienController extends Controller
                     $foto_penanggung = "/foto_penanggung/jamkesda.png";
                 }
 
-                $list_penanggung['nomor_rekam_medis'] = $p->id;
+                $list_penanggung['id_data_penanggung'] = $p->id;
                 $list_penanggung['nama_pasien'] = $nama_pasien;
                 $list_penanggung['nama_penanggung'] = $nama_penanggung;
                 $list_penanggung['nomor_kartu'] = $p->nomor_kartu_penanggung;
@@ -585,5 +586,128 @@ class AnggotaPasienController extends Controller
         }
 
         return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $response);
+    }
+
+    public function tambahPenanggungAnggota(Request $request)
+    {
+        $kode_penanggung = $request->kode_penanggung;
+        $nomor_kartu_penanggung = $request->nomor_kartu_penanggung;
+        $foto_kartu_penanggung = $request->foto_kartu_penanggung;
+        $nomor_rekam_medis = $request->nomor_rekam_medis;
+        $id_status_validasi = $request->id_status_validasi;
+
+        //get nama penanggung
+        $nama_pen = NamaPenanggung::where('kode', $kode_penanggung)->first();
+        $namapenanggung = $nama_pen->nama;
+
+        if($id_status_validasi == "0")
+        {
+            $pasien_sementara = PasienSementara::where('id', $nomor_rekam_medis)->first();
+
+            // path gambar
+            $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
+            $key = $foto_kartu_penanggung;
+            $file = Foto::base_64_foto($path, $key, $pasien_sementara->nama);
+
+            $penanggung = new Penanggung();
+            $penanggung->nama_penanggung = $kode_penanggung;
+            $penanggung->nomor_kartu_penanggung = $nomor_kartu_penanggung;
+            $penanggung->foto_kartu_penanggung = $file;
+            $penanggung->save();
+        }
+        elseif($id_status_validasi == "1" || $id_status_validasi == "3")
+        {
+            $pasien_sementara = Pasien::where('kode', (string)$nomor_rekam_medis)->first();
+
+            // path gambar
+            $path = Penanggung::$FOTO_KARTU_PENANGGUNG;
+            $key = $foto_kartu_penanggung;
+            $file = Foto::base_64_foto($path, $key, $pasien_sementara->nama);
+
+            $penanggung = new Penanggung();
+            $penanggung->nama_penanggung = $kode_penanggung;
+            $penanggung->nomor_kartu_penanggung = $nomor_kartu_penanggung;
+            $penanggung->foto_kartu_penanggung = $file;
+            $penanggung->save();
+        }
+
+        // response
+        $response = [];
+        $response['nama_penanggung'] = $namapenanggung;
+        $response['nomor_kartu_penanggung'] = $nomor_kartu_penanggung;
+        $response['foto_kartu_penanggung'] = $file;
+        $response['nomor_rekam_medis'] = $nomor_rekam_medis;
+        $response['id_status_validasi'] = $id_status_validasi;
+
+        return ResponseFormatter::success_ok("Berhasil Membuat Penanggung", $response);
+    }
+
+    public function hapusAnggotaPasien(Request $request)
+    {
+        $id_status_validasi_input = $request->id_status_validasi;
+        $nomor_rekam_medis_input = $request->nomor_rekam_medis;
+
+        if($id_status_validasi_input == "1" || $id_status_validasi_input == "2" || $id_status_validasi_input == "3") return ResponseFormatter::error_not_found("Tidak Bisa Menghapus Pasien", null);
+
+        if($id_status_validasi_input == "0")
+        {
+            //tb penanggung
+            $penanggung = Penanggung::where('id_pasien_temp', $nomor_rekam_medis_input)->first();
+            if ($penanggung == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+            $foto_penanggung = $penanggung->foto_kartu_penanggung;
+            $hapus_penanggung = Penanggung::find($penanggung->id);
+
+            //tb detail anggota
+            $detail_akun = DetailAkun::where('id_pasien_temp', $nomor_rekam_medis_input)->first();
+            if ($detail_akun == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+            $hapus_detail_akun = DetailAkun::find($detail_akun->id);
+
+            //tb foto pasien
+            $foto_pasien = FotoPasien::where('id_pasien_temp', $nomor_rekam_medis_input)->first();
+            if ($foto_pasien == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+            $foto_swa = $foto_pasien->foto_swa_pasien;
+            $foto_kartu_pasien = $foto_pasien->foto_kartu_identitas_pasien;
+            $hapus_foto_pasien = FotoPasien::find($foto_pasien->id);
+
+            //tb pasien sementara
+            $pasien_sementara = PasienSementara::where('id', $nomor_rekam_medis_input)->first();
+            if ($pasien_sementara == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+            $hapus_pasien_sementara = PasienSementara::find($pasien_sementara->id);
+
+            //hapus data disetiap tb
+            try
+            {
+                //hapus data penanggung
+                if(File::exists(public_path($foto_penanggung))){
+                    File::delete(public_path($foto_penanggung));
+                    $hapus_penanggung->delete();
+                }else{
+                    return ResponseFormatter::error_not_found("Foto Penanggung Tidak Ada", null);
+                }
+
+                //hapus data foto pasien
+                if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
+                    File::delete(public_path($foto_swa));
+                    File::delete(public_path($foto_kartu_pasien));
+                    $hapus_foto_pasien->delete();
+                }else{
+                    return ResponseFormatter::error_not_found("Foto Penanggung Tidak Ada", null);
+                }
+
+                //hapus data detail akun
+                $hapus_detail_akun->delete();
+
+                //hapus data pasien sementara
+                $hapus_pasien_sementara->delete();
+
+                return ResponseFormatter::success_ok("Berhasil Mengahapus Pasien", null);
+            }
+            catch (\Throwable $th)
+            {
+                return ResponseFormatter::internal_server_error("Kesalahan Dari Server", $th);
+            }
+        }else{
+            return ResponseFormatter::forbidden("Silahkan Login Ulang", null);
+        }
     }
 }
