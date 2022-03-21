@@ -136,8 +136,6 @@ class LoginViewController extends Controller
             // ambil data pasien temp dari id akun
             $akun = User::where('id', $id_akun)->first();
             $list_pasien = PasienSementara::where('id', $akun->id_pasien_temp)->first();
-            return $id_akun;
-            die();
 
             // logika nomor rekam medik
             $cek_pasien = Pasien::orderBy('kode', 'DESC')->first();
@@ -189,32 +187,33 @@ class LoginViewController extends Controller
             $pasien->ibu_nama = $list_pasien->ibu_nama;
             $pasien->no_rekam_medik_ibu = $list_pasien->no_rekam_medik_ibu;
             $pasien->alergi = $list_pasien->alergi;
+            $pasien->save();
 
             // update table users atau akun
             $user = User::find($id_akun);
             $user->id_pasien_temp = null;
-            $user->kode = $nomor_rekam_medik;
+            $user->kode = (int)$nomor_rekam_medik;
             $user->save();
 
             // cari dan update detail akun 
             $cari_detail_akun = DetailAkun::where('id_pasien_temp', $akun->id_pasien_temp)->first();
             $detail_akun = DetailAkun::find($cari_detail_akun->id);
             $detail_akun->id_pasien_temp = null;
-            $detail_akun->id_pasien = $nomor_rekam_medik;
+            $detail_akun->id_pasien = (int)$nomor_rekam_medik;
             $detail_akun->save();
 
             // cari dan update penanggung
             $cari_penanggung = Penanggung::where('id_pasien_temp', $akun->id_pasien_temp)->first();
             $penanggung = Penanggung::find($cari_penanggung->id);
             $penanggung->id_pasien_temp = null;
-            $penanggung->pasien_id = $nomor_rekam_medik;
+            $penanggung->pasien_id = (int)$nomor_rekam_medik;
             $penanggung->save();
 
             // cari dan update foto pasien
             $cari_foto_pasien = FotoPasien::where('id_pasien_temp', $akun->id_pasien_temp)->first();
             $foto_pasien = FotoPasien::find($cari_foto_pasien->id);
             $foto_pasien->id_pasien_temp = null;
-            $foto_pasien->id_pasien = $nomor_rekam_medik;
+            $foto_pasien->id_pasien = (int)$nomor_rekam_medik;
             $foto_pasien->save();
 
             // hapus data di tabel pasien sementara
@@ -231,13 +230,14 @@ class LoginViewController extends Controller
             Mail::to($akun->email)->send(new MyTestMail($details));
 
             // cari email
-            $user_email = User::where('email', (int)$nomor_rekam_medik)->first();
+            $user_email = User::where('id', $id_akun)->first();
 
             //simpan data ke tb notif
             $notif = new Notif();
             $notif->email = $user_email->email;
             $notif->subjek = $title;
             $notif->isi = $alasan_berhasil_gagal;
+            $notif->save();
 
             return redirect('list-pasien-baru')->with('pesan', $pesan);
             
@@ -263,6 +263,7 @@ class LoginViewController extends Controller
             $notif->email = $user_email->email;
             $notif->subjek = $title;
             $notif->isi = $alasan_berhasil_gagal;
+            $notif->save();
 
             return redirect('/list-pasien-baru')->with('pesangagal', $pesan);
         }

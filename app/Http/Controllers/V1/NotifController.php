@@ -14,7 +14,7 @@ class NotifController extends Controller
     {
         $email = $request->input('email');
         $response = [];
-        $list_notif = [];
+        $list_notif_arr = [];
 
         try
         {
@@ -23,13 +23,15 @@ class NotifController extends Controller
 
             foreach ($list_notif as $ln)
             {
-                $list_notif['id_notif'] = $ln->id;
-                $list_notif['email'] = $email;
-                $list_notif['subjek'] = $ln->subjek;
-                $list_notif['isi'] = $ln->isi;
-                $list_notif['is_baca'] = $ln->is_baca;
-                $response[] = $list_notif;
+                $list_notif_arr['id_notif'] = $ln->id;
+                $list_notif_arr['email'] = $email;
+                $list_notif_arr['subjek'] = $ln->subjek;
+                $list_notif_arr['isi'] = $ln->isi;
+                $list_notif_arr['is_baca'] = $ln->is_baca;
+                $list_notif_arr['foto_icon'] = "/foto_notif/notif.png";
+                $response[] = $list_notif_arr;
             }
+
             return ResponseFormatter::success_ok("Data Notif Ditemukan", $response);
         }
         catch (\Throwable $th)
