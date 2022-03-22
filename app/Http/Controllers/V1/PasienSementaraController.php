@@ -358,6 +358,7 @@ class PasienSementaraController extends Controller
                 $detail_akun = new DetailAkun();
                 $detail_akun->id_pasien_temp = $cari_pasien->id;
                 $detail_akun->id_akun = $cari_akun->id;
+                $detail_akun->is_anggota = "1";
                 $detail_akun->save();
             } catch (Exception $e) {
                 return ResponseFormatter::internal_server_error(
@@ -534,6 +535,7 @@ class PasienSementaraController extends Controller
                 $detail_akun->id_pasien = $pasien->kode;
                 $detail_akun->id_akun = $akun_induk->id;
                 $detail_akun->is_lama = "1";
+                $detail_akun->is_anggota = "1";
                 
             } catch (Exception $e) {
                 return ResponseFormatter::internal_server_error(
@@ -553,7 +555,7 @@ class PasienSementaraController extends Controller
                 $response["tanggal_lahir"] = $tgl_lahir;
                 $response["jenis_identitas"] = $jenis_identitas;
                 $response["no_identitas"] = $nomor_identitas;
-                return ResponseFormatter::success_ok('Berhasil Mendaftar Akun', $response);
+                return ResponseFormatter::success_ok('Berhasil Mendaftar Anggota Pasien', $response);
             } catch (Exception $e) {
                 //jika gagal
                 return ResponseFormatter::internal_server_error('Ada Sesuatu Yang salah', $e);

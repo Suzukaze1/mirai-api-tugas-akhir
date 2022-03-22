@@ -102,6 +102,8 @@ class Routes
         Route::get(Endpoint::$DETAIL_DATA_ANGGOTA_PASIEN, [AnggotaPasienController::class, 'getDetailAnggotaIndukPasien']);
         Route::delete(Endpoint::$UNLINK_DATA_ANGGOTA_PASIEN, [AnggotaPasienController::class, 'unlinkAnggotaIndukPasien']);
         Route::get(Endpoint::$GET_PENANGGUNG_ANGGOTA, [AnggotaPasienController::class, 'listPenanggungAnggota']);
+        Route::post(Endpoint::$TAMBAH_PENANGGUNG_ANGGOTA, [AnggotaPasienController::class, 'tambahPenanggungAnggota']);
+        Route::delete(Endpoint::$HAPUS_ANGGOTA, [AnggotaPasienController::class, 'hapusAnggotaPasien']);
     }
 
     private function _penanggung()
@@ -126,6 +128,7 @@ class Routes
         Route::get(Endpoint::$LIST_PENDAFTARAN_POLIKLINIK, [PendaftaranPoliklinikController::class, 'getPendaftaranPoliklinik']);
         Route::post(Endpoint::$UBAH_STATUS_PENDAFTARAN, [PendaftaranPoliklinikController::class, 'ubahStatusPendaftaran']);
         Route::post(Endpoint::$SELESAI_PENDAFTARAN, [PendaftaranPoliklinikController::class, 'selesaiPendaftaran']);
+        Route::get(Endpoint::$BRIGING_BPJS, [PendaftaranPoliklinikController::class, 'getBrigingBPJS']);
     }
 
     private function _auth()
@@ -245,8 +248,11 @@ class Endpoint
     static $DETAIL_DATA_ANGGOTA_PASIEN = 'get-detail-data-anggota-pasien';
     static $UNLINK_DATA_ANGGOTA_PASIEN = 'unlink-data-anggota-pasien';
     static $GET_PENANGGUNG_ANGGOTA = 'get-penanggung-anggota';
+    static $TAMBAH_PENANGGUNG_ANGGOTA = 'tambah-penanggung-anggota';
+    static $HAPUS_ANGGOTA = 'hapus-anggota';
     static $GET_NOTIF = 'get-notif';
     static $UBAH_STATUS_BACA_NOTIF = 'ganti-status-baca-notif';
     static $HAPUS_NOTIF = 'hapus-notif';
+    static $BRIGING_BPJS = 'briging-bpjs';
     // Isi Lagi Endpoint nya cuk
 }

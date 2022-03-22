@@ -22,7 +22,8 @@ class DetailAkun extends Model
         'id_akun',
         'id_pasien',
         'id_pasien_temp',
-        'is_lama'
+        'is_lama',
+        'is_anggota'
     ];
 
     protected $table = 'mirai_pasien.detail_akun';

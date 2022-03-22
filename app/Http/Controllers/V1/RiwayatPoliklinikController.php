@@ -64,7 +64,7 @@ class RiwayatPoliklinikController extends Controller
                 $resume_medis = RiwayatResumeMedis::where('nomor_daftar_poliklinik', $r->nomor_daftar)->get();
                 if(!count($resume_medis) == 0){
                     foreach($resume_medis as $rm){
-                        $array_riwayat_medis['resume_medis_detail'] = $rm->resume_medis_detail;
+                        $array_riwayat_medis['resume_medis_detail'] = '<h1>RSUD Arifin Achmad</h1>';
                         $array_rm[] = $array_riwayat_medis;
                     }
                 }
@@ -74,7 +74,7 @@ class RiwayatPoliklinikController extends Controller
                 $hasil_penunjang = RiwayatHasilPenunjang::where('nomor_daftar_poliklinik', $r->nomor_daftar)->get();
                 if(!count($hasil_penunjang) == 0){
                     foreach($hasil_penunjang as $hp){
-                        $array_hasil_penunjang['hasil_penunjang_detail'] = $hp->hasil_penunjang_detail;
+                        $array_hasil_penunjang['hasil_penunjang_detail'] = '<h1>Lorem Ipsum</h1>';
                         $array_hp[] = $array_hasil_penunjang;
                     }
                 }

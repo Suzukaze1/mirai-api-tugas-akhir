@@ -325,5 +325,30 @@ class DataDummy
         return $dumDebitur;
     }
 
-    
+    public static function dummyUserBPJS()
+    {
+        $dumBPJS = [
+            'nomor_rekam_medis' => '031391931',
+            'nama_pasien' => 'Naufal Lawrence',
+            'status_rujukan' => '1',
+            'status_kontrol' => '0',
+            'rujukan' => [
+                            (
+                                [
+                                'nomor_rujukan' => '989898988874232',
+                                'nama_poli' => 'poli bedah onkologi'
+                                ]
+                            ),
+                            (
+                                [
+                                'nomor_rujukan' => '989898988874232',
+                                'nama_poli' => 'poli orthopedi & traumalogi'
+                                ]
+                            )
+                        ],
+            'kontrol' => []
+        ];
+
+        return $dumBPJS;
+    }
 }

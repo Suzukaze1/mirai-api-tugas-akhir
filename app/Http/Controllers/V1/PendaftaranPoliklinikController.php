@@ -19,6 +19,7 @@ use App\Models\V1\RiwayatPoliklinik;
 
 use function PHPUnit\Framework\isEmpty;
 use App\Models\V1\PendaftaranPoliklinik;
+use Facade\FlareClient\Http\Response;
 
 class PendaftaranPoliklinikController extends Controller
 {
@@ -70,24 +71,38 @@ class PendaftaranPoliklinikController extends Controller
             $nomor_rm = $request->nomor_rekam_medis;
             $no_rm = (int) $nomor_rm;
 
-            $list_debitur['id_penanggung'] = 1;
-            $list_debitur['nama_penanggung'] = "Umum";
-            $list_debitur['nomor_penanggung'] = null;
-            $list_debitur['label_penanggung'] = "Umum";
-            $response[]= $list_debitur;
+            // $list_debitur['id_penanggung'] = 1;
+            // $list_debitur['nama_penanggung'] = "Umum";
+            // $list_debitur['nomor_penanggung'] = null;
+            // $list_debitur['label_penanggung'] = "Umum";
+            // $response[]= $list_debitur;
 
             $get_debitur_pasien = Penanggung::where('pasien_id', $no_rm)->orderBy('nama_penanggung', 'asc')->get();
 
             foreach($get_debitur_pasien as $deb)
             {
-                $nam_pen = NamaPenanggung::where('kode', $deb->nama_penanggung)->first();
-                $nam_deb = $nam_pen->nama;
-                $nama_debitur = $nam_deb." - ".$deb->nomor_kartu_penanggung;
-                $list_debitur['id_penanggung'] = (int)$deb->nama_penanggung;
-                $list_debitur['nama_penanggung'] = $nam_deb;
-                $list_debitur['nomor_penanggung'] = $deb->nomor_kartu_penanggung;
-                $list_debitur['label_penanggung'] = $nama_debitur;
-                $response[] = $list_debitur;
+                if($deb->nama_penanggung == "1")
+                {
+                    $nam_pen = NamaPenanggung::where('kode', $deb->nama_penanggung)->first();
+                    $nam_deb = $nam_pen->nama;
+                    $nama_debitur = $nam_deb;
+                    $list_debitur['id_penanggung'] = (int)$deb->nama_penanggung;
+                    $list_debitur['nama_penanggung'] = $nam_deb;
+                    $list_debitur['nomor_penanggung'] = $deb->nomor_kartu_penanggung;
+                    $list_debitur['label_penanggung'] = $nama_debitur;
+                    $response[] = $list_debitur;
+                }
+                else
+                {
+                    $nam_pen = NamaPenanggung::where('kode', $deb->nama_penanggung)->first();
+                    $nam_deb = $nam_pen->nama;
+                    $nama_debitur = $nam_deb." - ".$deb->nomor_kartu_penanggung;
+                    $list_debitur['id_penanggung'] = (int)$deb->nama_penanggung;
+                    $list_debitur['nama_penanggung'] = $nam_deb;
+                    $list_debitur['nomor_penanggung'] = $deb->nomor_kartu_penanggung;
+                    $list_debitur['label_penanggung'] = $nama_debitur;
+                    $response[] = $list_debitur;
+                }
             }
 
             return ResponseFormatter::success_ok("Berhasil Mendapatkan Data", $response);
@@ -108,6 +123,10 @@ class PendaftaranPoliklinikController extends Controller
         if($user == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
 
         $id_user = $user->id;
+
+        // cegah nge-spam daftar
+        $spam_daftar = PendaftaranPoliklinik::where('kunjungan', $kunjungan)->where('nomor_rekam_medis', $nomor_rekam_medis)->where('nomor_debitur', $nomor_debitur)->where('id_poliklinik', $id_poliklinik)->first();
+        if(!$spam_daftar == null) return ResponseFormatter::error_not_found("Tidak Boleh Mendaftar Lagi", null);
 
         $a = Antrian::where('id_poli', $id_poliklinik)->orderBy('id', 'DESC')->first();
         if($a == null){
@@ -188,11 +207,11 @@ class PendaftaranPoliklinikController extends Controller
                     $nama_penanggung = "UMUM";
                 }else{
                     $kode = $cari_penanggung->nama_penanggung;
-                    if($kode == "1") {
+                    if($kode == "2") {
                         $nama_penanggung = "BPJS";
-                    }elseif($kode == "2"){
-                        $nama_penanggung = "KIS";
                     }elseif($kode == "3"){
+                        $nama_penanggung = "KIS";
+                    }elseif($kode == "4"){
                         $nama_penanggung = "JAMKESDA";
                     }
                 }
@@ -309,5 +328,11 @@ class PendaftaranPoliklinikController extends Controller
             return ResponseFormatter::internal_server_error("Ada Yang Salah Dari Server", $e);
         }
         
+    }
+
+    public function getBrigingBPJS(Request $request)
+    {
+        $briging = DataDummy::dummyUserBPJS();
+        return $briging;
     }
 }

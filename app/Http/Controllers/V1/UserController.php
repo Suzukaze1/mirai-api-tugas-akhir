@@ -131,7 +131,7 @@ class UserController extends Controller
             $credentials = request(['email', 'password']);
             if(!Auth::attempt($credentials)){
                 return ResponseFormatter::forbidden(
-                    'Password Salah',
+                    'Email atau Password Salah',
                     null
                 );
             }

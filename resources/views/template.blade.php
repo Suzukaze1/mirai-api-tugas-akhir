@@ -67,6 +67,17 @@
                             <li>
                                 <a href="/list-pasien-lama" class="waves-effect"><i class="mdi mdi-book-outline"></i> <span> List Pasien Lama </span> </a>
                             </li>
+
+                            <li class="has_sub">
+                                <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-view-list"></i> <span> Tables </span> <span class="menu-arrow"></span></a>
+                                <ul class="list-unstyled">
+                                	<li><a href="tables-basic.html">Basic Tables</a></li>
+                                    <li><a href="tables-datatable.html">Data Table</a></li>
+                                    <li><a href="tables-responsive.html">Responsive Table</a></li>
+                                    <li><a href="tables-editable.html">Editable Table</a></li>
+                                    <li><a href="tables-tablesaw.html">Tablesaw Table</a></li>
+                                </ul>
+                            </li>
                             
                             <li>
                                 <a href="/logout" onclick="keluar()" class="waves-effect"><i class="mdi mdi-logout"></i> <span> Keluar </span> </a>
