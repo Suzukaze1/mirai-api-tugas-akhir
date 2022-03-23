@@ -79,7 +79,6 @@ class LoginViewController extends Controller
         $pendidikan_terakhir = PendidikanTerakhir::where('kode', $pasien[0]->pendidikan_kode)->get();
         $kewarganegaraan_kode = Kewarganegaraan::where('kode', $pasien[0]->kewarganegaraan_kode)->get();
         $jenis_identitas_kode = jenis_identitas::where('kode', $pasien[0]->jenis_identitas_kode)->get();
-        $suku_kode = Suku::where('kode', $pasien[0]->suku_kode)->get();
         $jenis_kelamin = JenisKelamin::where('kode', $pasien[0]->jkel)->get();
         $status_perkawinan = StatusMenikah::where('kode', $pasien[0]->status_perkawinan)->get();
         $kedudukan_keluarga = KedudukanKeluarga::where('kode', $pasien[0]->kedudukan_keluarga)->get();
@@ -87,11 +86,14 @@ class LoginViewController extends Controller
         $provinsi = Provinsi::where('kode', $pasien[0]->provinsi)->get();
         $kabupaten = KotaKabupaten::where('kode', $pasien[0]->kabupaten)->get();
         $kecamatan = Kecamatan::where('kode', $pasien[0]->kecamatan)->get();
-        $jurusan = Jurusan::where('kode', $pasien[0]->jurusan)->get();
         $penghasilan = Penghasilan::where('kode', $pasien[0]->penghasilan)->get();
         $penanggung = Penanggung::where('id_pasien_temp', $pasien[0]->id)->get();
         $foto_pasien = FotoPasien::where('id_pasien_temp', $pasien[0]->id)->get();
         $akun = User::where('id_pasien_temp', $pasien[0]->id)->get();
+
+        // bisa null
+        $jurusan = Jurusan::where('kode', $pasien[0]->jurusan)->first();
+        $suku_kode = Suku::where('kode', $pasien[0]->suku_kode)->first();
         
         return view('validasi_pasien', 
                     ['pasien' => $pasien, 
@@ -187,33 +189,38 @@ class LoginViewController extends Controller
             $pasien->ibu_nama = $list_pasien->ibu_nama;
             $pasien->no_rekam_medik_ibu = $list_pasien->no_rekam_medik_ibu;
             $pasien->alergi = $list_pasien->alergi;
-            $pasien->save();
 
             // update table users atau akun
             $user = User::find($id_akun);
             $user->id_pasien_temp = null;
             $user->kode = (int)$nomor_rekam_medik;
-            $user->save();
 
             // cari dan update detail akun 
             $cari_detail_akun = DetailAkun::where('id_pasien_temp', $akun->id_pasien_temp)->first();
             $detail_akun = DetailAkun::find($cari_detail_akun->id);
             $detail_akun->id_pasien_temp = null;
             $detail_akun->id_pasien = (int)$nomor_rekam_medik;
-            $detail_akun->save();
-
-            // cari dan update penanggung
-            $cari_penanggung = Penanggung::where('id_pasien_temp', $akun->id_pasien_temp)->first();
-            $penanggung = Penanggung::find($cari_penanggung->id);
-            $penanggung->id_pasien_temp = null;
-            $penanggung->pasien_id = (int)$nomor_rekam_medik;
-            $penanggung->save();
 
             // cari dan update foto pasien
             $cari_foto_pasien = FotoPasien::where('id_pasien_temp', $akun->id_pasien_temp)->first();
             $foto_pasien = FotoPasien::find($cari_foto_pasien->id);
             $foto_pasien->id_pasien_temp = null;
             $foto_pasien->id_pasien = (int)$nomor_rekam_medik;
+
+            // cari dan update penanggung
+            $cari_penanggung = Penanggung::where('id_pasien_temp', $akun->id_pasien_temp)->get();
+            foreach($cari_penanggung as $cp)
+            {
+                $penanggung = Penanggung::find($cp->id);
+                $penanggung->id_pasien_temp = null;
+                $penanggung->pasien_id = (int)$nomor_rekam_medik;
+                $penanggung->save();
+            }
+
+            //simpan semua data
+            $pasien->save();
+            $user->save();
+            $detail_akun->save();
             $foto_pasien->save();
 
             // hapus data di tabel pasien sementara
@@ -274,14 +281,18 @@ class LoginViewController extends Controller
         $cek_pasien_lama = DetailAkun::where('is_lama', '1')->orWhere('is_lama', '2')->get();
 
         $response = [];
+        $array = [];
 
         foreach($cek_pasien_lama as $cpl){
             $pasien = Pasien::where('kode', sprintf("%08s", strval($cpl->id_pasien)))->first();
-            $response[] = $pasien; 
-            $is_lama = $cpl->is_lama;
+            $array['kode'] = $pasien->kode;
+            $array['nama_lengkap'] = $pasien->nama;
+            $array['jenis_identitas_kode'] = $pasien->jenis_identitas_kode;
+            $array['no_identitas'] = $pasien->no_identitas;
+            $array['is_lama'] = $cpl->is_lama; 
+            $response[] = $array;
         }
-
-        return view('verifikasi_pasien_lama', ['pasien' => $response, 'detail_akun' => $is_lama]);
+        return view('verifikasi_pasien_lama', ['pasien' => $response]);
     }
 
     public function validasiPasienLama(Request $request, $id)

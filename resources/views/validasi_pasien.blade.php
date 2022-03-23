@@ -16,12 +16,11 @@
                     <h3 class="header-title m-b-30">Detail Pasien</h3>
                     <a href="/list-pasien-baru" class="btn btn-small btn-primary">Kembali</a>
                     <br><br>
-                    @foreach($pasien as $p)
+                    @foreach ($pasien as $p)
                     @foreach ($agama as $a)
                     @foreach ($pendidikan_terakhir as $pt)
                     @foreach ($kewarganegaraan_kode as $kk)
                     @foreach ($jenis_identitas_kode as $jik)
-                    @foreach ($suku_kode as $sk)
                     @foreach ($jenis_kelamin as $jk)
                     @foreach ($status_perkawinan as $sp)
                     @foreach ($kedudukan_keluarga as $kke)
@@ -29,7 +28,6 @@
                     @foreach ($provinsi as $pr)
                     @foreach ($kabupaten as $kb)
                     @foreach ($kecamatan as $kc)
-                    @foreach ($jurusan as $jr)
                     @foreach ($penghasilan as $pg)
 
                     <h4>Biodata Pasien</h4>
@@ -99,24 +97,27 @@
                         </div>
                     </div>
 
+                    @if ($suku_kode == null)
                     <div class="form-group row">
                         <label class="col-2 col-form-label">Suku</label>
                         <div class="col-10">
-                            <input type="text" class="form-control" value="{{$sk->nama}}" name="suku" readonly="">
+                            <input type="text" class="form-control" value="-" name="jenis_kelamin" readonly="">
                         </div>
                     </div>
+                    @endif
+                    @if (!$suku_kode == null)
+                    <div class="form-group row">
+                        <label class="col-2 col-form-label">Suku</label>
+                        <div class="col-10">
+                            <input type="text" class="form-control" value="{{ $suku_kode->nama }}" name="suku" readonly="">
+                        </div>
+                    </div>    
+                    @endif
 
                     <div class="form-group row">
                         <label class="col-2 col-form-label">Jenis Kelamin</label>
                         <div class="col-10">
                             <input type="text" class="form-control" value="{{$jk->nama}}" name="jenis_kelamin" readonly="">
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label class="col-2 col-form-label">Suku</label>
-                        <div class="col-10">
-                            <input type="text" class="form-control" value="{{$sk->nama}}" name="suku" readonly="">
                         </div>
                     </div>
 
@@ -181,12 +182,22 @@
                         </div>
                     </div>
 
+                    @if ($jurusan == null)
                     <div class="form-group row">
                         <label class="col-2 col-form-label">Jurusan</label>
                         <div class="col-10">
-                            <input type="text" class="form-control" value="{{$jr->nama}}" name="jurusan" readonly="">
+                            <input type="text" class="form-control" value="-" name="jurusan" readonly="">
                         </div>
                     </div>
+                    @endif
+                    @if (!$jurusan == null)
+                    <div class="form-group row">
+                        <label class="col-2 col-form-label">Jurusan</label>
+                        <div class="col-10">
+                            <input type="text" class="form-control" value="{{$jurusan->nama}}" name="jurusan" readonly="">
+                        </div>
+                    </div>
+                    @endif
 
                     <div class="form-group row">
                         <label class="col-2 col-form-label">Tempat Bekerja</label>
@@ -242,8 +253,6 @@
                         </div>
                     </div>
 
-                    @endforeach
-                    @endforeach
                     @endforeach
                     @endforeach
                     @endforeach
@@ -337,7 +346,7 @@
                     <hr>
                     <br>
 
-                    <form action="/list-pasien/validasi/verifikasi" method="POST" class="form-horizontal" role="form">
+                    <form action="/list-pasien/validasi/verifikasi" method="post" class="form-horizontal" role="form">
                         @csrf
                         <input type="hidden" name="id" value="{{ $akn->id }}">
 

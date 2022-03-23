@@ -345,9 +345,8 @@
                     <h4>Finishing</h4>
                     <hr>
                     <br>
-
                     
-                    <form action="/list-pasien-lama/validasi/verifikasi" method="POST" class="form-horizontal" role="form">
+                    <form action="/list-pasien-lama/validasi/verifikasi" method="post" class="form-horizontal" role="form">
                         @csrf
                         <input type="hidden" name="id" value="{{ $akn->id }}">
 

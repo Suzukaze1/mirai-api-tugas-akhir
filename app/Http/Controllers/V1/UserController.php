@@ -148,8 +148,6 @@ class UserController extends Controller
                 throw new \Exception('Invalid Credentials');
             }
 
-            $tokenResult = $user->createToken('authToken')->plainTextToken;
-
             $detail_akun = DetailAkun::where('id_pasien', $user->kode)->first();
 
             if(!$user->kode == null) {
@@ -157,10 +155,14 @@ class UserController extends Controller
                     $status = true;
                 }elseif($detail_akun->is_lama == 1){
                     $status = false;
+                }elseif($detail_akun->is_lama == 2){
+                    $status = false;
                 }
             }else{
                 $status = false;
             }
+
+            $tokenResult = $user->createToken('authToken')->plainTextToken;
 
             $response = [];
             $response['id'] = $user->id;

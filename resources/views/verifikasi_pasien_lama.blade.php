@@ -48,41 +48,40 @@
 
                                     <tbody>
                                         <?php $no=1?>
-                                    @foreach($pasien as $p)
+                                        @foreach($pasien as $p)             
                                     <tr>
+                                        
                                         <td>{{$no++}}</td>
-                                        <td>{{$p->nama}}</td>
-                                        @if ($p->jenis_identitas_kode == 1)
+                                        <td>{{$p['nama_lengkap']}}</td>
+                                        @if ($p['jenis_identitas_kode'] == 1)
                                             <td>KTP</td>
                                         @endif
-                                        @if($p->jenis_identitas_kode == 2)
+                                        @if($p['jenis_identitas_kode'] == 2)
                                             <td>KIA</td>
                                         @endif
-                                        @if($p->jenis_identitas_kode == 3)
+                                        @if($p['jenis_identitas_kode'] == 3)
                                             <td>Passport</td>
                                         @endif
 
-                                        <td>{{$p->no_identitas}}</td>
+                                        <td>{{$p['no_identitas']}}</td>
+                                        
                                     
-                                        @if ($detail_akun == 1)
+                                        
+                                        @if ($p['is_lama'] == 1)
                                         <td style="color:green">Menunggu Validasi</td>
-                                        @endif
-                                        @if($detail_akun == 2)
-                                            <td style="color:red">Validasi Ditolak</td>
-                                        @endif
-
                                         <td>
-                                            @if($detail_akun == 2)
-                                            <button type="button" class="btn btn-sm btn-warning" disabled>Validasi</button>
-                                            @endif
-                                            @if ($detail_akun == 1)
-                                            <a href="/list-pasien-lama/validasi/{{$p->kode}}" class="btn btn-sm btn-warning">Validasi</a>
-                                            @endif
-                                            
+                                            <a href="/list-pasien-lama/validasi/{{$p['kode']}}" class="btn btn-sm btn-warning">Validasi</a>
                                         </td>
-                                    @endforeach
+                                        @endif
+                                        @if($p['is_lama'] == 2)
+                                            <td style="color:red">Validasi Ditolak</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-warning" disabled>Validasi</button>
+                                            </td>
+                                        @endif
+                                       
                                     </tr>
-                                   
+                                    @endforeach
                                     </tbody>
                                 </table>
                             </div>
