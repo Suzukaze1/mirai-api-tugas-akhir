@@ -271,16 +271,17 @@ class LoginViewController extends Controller
 
     public function listPasienLama()
     {
-        $cek_pasien_lama = DetailAkun::where('is_lama', '1')->get();
+        $cek_pasien_lama = DetailAkun::where('is_lama', '1')->orWhere('is_lama', '2')->get();
 
         $response = [];
 
         foreach($cek_pasien_lama as $cpl){
             $pasien = Pasien::where('kode', sprintf("%08s", strval($cpl->id_pasien)))->first();
-            $response[] = $pasien;
+            $response[] = $pasien; 
+            $is_lama = $cpl->is_lama;
         }
 
-        return view('verifikasi_pasien_lama', ['pasien' => $response]);
+        return view('verifikasi_pasien_lama', ['pasien' => $response, 'detail_akun' => $is_lama]);
     }
 
     public function validasiPasienLama(Request $request, $id)
@@ -290,7 +291,6 @@ class LoginViewController extends Controller
         $pendidikan_terakhir = PendidikanTerakhir::where('kode', $pasien[0]->pendidikan_kode)->get();
         $kewarganegaraan_kode = Kewarganegaraan::where('kode', $pasien[0]->kewarganegaraan_kode)->get();
         $jenis_identitas_kode = jenis_identitas::where('kode', $pasien[0]->jenis_identitas_kode)->get();
-        $suku_kode = Suku::where('kode', $pasien[0]->suku_kode)->get();
         $jenis_kelamin = JenisKelamin::where('kode', $pasien[0]->jkel)->get();
         $status_perkawinan = StatusMenikah::where('kode', $pasien[0]->status_perkawinan)->get();
         $kedudukan_keluarga = KedudukanKeluarga::where('kode', $pasien[0]->kedudukan_keluarga)->get();
@@ -298,11 +298,14 @@ class LoginViewController extends Controller
         $provinsi = Provinsi::where('kode', $pasien[0]->provinsi)->get();
         $kabupaten = KotaKabupaten::where('kode', $pasien[0]->kabupaten)->get();
         $kecamatan = Kecamatan::where('kode', $pasien[0]->kecamatan)->get();
-        $jurusan = Jurusan::where('kode', $pasien[0]->jurusan)->get();
         $penghasilan = Penghasilan::where('kode', $pasien[0]->penghasilan)->get();
-        $penanggung = Penanggung::where('pasien_id', $pasien[0]->id)->get();
-        $foto_pasien = FotoPasien::where('id_pasien', $pasien[0]->id)->get();
-        $akun = User::where('kode', $pasien[0]->id)->get();
+        $penanggung = Penanggung::where('pasien_id', $pasien[0]->kode)->where('nama_penanggung', '!=', '1')->get();
+        $foto_pasien = FotoPasien::where('id_pasien', $pasien[0]->kode)->get();
+        $akun = User::where('kode', $pasien[0]->kode)->get();
+
+        // bisa null
+        $jurusan = Jurusan::where('kode', $pasien[0]->jurusan)->first();
+        $suku_kode = Suku::where('kode', $pasien[0]->suku_kode)->first();
         
         return view('validasi_pasien_lama', 
                     ['pasien' => $pasien, 
@@ -323,5 +326,72 @@ class LoginViewController extends Controller
                     'penanggung' => $penanggung,
                     'foto_pasien' => $foto_pasien,
                     'akun' => $akun]);
+    }
+
+    public function verifikasiPasienLama(Request $request)
+    {
+        $id_akun = $request->id;
+        $id_status_validasi = $request->id_status_validasi;
+        $alasan_berhasil_gagal = $request->alasan_berhasil_gagal;
+
+        // ambil data akun
+        $akun = User::where('id', $id_akun)->first();
+
+        if($id_status_validasi == 1)
+        {
+            $detail_akun = DetailAkun::where('id_akun', $id_akun)->first();
+            $ubah_status = DetailAkun::find($detail_akun->id);
+            $ubah_status->is_lama = null;
+            $ubah_status->save();
+
+            $subjek = "Verifikasi Pasien ".$akun->name." Berhasil";
+            $pesan_notif_web = "Data Pasien Berhasil Di Verifikasi";
+
+            $details = [
+                'title' => $subjek,
+                'body' => $alasan_berhasil_gagal,
+                'otp' => '',
+                'hash_otp' => ''
+            ];
+
+            Mail::to($akun->email)->send(new MyTestMail($details));
+
+            //simpan data ke tb notif
+            $notif = new Notif();
+            $notif->email = $akun->email;
+            $notif->subjek = $subjek;
+            $notif->isi = $alasan_berhasil_gagal;
+            $notif->save();
+
+            return redirect('list-pasien-lama')->with('pesan', $pesan_notif_web);
+        }
+        elseif($id_status_validasi == 2)
+        {
+            $detail_akun = DetailAkun::where('id_akun', $id_akun)->first();
+            $ubah_status = DetailAkun::find($detail_akun->id);
+            $ubah_status->is_lama = '2';
+            $ubah_status->save();
+
+            $subjek = "Verifikasi Pasien ".$akun->name." ditolak";
+            $pesan_notif_web = "Verifikasi Pasien ditolak";
+
+            $details = [
+                'title' => $subjek,
+                'body' => $alasan_berhasil_gagal,
+                'otp' => '',
+                'hash_otp' => ''
+            ];
+
+            Mail::to($akun->email)->send(new MyTestMail($details));
+
+            //simpan data ke tb notif
+            $notif = new Notif();
+            $notif->email = $akun->email;
+            $notif->subjek = $subjek;
+            $notif->isi = $alasan_berhasil_gagal;
+            $notif->save();
+
+            return redirect('list-pasien-lama')->with('pesangagal', $pesan_notif_web);
+        }
     }
 }

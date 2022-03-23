@@ -61,24 +61,28 @@
                                         @if($p->jenis_identitas_kode == 3)
                                             <td>Passport</td>
                                         @endif
+
                                         <td>{{$p->no_identitas}}</td>
-                                        @if ($p->status_validasi == 0)
-                                            <td style="color:green">Menunggu Validasi</td>
+                                    
+                                        @if ($detail_akun == 1)
+                                        <td style="color:green">Menunggu Validasi</td>
                                         @endif
-                                        @if($p->status_validasi == 2)
+                                        @if($detail_akun == 2)
                                             <td style="color:red">Validasi Ditolak</td>
                                         @endif
+
                                         <td>
-                                            @if($p->status_validasi == 2)
+                                            @if($detail_akun == 2)
                                             <button type="button" class="btn btn-sm btn-warning" disabled>Validasi</button>
                                             @endif
-                                            @if ($p->status_validasi == 0)
+                                            @if ($detail_akun == 1)
                                             <a href="/list-pasien-lama/validasi/{{$p->kode}}" class="btn btn-sm btn-warning">Validasi</a>
                                             @endif
                                             
                                         </td>
-                                    </tr>
                                     @endforeach
+                                    </tr>
+                                   
                                     </tbody>
                                 </table>
                             </div>

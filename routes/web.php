@@ -28,3 +28,4 @@ Route::get('/list-pasien/validasi/{id}', [LoginViewController::class, 'validasiP
 Route::post('/list-pasien/validasi/verifikasi', [LoginViewController::class, 'verifikasiPasien'])->middleware('CekLogin');
 Route::get('/list-pasien-lama', [LoginViewController::class, 'listPasienLama'])->middleware('CekLogin');
 Route::get('/list-pasien-lama/validasi/{id}', [LoginViewController::class, 'validasiPasienLama'])->middleware('CekLogin');
+Route::post('/list-pasien-lama/validasi/verifikasi', [LoginViewController::class, 'verifikasiPasienLama'])->middleware('CekLogin');

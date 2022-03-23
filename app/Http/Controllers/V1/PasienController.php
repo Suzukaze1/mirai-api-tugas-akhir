@@ -289,8 +289,6 @@ class PasienController extends Controller
             // cek ke db pasien
             $pasien = Pasien::where('kode', $no_rekam_medik)->first();
 
-            $x = new stdClass();
-
             // cek apakah data pasien null atau tidak
             if ($pasien == null) {
                 return ResponseFormatter::error_not_found("Data Pasien Tidak Ada", null);
@@ -336,6 +334,12 @@ class PasienController extends Controller
             // cari data users yang sudah dibuat tadi
             $cari_akun = User::where('kode', $pasien->kode)->first();
 
+            // buat data di table penanggung umum
+            $penanggung = new Penanggung();
+            $penanggung->nama_penanggung = "1";
+            $penanggung->nomor_kartu_penanggung = null;
+            $penanggung->pasien_id = $pasien->kode;
+
             // buat data di table foto pasien
             $create_foto_pasien = new FotoPasien();
             $create_foto_pasien->id_pasien = $pasien->kode;
@@ -360,6 +364,7 @@ class PasienController extends Controller
                 //jika berhasil
                 $create_foto_pasien->save();
                 $detail_akun->save();
+                $penanggung->save();
                 $response = [];
                 $response["kode"] = $no_rekam_medik;
                 $response["email"] = $email;
