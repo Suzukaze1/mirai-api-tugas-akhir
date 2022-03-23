@@ -436,25 +436,28 @@ class AnggotaPasienController extends Controller
             $detail_akun = DetailAkun::where('id_pasien', $no_rm)->first();
             $hapus_detail_akun = DetailAkun::find($detail_akun->id);
 
-            //cek penanggung
-            $penanggung = Penanggung::where('pasien_id', (int)$nomor_rekam_medis)->first();
-            $foto_penanggung = $penanggung->foto_kartu_penanggung;
-            $hapus_penanggung = Penanggung::find($penanggung->id);
-
             //cek foto pasien
             $foto_pasien = FotoPasien::where('id_pasien', (int)$nomor_rekam_medis)->first();
             $foto_swa = $foto_pasien->foto_swa_pasien;
             $foto_kartu_pasien = $foto_pasien->foto_kartu_identitas_pasien;
             $hapus_foto_pasien = FotoPasien::find($foto_pasien->id);
 
+            //tb penanggung
+            $penanggung = Penanggung::where('pasien_id', (int)$nomor_rekam_medis)->get();
+            if ($penanggung == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+            foreach($penanggung as $pen)
+            {
+                $foto_penanggung = $pen->foto_kartu_penanggung;
+                $hapus_penanggung = Penanggung::find($pen->id);
+                //hapus data penanggung
+                if(File::exists(public_path($foto_penanggung))){
+                    File::delete(public_path($foto_penanggung));
+                    $hapus_penanggung->delete();
+                }
+            }
+
             //hapus data detail akun
             $hapus_detail_akun->delete();
-
-            //hapus data penanggung
-            if(File::exists(public_path($foto_penanggung))){
-                File::delete(public_path($foto_penanggung));
-                $hapus_penanggung->delete();
-            }
 
             //hapus data foto pasien
             if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
@@ -478,6 +481,8 @@ class AnggotaPasienController extends Controller
 
         $cek_induk = User::where('email', $email)->first();
         if($cek_induk == null) return ResponseFormatter::error_not_found("Tidak DItemukan", null);
+
+        $foto_penanggung = '';
         
 
         if($id_status_validasi_input == "0"){
@@ -503,8 +508,6 @@ class AnggotaPasienController extends Controller
                 $nam_pen = NamaPenanggung::where('kode', $p->nama_penanggung)->first();
                 $nama_penanggung = $nam_pen->nama;
 
-                
-
                 //set foto penanggung
                 if($p->nama_penanggung == "2"){
                     $foto_penanggung = "/foto_penanggung/bpjs.png";
@@ -524,7 +527,7 @@ class AnggotaPasienController extends Controller
                 $response[] = $list_penanggung;
             }
         }elseif($id_status_validasi_input == "1"){
-            $penanggung = Penanggung::where('pasien_id', $nomor_rekam_medis_input)->get();
+            $penanggung = Penanggung::where('pasien_id', $nomor_rekam_medis_input)->where('nama_penanggung', '!=', '1')->get();
 
             // cek apakah betul anaknya
             $cek_anak = DetailAkun::where('id_akun', $cek_induk->id)->where('id_pasien', $nomor_rekam_medis_input);
@@ -565,11 +568,10 @@ class AnggotaPasienController extends Controller
                 $response[] = $list_penanggung;
             }
         }elseif($id_status_validasi_input == "3"){
-            $penanggung = Penanggung::where('pasien_id', $nomor_rekam_medis_input)->get();
-
+            $penanggung = Penanggung::where('pasien_id', (int)$nomor_rekam_medis_input)->where('nama_penanggung', '!=', '1')->get();
             // cek apakah betul anaknya
-            $cek_anak = DetailAkun::where('id_akun', $cek_induk->id)->where('id_pasien', $nomor_rekam_medis_input);
-            if($cek_anak == null) return ResponseFormatter::error_not_found("Tidak DItemukan", null);
+            $cek_anak = DetailAkun::where('id_akun', $cek_induk->id)->where('id_pasien', (int)$nomor_rekam_medis_input);
+            if($cek_anak == null) return ResponseFormatter::error_not_found("Tidak Ditemukan", null);
 
             $list_penanggung = [];
             $response = [];
@@ -706,10 +708,18 @@ class AnggotaPasienController extends Controller
             if($cek_anak == null) return ResponseFormatter::error_not_found("Tidak DItemukan", null);
 
             //tb penanggung
-            $penanggung = Penanggung::where('id_pasien_temp', $nomor_rekam_medis_input)->first();
+            $penanggung = Penanggung::where('id_pasien_temp', (int)$nomor_rekam_medis_input)->get();
             if ($penanggung == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
-            $foto_penanggung = $penanggung->foto_kartu_penanggung;
-            $hapus_penanggung = Penanggung::find($penanggung->id);
+            foreach($penanggung as $pen)
+            {
+                $foto_penanggung = $pen->foto_kartu_penanggung;
+                $hapus_penanggung = Penanggung::find($pen->id);
+                //hapus data penanggung
+                if(File::exists(public_path($foto_penanggung))){
+                    File::delete(public_path($foto_penanggung));
+                    $hapus_penanggung->delete();
+                }
+            }
 
             //tb detail anggota
             $detail_akun = DetailAkun::where('id_pasien_temp', $nomor_rekam_medis_input)->first();
@@ -731,21 +741,11 @@ class AnggotaPasienController extends Controller
             //hapus data disetiap tb
             try
             {
-                //hapus data penanggung
-                if(File::exists(public_path($foto_penanggung))){
-                    File::delete(public_path($foto_penanggung));
-                    $hapus_penanggung->delete();
-                }else{
-                    return ResponseFormatter::error_not_found("Foto Penanggung Tidak Ada", null);
-                }
-
                 //hapus data foto pasien
                 if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
                     File::delete(public_path($foto_swa));
                     File::delete(public_path($foto_kartu_pasien));
                     $hapus_foto_pasien->delete();
-                }else{
-                    return ResponseFormatter::error_not_found("Foto Penanggung Tidak Ada", null);
                 }
 
                 //hapus data detail akun
@@ -786,6 +786,20 @@ class AnggotaPasienController extends Controller
                 $foto_kartu_pasien = $foto_pasien->foto_kartu_identitas_pasien;
                 $hapus_foto_pasien = FotoPasien::find($foto_pasien->id);
 
+                //tb penanggung
+                $penanggung = Penanggung::where('pasien_id', (int)$nomor_rekam_medis_input)->get();
+                if ($penanggung == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+                foreach($penanggung as $pen)
+                {
+                    $foto_penanggung = $pen->foto_kartu_penanggung;
+                    $hapus_penanggung = Penanggung::find($pen->id);
+                    //hapus data penanggung
+                    if(File::exists(public_path($foto_penanggung))){
+                        File::delete(public_path($foto_penanggung));
+                        $hapus_penanggung->delete();
+                    }
+                }
+
                 //hapus data disetiap tb
                 try
                 {
@@ -814,18 +828,26 @@ class AnggotaPasienController extends Controller
                 if($cek_anak1 == null) return ResponseFormatter::error_not_found("Tidak Ditemukan", null);
 
                 //tb penanggung
-                $penanggung = Penanggung::where('id_pasien_temp', $nomor_rekam_medis_input)->first();
+                $penanggung = Penanggung::where('id_pasien_temp', $nomor_rekam_medis_input)->get();
                 if ($penanggung == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
-                $foto_penanggung = $penanggung->foto_kartu_penanggung;
-                $hapus_penanggung = Penanggung::find($penanggung->id);
+                foreach($penanggung as $pen)
+                {
+                    $foto_penanggung = $pen->foto_kartu_penanggung;
+                    $hapus_penanggung = Penanggung::find($penanggung->id);
+                    //hapus data penanggung
+                    if(File::exists(public_path($foto_penanggung))){
+                        File::delete(public_path($foto_penanggung));
+                        $hapus_penanggung->delete();
+                    }
+                }
 
                 //tb detail anggota
-                $detail_akun = DetailAkun::where('id_pasien_temp', (string)$nomor_rekam_medis_input)->first();
+                $detail_akun = DetailAkun::where('id_pasien_temp', (int)$nomor_rekam_medis_input)->first();
                 if ($detail_akun == null) return ResponseFormatter::error_not_found("Detail Data Pasien Tidak Ditemukan", null);
                 $hapus_detail_akun = DetailAkun::find($detail_akun->id);
 
                 //tb foto pasien
-                $foto_pasien = FotoPasien::where('id_pasien_temp', (string)$nomor_rekam_medis_input)->first();
+                $foto_pasien = FotoPasien::where('id_pasien_temp', (int)$nomor_rekam_medis_input)->first();
                 if ($foto_pasien == null) return ResponseFormatter::error_not_found("Foto Pasien Data Pasien Tidak Ditemukan", null);
                 $foto_swa = $foto_pasien->foto_swa_pasien;
                 $foto_kartu_pasien = $foto_pasien->foto_kartu_identitas_pasien;
@@ -839,11 +861,7 @@ class AnggotaPasienController extends Controller
                 //hapus data disetiap tb
                 try
                 {
-                    //hapus data penanggung
-                    if(File::exists(public_path($foto_penanggung))){
-                        File::delete(public_path($foto_penanggung));
-                        $hapus_penanggung->delete();
-                    }
+                    
 
                     //hapus data foto pasien
                     if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
@@ -876,16 +894,30 @@ class AnggotaPasienController extends Controller
             if($cek_anak == null) return ResponseFormatter::error_not_found("Data Anak Tidak Ditemukan", null);
 
             //tb detail anggota
-            $detail_akun = DetailAkun::where('id_pasien', $nomor_rekam_medis_input)->first();
-            if ($detail_akun == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+            $detail_akun = DetailAkun::where('id_pasien', (int)$nomor_rekam_medis_input)->first();
+            if ($detail_akun == null) return ResponseFormatter::error_not_found("Data Detail Pasien Tidak Ditemukan", null);
             $hapus_detail_akun = DetailAkun::find($detail_akun->id);
 
             //tb foto pasien
-            $foto_pasien = FotoPasien::where('id_pasien', $nomor_rekam_medis_input)->first();
-            if ($foto_pasien == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+            $foto_pasien = FotoPasien::where('id_pasien', (int)$nomor_rekam_medis_input)->first();
+            if ($foto_pasien == null) return ResponseFormatter::error_not_found("Data Foto Pasien Tidak Ditemukan", null);
             $foto_swa = $foto_pasien->foto_swa_pasien;
             $foto_kartu_pasien = $foto_pasien->foto_kartu_identitas_pasien;
             $hapus_foto_pasien = FotoPasien::find($foto_pasien->id);
+
+            //tb penanggung
+            $penanggung = Penanggung::where('pasien_id', (int)$nomor_rekam_medis_input)->get();
+            if ($penanggung == null) return ResponseFormatter::error_not_found("Data Pasien Tidak Ditemukan", null);
+            foreach($penanggung as $pen)
+            {
+                $foto_penanggung = $pen->foto_kartu_penanggung;
+                $hapus_penanggung = Penanggung::find($pen->id);
+                //hapus data penanggung
+                if(File::exists(public_path($foto_penanggung))){
+                    File::delete(public_path($foto_penanggung));
+                    $hapus_penanggung->delete();
+                }
+            }
 
             //hapus data disetiap tb
             try
