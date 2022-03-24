@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\V1\Notif;
+use Carbon\Carbon;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
 
@@ -15,24 +16,28 @@ class NotifController extends Controller
         $email = $request->input('email');
         $response = [];
         $list_notif_arr = [];
-
-        try
-        {
-            $list_notif = Notif::where('email', $email)->get();
+        $list_notif = Notif::where('email', $email)->get();
             if(count($list_notif) == 0) return ResponseFormatter::success_ok("Belum Ada Notif", []);
 
             foreach ($list_notif as $ln)
             {
+                $date = Carbon::createFromFormat('Y-m-d H:i:s', $ln->waktu)->locale('id')->isoFormat('D MMMM Y H:mm');
+
                 $list_notif_arr['id_notif'] = $ln->id;
                 $list_notif_arr['email'] = $email;
                 $list_notif_arr['subjek'] = $ln->subjek;
                 $list_notif_arr['isi'] = $ln->isi;
                 $list_notif_arr['is_baca'] = $ln->is_baca;
+                $list_notif_arr['hari'] = $date;
                 $list_notif_arr['foto_icon'] = "/foto_notif/notif.png";
                 $response[] = $list_notif_arr;
             }
 
             return ResponseFormatter::success_ok("Data Notif Ditemukan", $response);
+
+        try
+        {
+            
         }
         catch (\Throwable $th)
         {

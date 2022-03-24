@@ -68,6 +68,14 @@
                                 <a href="/list-pasien-lama" class="waves-effect"><i class="mdi mdi-book-outline"></i> <span> List Pasien Lama </span> </a>
                             </li>
 
+                            <li>
+                                <a href="/list-anggota-pasien-baru" class="waves-effect"><i class="mdi mdi-book-outline"></i> <span> List Anggota Pasien Baru </span> </a>
+                            </li>
+
+                            <li>
+                                <a href="/list-anggota-pasien-lama" class="waves-effect"><i class="mdi mdi-book-outline"></i> <span> List Anggota Pasien Lama </span> </a>
+                            </li>
+
                             <li class="has_sub">
                                 <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-view-list"></i> <span> Tables </span> <span class="menu-arrow"></span></a>
                                 <ul class="list-unstyled">

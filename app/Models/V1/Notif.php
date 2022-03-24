@@ -22,7 +22,8 @@ class Notif extends Model
         'email',
         'subjek',
         'isi',
-        'is_baca'
+        'is_baca',
+        'waktu'
     ];
 
     

@@ -29,3 +29,12 @@ Route::post('/list-pasien/validasi/verifikasi', [LoginViewController::class, 've
 Route::get('/list-pasien-lama', [LoginViewController::class, 'listPasienLama'])->middleware('CekLogin');
 Route::get('/list-pasien-lama/validasi/{id}', [LoginViewController::class, 'validasiPasienLama'])->middleware('CekLogin');
 Route::post('/list-pasien-lama/validasi/verifikasi', [LoginViewController::class, 'verifikasiPasienLama'])->middleware('CekLogin');
+
+// anggota
+Route::get('/list-anggota-pasien-lama', [LoginViewController::class, 'listAnggotaPasienLama'])->middleware('CekLogin');
+Route::get('/list-anggota-pasien-lama/validasi/{id}', [LoginViewController::class, 'validasiAnggotaPasienLama'])->middleware('CekLogin');
+Route::post('/list-anggota-pasien-lama/validasi/verifikasi', [LoginViewController::class, 'verifikasiAnggotaPasienLama'])->middleware('CekLogin');
+
+Route::get('/list-anggota-pasien-baru', [LoginViewController::class, 'listAnggotaPasienBaru'])->middleware('CekLogin');
+Route::get('/list-anggota-pasien-baru/validasi/{id}', [LoginViewController::class, 'validasiAnggotaPasienBaru'])->middleware('CekLogin');
+Route::post('/list-anggota-pasien-baru/validasi/verifikasi', [LoginViewController::class, 'verifikasiAnggotaPasienBaru'])->middleware('CekLogin');
