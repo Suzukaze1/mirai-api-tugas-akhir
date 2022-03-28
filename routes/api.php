@@ -73,6 +73,7 @@ class Routes
         $this->_penanggung();
         $this->_anggotaPasien();
         $this->_notif();
+        $this->_UlangValidasiPasien();
         $this->_master();
 
         // API Pakai Token
@@ -87,6 +88,11 @@ class Routes
     {
     }
 
+    private function _UlangValidasiPasien ()
+    {
+        Route::post(Endpoint::$DAFTAR_ULANG_PASIEN_BARU, [PasienSementaraController::class, 'pendaftaranUlangPasienBaru']);
+        Route::post(Endpoint::$DAFTAR_ULANG_PASIEN_LAMA, [PasienSementaraController::class, 'pendaftaranUlangPasienLama']);
+    }
     private function _notif()
     {
         Route::get(Endpoint::$GET_NOTIF, [NotifController::class, 'listNotif']);
@@ -254,5 +260,7 @@ class Endpoint
     static $UBAH_STATUS_BACA_NOTIF = 'ganti-status-baca-notif';
     static $HAPUS_NOTIF = 'hapus-notif';
     static $BRIGING_BPJS = 'briging-bpjs';
+    static $DAFTAR_ULANG_PASIEN_BARU = 'daftar-ulang-pasien-baru';
+    static $DAFTAR_ULANG_PASIEN_LAMA = 'daftar-ulang-pasien-lama';
     // Isi Lagi Endpoint nya cuk
 }

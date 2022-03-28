@@ -122,12 +122,12 @@ class UserController extends Controller
     {
         $getTime = Carbon::now()->addHour(10);
         $exp_time = $getTime->format('Y-m-d H:i:s');
+
+        $request->validate([
+            'email' => 'email|required',
+            'password' => 'required'
+        ]);
         try {
-            $request->validate([
-                'email' => 'email|required',
-                'password' => 'required'
-            ]);
-    
             $credentials = request(['email', 'password']);
             if(!Auth::attempt($credentials)){
                 return ResponseFormatter::forbidden(
@@ -135,7 +135,7 @@ class UserController extends Controller
                     null
                 );
             }
-    
+
             $user = User::where('email', $request->email)->first();
 
             if($user->kode == NULL){
@@ -150,17 +150,36 @@ class UserController extends Controller
 
             $detail_akun = DetailAkun::where('id_pasien', $user->kode)->first();
 
-            if(!$user->kode == null) {
-                if($detail_akun->is_lama == null){ 
-                    $status = true;
-                }elseif($detail_akun->is_lama == 1){
-                    $status = false;
-                }elseif($detail_akun->is_lama == 2){
-                    $status = false;
+            if(!$kode_rm == null)
+            {
+                if($detail_akun->is_lama == "1")
+                {
+                    $status = "0";
                 }
-            }else{
-                $status = false;
+                elseif($detail_akun->is_lama == "2")
+                {
+                    $status = "2";
+                }
+                elseif($detail_akun->is_lama == null)
+                {
+                    $status = "1";
+                }
             }
+            elseif($kode_rm == null)
+            {
+                $id_pasien_sementara = $user->id_pasien_temp;
+                $pasien_sementara = PasienSementara::where('id', $id_pasien_sementara)->first();
+                $status_validasi = $pasien_sementara->status_validasi;
+                if($status_validasi == "0")
+                {
+                    $status = "0";
+                }
+                elseif($status_validasi == "2")
+                {
+                    $status = "2";
+                }
+            }
+
 
             $tokenResult = $user->createToken('authToken')->plainTextToken;
 

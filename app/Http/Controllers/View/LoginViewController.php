@@ -30,6 +30,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\File;
 
 class LoginViewController extends Controller
 {
@@ -265,6 +266,33 @@ class LoginViewController extends Controller
             $update_pasien_sementara->status_validasi = "2";
             $update_pasien_sementara->save();
 
+            //cari foto pasien
+            $foto_pasien_tb = FotoPasien::where('id_pasien_temp', $list_pasien->id)->first();
+            $foto_swa = $foto_pasien_tb->foto_swa_pasien;
+            $foto_kartu_pasien = $foto_pasien_tb->foto_kartu_identitas_pasien;
+            //hapus data foto pasien
+            $hapus_foto_pasien = FotoPasien::find($foto_pasien_tb->id);
+            if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
+                File::delete(public_path($foto_swa));
+                File::delete(public_path($foto_kartu_pasien));
+                $hapus_foto_pasien->delete();
+            }else{
+                $hapus_foto_pasien->delete();
+            }
+
+            //cari penanggung
+            $foto_penanggung_tb = Penanggung::where('id_pasien_temp', $list_pasien->id)->get();
+            foreach($foto_penanggung_tb as $fpt)
+            {
+                $foto_penanggung = $fpt->foto_kartu_penanggung;
+                $hapus_penanggung = Penanggung::find($fpt->id);
+                //hapus data penanggung
+                if(File::exists(public_path($foto_penanggung))){
+                    File::delete(public_path($foto_penanggung));
+                    $hapus_penanggung->delete();
+                }
+            }
+
             $pesan = "Verifikasi data pasien di tolak";
 
             // cari email
@@ -405,6 +433,32 @@ class LoginViewController extends Controller
 
             Mail::to($akun->email)->send(new MyTestMail($details));
 
+            //cari foto pasien
+            $foto_pasien_tb = FotoPasien::where('id_pasien', $akun->kode)->first();
+            $foto_swa = $foto_pasien_tb->foto_swa_pasien;
+            $foto_kartu_pasien = $foto_pasien_tb->foto_kartu_identitas_pasien;
+
+            //hapus data foto pasien
+            $hapus_foto_pasien = FotoPasien::find($foto_pasien_tb->id);
+            if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
+                File::delete(public_path($foto_swa));
+                File::delete(public_path($foto_kartu_pasien));
+                $hapus_foto_pasien->delete();
+            }
+
+            //cari penanggung
+            $foto_penanggung_tb = Penanggung::where('pasien_id', $akun->kode)->get();
+            foreach($foto_penanggung_tb as $fpt)
+            {
+                $foto_penanggung = $fpt->foto_kartu_penanggung;
+                $hapus_penanggung = Penanggung::find($fpt->id);
+                //hapus data penanggung
+                if(File::exists(public_path($foto_penanggung))){
+                    File::delete(public_path($foto_penanggung));
+                    $hapus_penanggung->delete();
+                }
+            }
+
             //simpan data ke tb notif
             $notif = new Notif();
             $notif->email = $akun->email;
@@ -439,6 +493,7 @@ class LoginViewController extends Controller
     public function validasiAnggotaPasienLama(Request $request, $id)
     {
         $pasien = Pasien::where('kode', sprintf("%08s", strval($id)))->get();
+        $detail_akun = DetailAkun::where('id_pasien', $id)->first();
         $agama = Agama::where('kode', $pasien[0]->agama_kode)->get();
         $pendidikan_terakhir = PendidikanTerakhir::where('kode', $pasien[0]->pendidikan_kode)->get();
         $kewarganegaraan_kode = Kewarganegaraan::where('kode', $pasien[0]->kewarganegaraan_kode)->get();
@@ -453,7 +508,7 @@ class LoginViewController extends Controller
         $penghasilan = Penghasilan::where('kode', $pasien[0]->penghasilan)->get();
         $penanggung = Penanggung::where('pasien_id', $pasien[0]->kode)->where('nama_penanggung', '!=', '1')->get();
         $foto_pasien = FotoPasien::where('id_pasien', $pasien[0]->kode)->get();
-        $akun = User::where('kode', $pasien[0]->kode)->get();
+        $akun = User::where('id', $detail_akun->id_akun)->get();
 
         // bisa null
         $jurusan = Jurusan::where('kode', $pasien[0]->jurusan)->first();
@@ -541,6 +596,33 @@ class LoginViewController extends Controller
 
             Mail::to($akun->email)->send(new MyTestMail($details));
 
+            //cari foto pasien
+            $foto_pasien_tb = FotoPasien::where('id_pasien', $akun->kode)->first();
+            $foto_swa = $foto_pasien_tb->foto_swa_pasien;
+            $foto_kartu_pasien = $foto_pasien_tb->foto_kartu_identitas_pasien;
+            //hapus data foto pasien
+            $hapus_foto_pasien = FotoPasien::find($foto_pasien_tb->id);
+            if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
+                File::delete(public_path($foto_swa));
+                File::delete(public_path($foto_kartu_pasien));
+                $hapus_foto_pasien->delete();
+            }else{
+                $hapus_foto_pasien->delete();
+            }
+
+            //cari penanggung
+            $foto_penanggung_tb = Penanggung::where('pasien_id', $akun->kode)->get();
+            foreach($foto_penanggung_tb as $fpt)
+            {
+                $foto_penanggung = $fpt->foto_kartu_penanggung;
+                $hapus_penanggung = Penanggung::find($fpt->id);
+                //hapus data penanggung
+                if(File::exists(public_path($foto_penanggung))){
+                    File::delete(public_path($foto_penanggung));
+                    $hapus_penanggung->delete();
+                }
+            }
+
             //simpan data ke tb notif
             $notif = new Notif();
             $notif->email = $akun->email;
@@ -561,24 +643,244 @@ class LoginViewController extends Controller
         $array = [];
 
         foreach($cek_pasien_lama as $cpl){
-            $pasien = PasienSementara::where('id', $cpl->id_pasien_temp)->first();
-            if($pasien == null){
-                $response[] = null;
-                return view('verifikasi_anggota_pasien_baru', ['pasien' => $response]);
+            $pasien = PasienSementara::where('id', $cpl->id_pasien_temp)->get();
+            foreach($pasien as $p){
+                $array['kode'] = $p->id;
+                $array['nama_lengkap'] = $p->nama;
+                $array['jenis_identitas_kode'] = $p->jenis_identitas_kode;
+                $array['no_identitas'] = $p->no_identitas;
+                $array['status_validasi'] = $cpl->status_validasi;
+                $response[] = $array;
             }
-            $array['kode'] = $pasien->id;
-            $array['nama_lengkap'] = $pasien->nama;
-            $array['jenis_identitas_kode'] = $pasien->jenis_identitas_kode;
-            $array['no_identitas'] = $pasien->no_identitas;
-            $array['status_validasi'] = $cpl->status_validasi; 
-            $response[] = $array;
         }
         return view('verifikasi_anggota_pasien_baru', ['pasien' => $response]);
     }
 
-    public function validasiAnggotaPasienBaru(Request $request)
-    {}
+    public function validasiAnggotaPasienBaru(Request $request, $id)
+    {
+        $pasien = PasienSementara::where('id', $id)->get();
+        $detail_akun = DetailAkun::where('id_pasien_temp', $id)->first();
+        $agama = Agama::where('kode', $pasien[0]->agama_kode)->get();
+        $pendidikan_terakhir = PendidikanTerakhir::where('kode', $pasien[0]->pendidikan_kode)->get();
+        $kewarganegaraan_kode = Kewarganegaraan::where('kode', $pasien[0]->kewarganegaraan_kode)->get();
+        $jenis_identitas_kode = jenis_identitas::where('kode', $pasien[0]->jenis_identitas_kode)->get();
+        $jenis_kelamin = JenisKelamin::where('kode', $pasien[0]->jkel)->get();
+        $status_perkawinan = StatusMenikah::where('kode', $pasien[0]->status_perkawinan)->get();
+        $kedudukan_keluarga = KedudukanKeluarga::where('kode', $pasien[0]->kedudukan_keluarga)->get();
+        $golongan_darah = GolonganDarah::where('kode', $pasien[0]->golongan_darah)->get();
+        $provinsi = Provinsi::where('kode', $pasien[0]->provinsi)->get();
+        $kabupaten = KotaKabupaten::where('kode', $pasien[0]->kabupaten)->get();
+        $kecamatan = Kecamatan::where('kode', $pasien[0]->kecamatan)->get();
+        $penghasilan = Penghasilan::where('kode', $pasien[0]->penghasilan)->get();
+        $penanggung = Penanggung::where('id_pasien_temp', $pasien[0]->id)->get();
+        $foto_pasien = FotoPasien::where('id_pasien_temp', $pasien[0]->id)->get();
+        $akun = User::where('id', $detail_akun->id_akun)->get();
+
+        // bisa null
+        $jurusan = Jurusan::where('kode', $pasien[0]->jurusan)->first();
+        $suku_kode = Suku::where('kode', $pasien[0]->suku_kode)->first();
+        
+        return view('validasi_anggota_pasien_baru', 
+                    ['pasien' => $pasien, 
+                    'agama' => $agama,
+                    'pendidikan_terakhir' => $pendidikan_terakhir,
+                    'kewarganegaraan_kode' => $kewarganegaraan_kode,
+                    'jenis_identitas_kode' => $jenis_identitas_kode,
+                    'suku_kode' => $suku_kode,
+                    'jenis_kelamin' => $jenis_kelamin,
+                    'status_perkawinan' => $status_perkawinan,
+                    'kedudukan_keluarga' => $kedudukan_keluarga,
+                    'golongan_darah' => $golongan_darah,
+                    'provinsi' => $provinsi,
+                    'kabupaten' => $kabupaten,
+                    'kecamatan' => $kecamatan,
+                    'jurusan' => $jurusan,
+                    'penghasilan' => $penghasilan,
+                    'penanggung' => $penanggung,
+                    'foto_pasien' => $foto_pasien,
+                    'akun' => $akun]);
+    }
 
     public function verifikasiAnggotaPasienBaru(Request $request)
-    {}
+    {
+        $id_akun = $request->id;
+        $id_status_validasi = $request->id_status_validasi;
+        $alasan_berhasil_gagal = $request->alasan_berhasil_gagal;
+
+        // hari
+        $hari = Carbon::now()->format('Y-m-d H:i:s');
+
+        if($id_status_validasi == 1)
+        {
+            $title = "Verifikasi Pasien Berhasil";
+            $pesan = "Data Pasien Berhasil Di Verifikasi";
+        }
+        else if($id_status_validasi == 2)
+        {
+            $title = "Verifikasi Pasien Gagal";
+            $pesan = "Data Pasien Gagal Di Verifikasi";
+        }
+
+        if($id_status_validasi == 1)
+        {
+            // ambil data pasien temp dari id akun
+            $akun = User::where('id', $id_akun)->first();
+            $list_pasien = PasienSementara::where('id', $akun->id_pasien_temp)->first();
+
+            // logika nomor rekam medik
+            $cek_pasien = Pasien::orderBy('kode', 'DESC')->first();
+            $kode_rm = 0;
+            if ($cek_pasien == null) {
+                $kode_rm = 1;
+            } else {
+                if ($cek_pasien->kode == null) {
+                    $kode_rm = 1;
+                } else if ($cek_pasien->kode >= 1) {
+                    $kode_rm = (int)$cek_pasien->kode + 1;
+                }
+            }
+
+            // nomor rekam medik
+            $nomor_rekam_medik = sprintf("%08s", strval($kode_rm));
+
+            // input data
+            $pasien = new Pasien();
+            $pasien->kode = $nomor_rekam_medik;
+            $pasien->no_identitas = $list_pasien->no_identitas;
+            $pasien->jenis_identitas_kode = $list_pasien->jenis_identitas_kode;
+            $pasien->nama = $list_pasien->nama;
+            $pasien->tempat_lahir = $list_pasien->tempat_lahir;
+            $pasien->tanggal_lahir = $list_pasien->tanggal_lahir;
+            $pasien->kedudukan_keluarga = $list_pasien->kedudukan_keluarga;
+            $pasien->golongan_darah = $list_pasien->golongan_darah;
+            $pasien->agama_kode = $list_pasien->agama_kode;
+            $pasien->suku_kode = $list_pasien->suku_kode;
+            $pasien->no_telp = $list_pasien->no_telp;
+            $pasien->jkel = $list_pasien->jkel;
+            $pasien->alamat = $list_pasien->alamat;
+            $pasien->provinsi = $list_pasien->provinsi;
+            $pasien->kabupaten = $list_pasien->kabupaten;
+            $pasien->kecamatan = $list_pasien->kecamatan;
+            $pasien->status_perkawinan = $list_pasien->status_perkawinan;
+            $pasien->umur = $list_pasien->umur;
+            $pasien->anak_ke = $list_pasien->anak_ke;
+            $pasien->pendidikan_kode = $list_pasien->pendidikan_kode;
+            $pasien->jurusan = $list_pasien->jurusan;
+            $pasien->nama_tempat_bekerja = $list_pasien->nama_tempat_bekerja;
+            $pasien->alamat_tempat_bekerja = $list_pasien->alamat_tempat_bekerja;
+            $pasien->penghasilan = $list_pasien->penghasilan;
+            $pasien->pekerjaan_kode = $list_pasien->pekerjaan_kode;
+            $pasien->kewarganegaraan_kode = $list_pasien->kewarganegaraan_kode;
+            $pasien->nama_pasangan = $list_pasien->nama_pasangan;
+            $pasien->ayah_nama = $list_pasien->ayah_nama;
+            $pasien->no_rekam_medik_ayah = $list_pasien->no_rekam_medik_ayah;
+            $pasien->ibu_nama = $list_pasien->ibu_nama;
+            $pasien->no_rekam_medik_ibu = $list_pasien->no_rekam_medik_ibu;
+            $pasien->alergi = $list_pasien->alergi;
+
+            // update table users atau akun
+            $user = User::find($id_akun);
+            $user->id_pasien_temp = null;
+            $user->kode = (int)$nomor_rekam_medik;
+
+            // cari dan update foto pasien
+            $cari_foto_pasien = FotoPasien::where('id_pasien_temp', $akun->id_pasien_temp)->first();
+            $foto_pasien = FotoPasien::find($cari_foto_pasien->id);
+            $foto_pasien->id_pasien_temp = null;
+            $foto_pasien->id_pasien = (int)$nomor_rekam_medik;
+
+            // cari dan update penanggung
+            $cari_penanggung = Penanggung::where('id_pasien_temp', $akun->id_pasien_temp)->get();
+            foreach($cari_penanggung as $cp)
+            {
+                $penanggung = Penanggung::find($cp->id);
+                $penanggung->id_pasien_temp = null;
+                $penanggung->pasien_id = (int)$nomor_rekam_medik;
+                $penanggung->save();
+            }
+
+            //simpan semua data
+            $pasien->save();
+            $user->save();
+            $foto_pasien->save();
+
+            // hapus data di tabel pasien sementara
+            $hapus_pasien_sementara = PasienSementara::find($list_pasien->id);
+            $hapus_pasien_sementara->delete();
+
+            $details = [
+                'title' => $title,
+                'body' => $alasan_berhasil_gagal,
+                'otp' => '',
+                'hash_otp' => ''
+            ];
+
+            Mail::to($akun->email)->send(new MyTestMail($details));
+
+            // cari email
+            $user_email = User::where('id', $id_akun)->first();
+
+            //simpan data ke tb notif
+            $notif = new Notif();
+            $notif->email = $user_email->email;
+            $notif->subjek = $title;
+            $notif->isi = $alasan_berhasil_gagal;
+            $notif->waktu = $hari;
+            $notif->save();
+
+            return redirect('list-pasien-baru')->with('pesan', $pesan);
+            
+        }
+        else if($id_status_validasi == 2)
+        {
+            // ambil data pasien temp dari id akun
+            $akun = User::where('id', $id_akun)->first();
+            $list_pasien = PasienSementara::where('id', $akun->id_pasien_temp)->first();
+
+            // update data di tabel pasien sementara
+            $update_pasien_sementara = PasienSementara::find($list_pasien->id);
+            $update_pasien_sementara->status_validasi = "2";
+            $update_pasien_sementara->save();
+
+            //cari foto pasien
+            $foto_pasien_tb = FotoPasien::where('id_pasien_temp', $list_pasien->id)->first();
+            $foto_swa = $foto_pasien_tb->foto_swa_pasien;
+            $foto_kartu_pasien = $foto_pasien_tb->foto_kartu_identitas_pasien;
+            //hapus data foto pasien
+            $hapus_foto_pasien = FotoPasien::find($foto_pasien_tb->id);
+            if(File::exists(public_path($foto_swa)) && File::exists(public_path($foto_kartu_pasien))){
+                File::delete(public_path($foto_swa));
+                File::delete(public_path($foto_kartu_pasien));
+                $hapus_foto_pasien->delete();
+            }
+
+            //cari penanggung
+            $foto_penanggung_tb = Penanggung::where('id_pasien_temp', $list_pasien->id)->get();
+            foreach($foto_penanggung_tb as $fpt)
+            {
+                $foto_penanggung = $fpt->foto_kartu_penanggung;
+                $hapus_penanggung = Penanggung::find($fpt->id);
+                //hapus data penanggung
+                if(File::exists(public_path($foto_penanggung))){
+                    File::delete(public_path($foto_penanggung));
+                    $hapus_penanggung->delete();
+                }
+            }
+
+            $pesan = "Verifikasi data pasien di tolak";
+
+            // cari email
+            $user_email = User::where('id', $id_akun)->first();
+
+            //simpan data ke tb notif
+            $notif = new Notif();
+            $notif->email = $user_email->email;
+            $notif->subjek = $title;
+            $notif->isi = $alasan_berhasil_gagal;
+            $notif->waktu = $hari;
+            $notif->save();
+
+            return redirect('/list-pasien-baru')->with('pesangagal', $pesan);
+        }
+    }
 }

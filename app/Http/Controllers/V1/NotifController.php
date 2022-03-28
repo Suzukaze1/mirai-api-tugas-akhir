@@ -54,7 +54,7 @@ class NotifController extends Controller
         if($cek_isi_notif == null) return ResponseFormatter::error_not_found("Notif Tidak Ditemukan", null);
 
         $ubah_status_baca = Notif::find($id_notif);
-        $ubah_status_baca->is_baca = "1";
+        $ubah_status_baca->is_baca = true;
         $ubah_status_baca->save();
         return ResponseFormatter::success_ok("Notif Berhasil Dibaca", null);
     }

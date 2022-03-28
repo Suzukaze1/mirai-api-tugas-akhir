@@ -68,7 +68,7 @@
                                         @if ($p['status_validasi'] == 0)
                                         <td style="color:green">Menunggu Validasi</td>
                                         <td>
-                                            <a href="/list-anggota-pasien-lama/validasi/{{$p['kode']}}" class="btn btn-sm btn-warning">Validasi</a>
+                                            <a href="/list-anggota-pasien-baru/validasi/{{$p['kode']}}" class="btn btn-sm btn-warning">Validasi</a>
                                         </td>
                                         @endif
                                         @if($p['status_validasi'] == 2)
