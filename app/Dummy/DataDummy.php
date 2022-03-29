@@ -2,6 +2,7 @@
 
 namespace App\Dummy;
 
+use App\Helpers\ResponseFormatter;
 use Carbon\Carbon;
 
 class DataDummy
@@ -325,30 +326,126 @@ class DataDummy
         return $dumDebitur;
     }
 
-    public static function dummyUserBPJS()
+    public static function dummyUserBPJS($nomor_bpjs)
     {
         $dumBPJS = [
-            'nomor_rekam_medis' => '031391931',
+            ['nomor_rekam_medis' => '031391931',
             'nama_pasien' => 'Naufal Lawrence',
+            'nomor_bpjs' => '000007',
             'status_rujukan' => '1',
             'status_kontrol' => '0',
             'rujukan' => [
                             (
                                 [
                                 'nomor_rujukan' => '989898988874232',
+                                'id_poli' => '1',
                                 'nama_poli' => 'poli bedah onkologi'
                                 ]
                             ),
                             (
                                 [
                                 'nomor_rujukan' => '989898988874232',
+                                'id_poli' => '1',
                                 'nama_poli' => 'poli orthopedi & traumalogi'
                                 ]
                             )
                         ],
             'kontrol' => []
+        ],
+            ['nomor_rekam_medis' => '00000031',
+            'nama_pasien' => 'Klee',
+            'nomor_bpjs' => '9999',
+            'status_rujukan' => '1',
+            'status_kontrol' => '0',
+            'rujukan' => [
+                            (
+                                [
+                                'nomor_rujukan' => '989898988874232',
+                                'id_poli' => '1',
+                                'nama_poli' => 'Anak'
+                                ]
+                            ),
+                        ],
+            'kontrol' => [],
+            ],
+            ['nomor_rekam_medis' => '00000032',
+            'nama_pasien' => 'Arif',
+            'nomor_bpjs' => '12323',
+            'status_rujukan' => '0',
+            'status_kontrol' => '1',
+            'rujukan' => [],
+            'kontrol' => [
+                (
+                    [
+                    'nomor_rujukan' => '989898988874232',
+                    'id_poli' => '1',
+                    'nama_poli' => 'Anak'
+                    ]
+                ),
+            ],
+        ],
+            ['nomor_rekam_medis' => '00000029',
+            'nama_pasien' => 'lawachurl',
+            'nomor_bpjs' => '11964949',
+            'status_rujukan' => '1',
+            'status_kontrol' => '1',
+            'rujukan' => [
+                (
+                    [
+                    'nomor_rujukan' => '989898988874232',
+                    'id_poli' => '1',
+                    'nama_poli' => 'Anak'
+                    ]
+                ),
+            ],
+            'kontrol' => [
+                (
+                    [
+                    'nomor_rujukan' => '989898988874232',
+                    'id_poli' => '1',
+                    'nama_poli' => 'Anak'
+                    ]
+                ),
+            ],
+        ],
+        ['nomor_rekam_medis' => '00000021',
+            'nama_pasien' => 'Alvinmd',
+            'nomor_bpjs' => '7319800976',
+            'status_rujukan' => '1',
+            'status_kontrol' => '0',
+            'rujukan' => [
+                (
+                    [
+                    'nomor_rujukan' => '546473593287',
+                    'id_poli' => '2',
+                    'nama_poli' => 'Bedah'
+                    ]
+                ),
+            ],
+            'kontrol' => [],
+            ]
         ];
 
-        return $dumBPJS;
+        $rujukan = array();
+        foreach( $dumBPJS as $item ){
+            if ( is_array( $item ) && isset( $item['nomor_bpjs'] )){
+                if ( $item['nomor_bpjs'] == $nomor_bpjs){ // or other string comparison
+                    $rujukan['nomor_rekam_medis'] = $item['nomor_rekam_medis'];
+                    $rujukan['nama_pasien'] = $item['nama_pasien'];
+                    $rujukan['nomor_bpjs'] = $item['nomor_bpjs'];
+                    $rujukan['status_rujukan'] = $item['status_rujukan'];
+                    $rujukan['status_kontrol'] = $item['status_kontrol'];
+                    $rujukan['rujukan'] = $item['rujukan'];
+                    $rujukan['kontrol'] = $item['kontrol'];
+                }
+            }
+        }
+
+        if(count($rujukan) == 0){
+            return ResponseFormatter::error_not_found("Belum ada rujukan", null);
+        }else{
+            return ResponseFormatter::success_ok("Data rujukan ditemukan", $rujukan);
+        }
+        
     }
 }

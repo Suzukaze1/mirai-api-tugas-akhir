@@ -77,7 +77,7 @@ class PendaftaranPoliklinikController extends Controller
             // $list_debitur['label_penanggung'] = "Umum";
             // $response[]= $list_debitur;
 
-            $get_debitur_pasien = Penanggung::where('pasien_id', $no_rm)->orderBy('nama_penanggung', 'asc')->get();
+            $get_debitur_pasien = Penanggung::where('pasien_id', $no_rm)->where('nama_penanggung', '!=', '2')->orderBy('nama_penanggung', 'asc')->get();
 
             foreach($get_debitur_pasien as $deb)
             {
@@ -118,6 +118,14 @@ class PendaftaranPoliklinikController extends Controller
         $nomor_debitur = $request->nomor_penanggung;
         $id_poliklinik = $request->id_poliklinik;
         $email = $request->email;
+
+        // //cek apakah sudah mendaftar pada hari ini?
+        // $cek_pendaftaran = PendaftaranPoliklinik::where('nomor_rekam_medis', $nomor_rekam_medis)->first();
+        // if(!$cek_pendaftaran == null){
+        //     if($cek_pendaftaran->nomor_debitur == $nomor_debitur && $cek_pendaftaran->kunjungan == $kunjungan){
+        //         return ResponseFormatter::error_not_found("Anda Sudah Mendaftar, Silahkan Pilih Hari Lain", null);
+        //     }
+        // }
 
         $user = User::where('email', $email)->first();
         if($user == null) return ResponseFormatter::error_not_found("Data Tidak Ditemukan", null);
@@ -270,14 +278,16 @@ class PendaftaranPoliklinikController extends Controller
     public function ubahStatusPendaftaran(Request $request)
     {
         try{
-            $data = "Aktif";
             $id_pendaftaran = $request->id_pendaftaran;
+
+            $ubah_status = PendaftaranPoliklinik::where('id', $id_pendaftaran)->first();
+            if($ubah_status == null) return ResponseFormatter::error_not_found("tidak ada id yang dituliskan", null);
 
             $ubah_status = PendaftaranPoliklinik::find($id_pendaftaran);
             $ubah_status->status_pendaftaran = "1";
             $ubah_status->save();
 
-            return ResponseFormatter::success_ok("Berhasil Mengubah Status", $data);
+            return ResponseFormatter::success_ok("Berhasil Mengubah Status");
         }catch (Exception $e){
             return ResponseFormatter::internal_server_error("Ada Yang Salah Dari Server", $e);
         }
@@ -332,7 +342,79 @@ class PendaftaranPoliklinikController extends Controller
 
     public function getBrigingBPJS(Request $request)
     {
-        $briging = DataDummy::dummyUserBPJS();
+        $nomor_rekam_medis = $request->nomor_rekam_medis;
+
+        $get_penanggung = Penanggung::where('pasien_id', (int)$nomor_rekam_medis)->where('nama_penanggung', '2')->first();
+
+        if($get_penanggung == null) return ResponseFormatter::error_not_found("Belum ada data bpjs, silahkan daftarakan penanggung terlebih dahulu", null);
+
+        $briging = DataDummy::dummyUserBPJS($get_penanggung->nomor_kartu_penanggung);
         return $briging;
+    }
+
+    public function daftarPoliklinikBpjs(Request $request)
+    {
+        $nomor_rekam_medis = $request->nomor_rekam_medis;
+        $kunjungan = $request->kunjungan;
+        $nomor_penanggung = $request->nomor_bpjs;
+        $poli = $request->id_poliklinik;
+        $email = $request->email;
+        $nomor_rujukan = $request->nomor_rujukan;
+
+        //cek apakah sudah mendaftar pada hari ini?
+        $cek_pendaftaran = PendaftaranPoliklinik::where('nomor_rekam_medis', $nomor_rekam_medis)->first();
+        if(!$cek_pendaftaran == null){
+            if($cek_pendaftaran->nomor_rujukan == $nomor_rujukan){
+                return ResponseFormatter::error_not_found("Anda Sudah Mendaftar", null);
+            }
+        }
+
+        // nama poli
+        $nama_poli = Poli::where('id', $poli)->first();
+
+        // antrian yg sedang berjalan
+        $a = Antrian::where('id_poli', $poli)->orderBy('id', 'DESC')->first();
+        if($a == null){
+            $buat_atrian = new Antrian();
+            $buat_atrian->nomor_antrian = "001";
+            $buat_atrian->id_poli = $poli;
+            $buat_atrian->panggil = "0";
+            $buat_atrian->save();
+            
+            $antrian_real = "001";
+        }elseif (!$a == null){
+            $antrian = $a->nomor_antrian+1;
+            $antrian_real = sprintf("%03s", strval($antrian));
+
+            $buat_atrian1 = new Antrian();
+            $buat_atrian1->nomor_antrian = $antrian_real;
+            $buat_atrian1->id_poli = $poli;
+            $buat_atrian1->panggil = "0";
+            $buat_atrian1->save();
+        }
+
+        // id user
+        $user = User::where('email', $email)->first();
+
+        $daftar_poliklinik_bpjs = new PendaftaranPoliklinik();
+        $daftar_poliklinik_bpjs->nomor_rekam_medis = $nomor_rekam_medis;
+        $daftar_poliklinik_bpjs->kunjungan = $kunjungan;
+        $daftar_poliklinik_bpjs->nomor_debitur = $nomor_penanggung;
+        $daftar_poliklinik_bpjs->nomor_rujukan = $nomor_rujukan;
+        $daftar_poliklinik_bpjs->id_poliklinik = $poli;
+        $daftar_poliklinik_bpjs->status_pendaftaran = "0";
+        $daftar_poliklinik_bpjs->nomor_antrian = $antrian_real;
+        $daftar_poliklinik_bpjs->id_user = $user->id;
+        $daftar_poliklinik_bpjs->save();
+
+        $response = [];
+        $response['nomor_rekam_medis'] = $nomor_rekam_medis;
+        $response['kunjungan'] = $kunjungan;
+        $response['nomor_penanggung'] = $nomor_penanggung;
+        $response['id_poliklinik'] = $poli;
+        $response['email'] = $email;
+        $response['nomor_rujukan'] = $nomor_rujukan;
+
+        return ResponseFormatter::success_ok("Data berhasil ditambahkan", $response);
     }
 }

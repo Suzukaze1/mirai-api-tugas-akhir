@@ -46,11 +46,11 @@ class RiwayatPoliklinikController extends Controller
                     $nama_penanggung = "UMUM";
                 }else{
                     $kode = $cari_penanggung->nama_penanggung;
-                    if($kode == "1") {
+                    if($kode == "2") {
                         $nama_penanggung = "BPJS";
-                    }elseif($kode == "2"){
-                        $nama_penanggung = "KIS";
                     }elseif($kode == "3"){
+                        $nama_penanggung = "KIS";
+                    }elseif($kode == "4"){
                         $nama_penanggung = "JAMKESDA";
                     }
                 }

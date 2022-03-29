@@ -134,7 +134,8 @@ class Routes
         Route::get(Endpoint::$LIST_PENDAFTARAN_POLIKLINIK, [PendaftaranPoliklinikController::class, 'getPendaftaranPoliklinik']);
         Route::post(Endpoint::$UBAH_STATUS_PENDAFTARAN, [PendaftaranPoliklinikController::class, 'ubahStatusPendaftaran']);
         Route::post(Endpoint::$SELESAI_PENDAFTARAN, [PendaftaranPoliklinikController::class, 'selesaiPendaftaran']);
-        Route::get(Endpoint::$BRIGING_BPJS, [PendaftaranPoliklinikController::class, 'getBrigingBPJS']);
+        Route::post(Endpoint::$BRIGING_BPJS, [PendaftaranPoliklinikController::class, 'getBrigingBPJS']);
+        Route::post(Endpoint::$DAFTAR_BPJS, [PendaftaranPoliklinikController::class, 'daftarPoliklinikBpjs']);
     }
 
     private function _auth()
@@ -259,8 +260,9 @@ class Endpoint
     static $GET_NOTIF = 'get-notif';
     static $UBAH_STATUS_BACA_NOTIF = 'ganti-status-baca-notif';
     static $HAPUS_NOTIF = 'hapus-notif';
-    static $BRIGING_BPJS = 'briging-bpjs';
+    static $BRIGING_BPJS = 'bridging-bpjs';
     static $DAFTAR_ULANG_PASIEN_BARU = 'daftar-ulang-pasien-baru';
     static $DAFTAR_ULANG_PASIEN_LAMA = 'daftar-ulang-pasien-lama';
+    static $DAFTAR_BPJS = 'daftar-poliklinik-bpjs';
     // Isi Lagi Endpoint nya cuk
 }

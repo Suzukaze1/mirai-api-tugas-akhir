@@ -25,6 +25,7 @@ class PendaftaranPoliklinik extends Model
         'id_poliklinik',
         'status_pendaftaran',
         'nomor_antrian',
-        'id_user'
+        'id_user',
+        'nomor_rujukan'
     ];
 }
