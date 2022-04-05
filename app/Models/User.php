@@ -28,7 +28,8 @@ class User extends Authenticatable
         'email',
         'password',
         'kode',
-        'id_pasien_temp'
+        'id_pasien_temp',
+        'firebase_token'
     ];
 
     // /**

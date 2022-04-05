@@ -17,8 +17,7 @@ class RiwayatPoliklinikController extends Controller
 {
     public function getRiwayatPoliklinik(Request $request)
     {
-        try{
-            $nomor_rm = $request->input('nomor_rekam_medis');
+        $nomor_rm = $request->input('nomor_rekam_medis');
 
             // cek kosong atau tidak datanya
             $cek = RiwayatPoliklinik::where('nomor_rekam_medis', $nomor_rm)->first();
@@ -52,6 +51,8 @@ class RiwayatPoliklinikController extends Controller
                         $nama_penanggung = "KIS";
                     }elseif($kode == "4"){
                         $nama_penanggung = "JAMKESDA";
+                    }elseif($kode == "1"){
+                        $nama_penanggung = "UMUM";
                     }
                 }
 
@@ -96,8 +97,9 @@ class RiwayatPoliklinikController extends Controller
                 $array_riwayat['hasil_penunjang'] = $array_hp;
                 $response[] = $array_riwayat;
             }
-
             return ResponseFormatter::success_ok('Berhasil Mendapatkan Data', $response);
+        try{
+            
         }catch (Exception $e){
             return ResponseFormatter::internal_server_error('Error Dari Server', $e);
         }
