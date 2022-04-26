@@ -161,12 +161,15 @@ class UserController extends Controller
                 $tambah_token->firebase_token = $token_enkripsi;
                 $tambah_token->save();
             }
+
+            $user_baru = User::where('email', $email)->first();
             
             // cek token firebase sesuai dengan yang di hash atau tidak
-            if(Hash::check($token_firebase, $user->firebase_token))
+            if(Hash::check($token_firebase, $user_baru->firebase_token,))
             {
-                Notification::sendNotification($token_firebase, 'Berhasil Login', 'Selamat Datang di MIRAI Pasien', null);
-            }else
+                Notification::sendNotification($token_firebase, 'Berhasil Login', 'Selamat Datang di MIRAI Pasien', null);  
+            }
+            else
             {
                 return ResponseFormatter::forbidden('Kesalahan Dari Firebase', null);
             }
@@ -227,7 +230,122 @@ class UserController extends Controller
             $response['nomor_rekam_medis'] = $kode_rm;
             $response['access_token'] = $tokenResult;
             $response['status_validasi'] = $status;
-            $response['token_firebase'] = $token_enkripsi;
+            $response['token_firebase'] = $token_firebase;
+            $response['token_expired'] = $exp_time;
+            return ResponseFormatter::success_ok('Berhasil Login', $response);
+        }
+        else
+        {
+            return ResponseFormatter::forbidden('Kesalahan Dari Server', null);
+        }
+    }
+
+    public function cekBeranda(Request $request)
+    {
+        // inputan 
+        $email = $request->email;
+        $token_firebase = $request->token_firebase;
+        $response = [];
+
+        // expired sesi
+        $getTime = Carbon::now()->addHour(10);
+        $exp_time = $getTime->format('Y-m-d H:i:s');
+
+        // get user
+        $user = User::where('email', $email)->first();
+        if($user == null)
+        {
+            return ResponseFormatter::forbidden('Akun tidak ditemukan', null);
+        }
+        elseif($user) // jika email ada
+        {
+
+            // inputan token firebase
+            $token_firebase = $request->token_firebase;
+            $token_enkripsi = Hash::make($token_firebase);
+
+            // buat token firebase baru
+            if($user->firebase_token == null)
+            { 
+                $tambah_token = User::find($user->id);
+                $tambah_token->firebase_token = $token_enkripsi;
+                $tambah_token->save();
+            }
+            elseif(!$user->firebase_token == null)
+            {
+                $tambah_token = User::find($user->id);
+                $tambah_token->firebase_token = $token_enkripsi;
+                $tambah_token->save();
+            }
+
+            $user_baru = User::where('email', $email)->first();
+            
+            // cek token firebase sesuai dengan yang di hash atau tidak
+            if(Hash::check($token_firebase, $user_baru->firebase_token,))
+            {
+                Notification::sendNotification($token_firebase, 'Berhasil Login', 'Selamat Datang di MIRAI Pasien', null);  
+            }
+            else
+            {
+                return ResponseFormatter::forbidden('Kesalahan Dari Firebase', null);
+            }
+
+            // validasi status akun
+            try{
+                if($user->kode == NULL)
+                {
+                    $kode_rm = null;
+                }
+                else
+                {
+                    $kode_rm = sprintf("%08s", strval($user->kode));
+                }
+                $detail_akun = DetailAkun::where('id_pasien', $user->kode)->first();
+                if(!$kode_rm == null)
+                {
+                    if($detail_akun->is_lama == "1")
+                    {
+                        $status = "0";
+                    }
+                    elseif($detail_akun->is_lama == "2")
+                    {
+                        $status = "2";
+                    }
+                    elseif($detail_akun->is_lama == null)
+                    {
+                        $status = "1";
+                    }
+                }
+                elseif($kode_rm == null)
+                {
+                    $id_pasien_sementara = $user->id_pasien_temp;
+                    $pasien_sementara = PasienSementara::where('id', $id_pasien_sementara)->first();
+                    $status_validasi = $pasien_sementara->status_validasi;
+                    if($status_validasi == "0")
+                    {
+                        $status = "0";
+                    }
+                    elseif($status_validasi == "2")
+                    {
+                        $status = "2";
+                    }
+                }
+            }
+            catch (Exception $e)
+            {
+                return ResponseFormatter::forbidden('Kesalahan Dari Status Akun', null);
+            }
+
+            // token untuk header
+            $tokenResult = $user->createToken('authToken')->plainTextToken;
+
+            $response['id'] = $user->id;
+            $response['email'] = $user->email;
+            $response['nama'] = $user->name;
+            $response['nomor_rekam_medis'] = $kode_rm;
+            $response['access_token'] = $tokenResult;
+            $response['status_validasi'] = $status;
+            $response['token_firebase'] = $token_firebase;
             $response['token_expired'] = $exp_time;
             return ResponseFormatter::success_ok('Berhasil Login', $response);
         }

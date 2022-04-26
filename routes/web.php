@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\FormRiwayatPoliklinik;
 use App\Http\Controllers\View\LoginViewController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+
+//dummy
+Route::get('/test', [FormRiwayatPoliklinik::class, 'contohFormRiwayat']);
 
 Route::get('/', [LoginViewController::class,'index']);
 Route::post('/login', [LoginViewController::class, 'login']);

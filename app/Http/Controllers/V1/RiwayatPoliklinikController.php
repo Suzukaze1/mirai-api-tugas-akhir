@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 use Exception;
 use Carbon\Carbon;
 use App\Dummy\DataDummy;
+use App\Helpers\FormRiwayatPoliklinik;
 use Illuminate\Http\Request;
 use App\Models\V1\Penanggung;
 use App\Helpers\ResponseFormatter;
@@ -65,7 +66,39 @@ class RiwayatPoliklinikController extends Controller
                 $resume_medis = RiwayatResumeMedis::where('nomor_daftar_poliklinik', $r->nomor_daftar)->get();
                 if(!count($resume_medis) == 0){
                     foreach($resume_medis as $rm){
-                        $array_riwayat_medis['resume_medis_detail'] = '<h1>RSUD Arifin Achmad</h1>';
+                        $array_riwayat_medis['resume_medis_detail'] = '
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                            <title>Document</title>
+                        </head>
+                        <body>
+                            <hr>
+                            <p>Hasil Pemeriksaan Laboratorium</p>
+                            <hr>
+                        
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Pemeriksaan</th>
+                                        <th>Hasil</th>
+                                        <th>Satuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Hematologi</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                        </body>
+                        </html>';
                         $array_rm[] = $array_riwayat_medis;
                     }
                 }

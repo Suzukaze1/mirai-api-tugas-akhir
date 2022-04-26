@@ -29,7 +29,7 @@ class Notification
     {
         $fcmNotification
          = [
-            'to'   => $token, //single token
+            'to'   => $token,
             'data' => [
                 'screen' => $screen,
             ],

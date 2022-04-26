@@ -2,35 +2,36 @@
 
 namespace App\Http\Controllers\View;
 
-use App\Http\Controllers\Controller;
-use App\Mail\MyTestMail;
-use App\Models\Admin;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Admin;
+use App\Models\V1\Suku;
+use App\Mail\MyTestMail;
 use App\Models\V1\Agama;
-use App\Models\V1\DetailAkun;
-use App\Models\V1\FotoPasien;
-use App\Models\V1\GolonganDarah;
-use App\Models\V1\jenis_identitas;
-use App\Models\V1\JenisKelamin;
-use App\Models\V1\Jurusan;
-use App\Models\V1\Kecamatan;
-use App\Models\V1\KedudukanKeluarga;
-use App\Models\V1\Kewarganegaraan;
-use App\Models\V1\KotaKabupaten;
 use App\Models\V1\Notif;
 use App\Models\V1\Pasien;
-use App\Models\V1\PasienSementara;
-use App\Models\V1\Penanggung;
-use App\Models\V1\PendidikanTerakhir;
-use App\Models\V1\Penghasilan;
+use App\Models\V1\Jurusan;
 use App\Models\V1\Provinsi;
-use App\Models\V1\StatusMenikah;
-use App\Models\V1\Suku;
-use Carbon\Carbon;
+use App\Models\V1\Kecamatan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Mail;
+use App\Helpers\Notification;
+use App\Models\V1\DetailAkun;
+use App\Models\V1\FotoPasien;
+use App\Models\V1\Penanggung;
+use App\Models\V1\Penghasilan;
+use App\Models\V1\JenisKelamin;
+use App\Models\V1\GolonganDarah;
+use App\Models\V1\KotaKabupaten;
+use App\Models\V1\StatusMenikah;
+use App\Models\V1\jenis_identitas;
+use App\Models\V1\Kewarganegaraan;
+use App\Models\V1\PasienSementara;
+use App\Http\Controllers\Controller;
+use App\Models\V1\KedudukanKeluarga;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
+use App\Models\V1\PendidikanTerakhir;
+use Illuminate\Support\Facades\Session;
 
 class LoginViewController extends Controller
 {
@@ -244,6 +245,8 @@ class LoginViewController extends Controller
             // cari email
             $user_email = User::where('id', $id_akun)->first();
 
+            Notification::sendNotification($user_email->firebase_token, 'Berhasil Divalidasi', 'Data Pasien Berhasil Divalidasi', null);  
+
             //simpan data ke tb notif
             $notif = new Notif();
             $notif->email = $user_email->email;
@@ -297,6 +300,9 @@ class LoginViewController extends Controller
 
             // cari email
             $user_email = User::where('id', $id_akun)->first();
+
+            // firebase
+            Notification::sendNotification($user_email->firebase_token, 'Gagal Divalidasi', 'Data Pasien Ditolak', null);  
 
             //simpan data ke tb notif
             $notif = new Notif();
@@ -404,6 +410,8 @@ class LoginViewController extends Controller
 
             Mail::to($akun->email)->send(new MyTestMail($details));
 
+            Notification::sendNotification($akun->firebase_token, 'Berhasil Divalidasi', 'Data Pasien Berhasil Divalidasi', null);
+
             //simpan data ke tb notif
             $notif = new Notif();
             $notif->email = $akun->email;
@@ -458,6 +466,8 @@ class LoginViewController extends Controller
                     $hapus_penanggung->delete();
                 }
             }
+
+            Notification::sendNotification($akun->firebase_token, 'Gagal Divalidasi', 'Data Pasien Ditolak', null);  
 
             //simpan data ke tb notif
             $notif = new Notif();
@@ -567,6 +577,8 @@ class LoginViewController extends Controller
 
             Mail::to($akun->email)->send(new MyTestMail($details));
 
+            Notification::sendNotification($akun->firebase_token, 'Berhasil Divalidasi', 'Data Pasien Berhasil Divalidasi', null);
+
             //simpan data ke tb notif
             $notif = new Notif();
             $notif->email = $akun->email;
@@ -622,6 +634,8 @@ class LoginViewController extends Controller
                     $hapus_penanggung->delete();
                 }
             }
+
+            Notification::sendNotification($akun->firebase_token, 'Gagal Divalidasi', 'Data Pasien Ditolak', null);
 
             //simpan data ke tb notif
             $notif = new Notif();
@@ -817,6 +831,8 @@ class LoginViewController extends Controller
 
             Mail::to($akun->email)->send(new MyTestMail($details));
 
+            Notification::sendNotification($akun->firebase_token, 'Berhasil Divalidasi', 'Data Pasien Berhasil Divalidasi', null);
+
             // cari email
             $user_email = User::where('id', $id_akun)->first();
 
@@ -871,6 +887,8 @@ class LoginViewController extends Controller
 
             // cari email
             $user_email = User::where('id', $id_akun)->first();
+
+            Notification::sendNotification($akun->firebase_token, 'Gagal Divalidasi', 'Data Pasien Ditolak', null);  
 
             //simpan data ke tb notif
             $notif = new Notif();
